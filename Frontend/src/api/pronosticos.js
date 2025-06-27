@@ -19,3 +19,8 @@ export const guardarTodosLosPronosticos = async (predictionsArray) => {
   });
   return response.data;
 };
+
+export const actualizarTodosLosPronosticos = async () => {
+  const response = await API.post("/calcular-puntajes");
+  return response.data;
+};

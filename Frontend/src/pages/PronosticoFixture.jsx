@@ -8,6 +8,7 @@ const PronosticoComponent = () => {
     fetchMatches,
     guardarPronosticos,
     resultadoComparacion,
+    actualizarPronosticos,
     error,
     loading,
   } = usePronosticoStore();
@@ -31,17 +32,11 @@ const PronosticoComponent = () => {
   console.log("USUARIOS:", usuarios);
 
   useEffect(() => {
+    // Ejecuta la carga inicial
     fetchMatches();
-  }, [fetchMatches]);
-
-  useEffect(() => {
+    actualizarPronosticos();
     getUsersWithPuntaje();
-  }, []);
-
-  useEffect(() => {
-    if (selectedFecha) {
-      getRankingPorFecha(selectedFecha);
-    }
+    getRankingPorFecha(selectedFecha);
   }, [selectedFecha]);
 
   const handleInputChange = (matchId, team, value) => {
