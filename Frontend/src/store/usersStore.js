@@ -47,15 +47,20 @@ const useUserStore = create((set) => {
       }
     },
 
-    register: async (user, password) => {
-      set({ loading: true, error: null });
-      try {
-        const response = await registerRequest({ user, password });
-        set({ user: response.data, loading: false });
-      } catch (error) {
-        set({ error: "Error en el registro", loading: false });
-      }
-    },
+    register: async ({ user, password, nombre, apellido, email }) => {
+  set({ loading: true, error: null });
+  try {
+    const response = await registerRequest({ user, password, nombre, apellido, email });
+    set({ user: response.data, loading: false });
+  } catch (error) {
+    console.error("Error en el registro:", error);
+    const mensaje =
+      error.response?.data?.message || "Error en el registro";
+    set({ error: mensaje, loading: false });
+    throw error; // opcional, si querés seguir manejándolo en el componente
+  }
+},
+
 
     logout: () => {
       localStorage.removeItem("user");

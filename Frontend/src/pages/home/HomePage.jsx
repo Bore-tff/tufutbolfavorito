@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PronosticoFixture from "../PronosticoFixture";
+import PronosticoFixture from "../pronostico/PronosticoFixture";
 import useUserStore from "../../store/usersStore";
 import { useNavigate } from "react-router-dom";
 import usePronosticoStore from "../../store/pronosticosStore";
@@ -32,7 +32,7 @@ function HomePage() {
   const handleLogout = () => {
     logout(); // Esto borra el estado del usuario en el store
     console.log("Sesión cerrada correctamente");
-    navigate("/"); // Redirige a la página de login
+    navigate("/login"); // Redirige a la página de login
   };
 
   return (
@@ -43,12 +43,20 @@ function HomePage() {
           <h1 className="font-bold text-white">
             Bienvenido Apaxionado {usuario ? usuario.nombre : "Invitado"}
           </h1>
-          {user && (
+
+          {user ? (
             <button
               onClick={handleLogout}
               className="text-green-500 font-bold cursor-pointer rounded transition"
             >
               Cerrar sesión
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="text-green-500 font-bold cursor-pointer rounded transition hover:underline"
+            >
+              Iniciar sesión para jugar
             </button>
           )}
         </div>

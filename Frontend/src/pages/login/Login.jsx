@@ -18,7 +18,7 @@ function Login() {
 
       if (success) {
         toast.success("Inicio de sesión exitoso");
-        navigate("/homePage");
+        navigate("/");
       } else {
         toast.error("Usuario o contraseña incorrectos");
       }

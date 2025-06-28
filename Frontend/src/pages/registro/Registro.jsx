@@ -1,11 +1,47 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import useUserStore from "../../store/usersStore";
 
 function Registro() {
   const [usuario, setUsuario] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmarPassword, setConfirmarPassword] = useState("");
+  const { register, loading, error } = useUserStore();
   const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+      !usuario ||
+      !nombre ||
+      !apellido ||
+      !email ||
+      !password ||
+      !confirmarPassword
+    ) {
+      toast.error("Todos los campos son obligatorios");
+      return;
+    }
+
+    if (password !== confirmarPassword) {
+      toast.error("Las contraseñas no coinciden");
+      return;
+    }
+
+    try {
+      await register({ user: usuario, nombre, apellido, email, password });
+      toast.success("Usuario registrado correctamente");
+      navigate("/login");
+    } catch (error) {
+      // Este mensaje ya lo captura el store, pero podés mostrarlo igual
+      toast.error("Error al registrar usuario");
+    }
+  };
 
   return (
     <div className="mt-24">
@@ -19,8 +55,10 @@ function Registro() {
         <h2 className="text-xl text-white font-bold text-center mb-4">
           A TU FUTBOL FAVORITO
         </h2>
-
-        <form className="space-y-4">
+        {error && (
+          <p className="text-red-500 mb-2 mt-2 text-sm text-center">{error}</p>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             placeholder="Usuario"
@@ -32,24 +70,24 @@ function Registro() {
           <input
             type="text"
             placeholder="Nombre"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
             className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
             required
           />
           <input
             type="text"
             placeholder="Apellido"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
+            value={apellido}
+            onChange={(e) => setApellido(e.target.value)}
             className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
             required
           />
           <input
             type="text"
             placeholder="Email"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
             required
           />
@@ -64,8 +102,8 @@ function Registro() {
           <input
             type="password"
             placeholder="Confirmar Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={confirmarPassword}
+            onChange={(e) => setConfirmarPassword(e.target.value)}
             className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
             required
           />
@@ -79,7 +117,7 @@ function Registro() {
         {/* Link a la página de registro */}
         <p className="text-sm text-center text-white mt-4">
           ¿Ya tienes una cuenta?{" "}
-          <Link to="/" className="text-green-500 hover:underline">
+          <Link to="/login" className="text-green-500 hover:underline">
             Inicia sesión
           </Link>
         </p>

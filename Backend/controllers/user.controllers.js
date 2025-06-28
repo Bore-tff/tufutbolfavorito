@@ -8,10 +8,10 @@ import { sequelize } from "../config/db.js";
 import { fn, col, literal  } from 'sequelize';
 
 export const registro = async (req, res) => {
-  const { user, password } = req.body;
+  const { user, password, nombre, apellido, email } = req.body;
 
   try {
-    const nuevoUsuario = await User.create({ user, password });
+    const nuevoUsuario = await User.create({ user, password, nombre, apellido, email });
 
     return res.status(201).json({ message: "Usuario registrado", usuario: nuevoUsuario });
   } catch (error) {
