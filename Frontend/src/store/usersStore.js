@@ -76,14 +76,16 @@ const useUserStore = create((set) => {
     },
 
     getRankingPorFecha: async (fecha) => {
-      try {
-        set({ loading: true, error: null });
-        const res = await obtenerRankingPorFecha(fecha);
-        set({ rankingFecha: res.data, loading: false });
-      } catch (error) {
-        set({ error: "Error al obtener ranking por fecha", loading: false });
-      }
-    },
+  try {
+    set({ loading: true, error: null });
+    const res = await obtenerRankingPorFecha(fecha);
+    set({ rankingFecha: res.data, loading: false });
+    return res.data; // ✅ Ahora devuelve los datos para usar en el componente
+  } catch (error) {
+    set({ error: "Error al obtener ranking por fecha", loading: false });
+    return []; // ⛑️ Devuelve array vacío en caso de error
+  }
+},
 
     getUsersWithPuntaje: async () => {
       try {
