@@ -28,6 +28,11 @@ const Pronostico = sequelize.define("Pronostico", {
   type: DataTypes.INTEGER,
   defaultValue: 0,
 },
+tipo: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "general", // 👉 puede ser "general" o "favorito"
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

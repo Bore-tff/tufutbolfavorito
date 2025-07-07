@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import authRoutes from "./routes/user.routes.js";
+import authRoutesFavorito from "./routes/user2.routes.js";
 import pronosticosRoutes from "./routes/pronosticos.routes.js";
 import partidosRoutes from "./routes/partidos.routes.js";
 import cookieParser from "cookie-parser";
@@ -20,6 +21,7 @@ const corsOptions = {
   app.use(cookieParser());
   
   app.use("/api/auth", authRoutes);  
+  app.use("api/auth-favorito", authRoutesFavorito)
   app.use("/api/pronosticos", pronosticosRoutes);
   app.use("/api/partidos", partidosRoutes);
 

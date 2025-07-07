@@ -1,0 +1,113 @@
+import { useEffect, useState } from "react";
+import useUserStore from "../../../store/usersStore";
+import { getMatches } from "../../../api/pronosticos";
+import PronosticoEquipoFav from "./PronosticoEquipoFav";
+
+export default function ElegirEquipo() {
+  const {
+    usuarios,
+    equipoFavorito,
+    seleccionarEquipoFavorito,
+    getAllUsers,
+    loading,
+    error,
+    mensaje,
+  } = useUserStore();
+
+  const [equipos, setEquipos] = useState([]);
+  const [equipo, setEquipo] = useState("");
+
+  useEffect(() => {
+    getAllUsers();
+  }, [getAllUsers]);
+
+  console.log(usuarios);
+
+  useEffect(() => {
+    const fetchEquipos = async () => {
+      try {
+        const res = await getMatches();
+        console.log("Respuesta de fetchMatches:", res);
+        const partidasPorFecha = res.data; // ajustá según tu respuesta real
+
+        // Extraer equipos únicos
+        const equiposSet = new Set();
+
+        partidasPorFecha.forEach((fecha) => {
+          fecha.partidos.forEach((partido) => {
+            equiposSet.add(partido.home.name);
+            equiposSet.add(partido.away.name);
+          });
+        });
+
+        setEquipos(Array.from(equiposSet));
+      } catch (err) {
+        console.error("Error al traer equipos:", err);
+      }
+    };
+
+    fetchEquipos();
+  }, []);
+
+  if (equipoFavorito) {
+    return (
+      <div className="text-white">
+        <h2>Equipo favorito:</h2>
+        <p>{equipoFavorito}</p>
+        <PronosticoEquipoFav />
+      </div>
+    );
+  }
+
+  if (equipos.length === 0) {
+    return <p>Cargando equipos...</p>;
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!equipo) return alert("Por favor, seleccioná un equipo.");
+    await seleccionarEquipoFavorito(equipo);
+  };
+
+  console.log(usuarios);
+
+  return (
+    <div className="max-w-md mx-auto mt-10 bg-gray-800 rounded-2xl shadow-lg p-6">
+      <h2 className="text-white text-2xl font-bold mb-4 text-center">
+        Elegí tu equipo favorito
+      </h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div>
+          <label className="text-white block mb-1" htmlFor="equipo">
+            Equipo
+          </label>
+          <select
+            id="equipo"
+            value={equipo}
+            onChange={(e) => setEquipo(e.target.value)}
+            disabled={loading}
+            className="w-full p-2 rounded-lg cursor-pointer bg-gray-700 text-white focus:outline-none"
+          >
+            <option value="">-- Seleccioná un equipo --</option>
+            {equipos.map((eq) => (
+              <option className="text-white cursor-pointer" key={eq} value={eq}>
+                {eq}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-green-600 font-bold hover:bg-green-500 cursor-pointer  py-2 px-4 rounded-lg transition-all duration-200 disabled:opacity-50"
+        >
+          {loading ? "Guardando..." : "Aceptar"}
+        </button>
+
+        {error && <p className="text-red-400 text-center">{error}</p>}
+        {mensaje && <p className="text-green-400 text-center">{mensaje}</p>}
+      </form>
+    </div>
+  );
+}

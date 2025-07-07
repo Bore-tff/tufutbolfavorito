@@ -27,8 +27,9 @@ export const login = async (req, res) => {
 
     const token = jwt.sign({ id: usuario.id, user: usuario.user }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
+    // Sumamos puntos solo de pronósticos de tipo "favorito"
     const totalPuntos = await Pronostico.sum("puntos", {
-      where: { userId: usuario.id, tipo: "general" },  // filtro por tipo
+      where: { userId: usuario.id, tipo: "favorito" },
     });
 
     return res.status(200).json({
@@ -62,12 +63,12 @@ export const logout = (req, res) => {
   }
 };
 
-export const getUsers = async (req, res) => {
+export const getUsersFavorito = async (req, res) => {
   try {
-    const usuariosConPuntaje = await obtenerUsuariosConPuntaje();
+    const usuariosConPuntaje = await obtenerUsuariosConPuntajeFavorito();
     res.json(usuariosConPuntaje);
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener usuarios con puntaje", error });
+    res.status(500).json({ message: "Error al obtener usuarios con puntaje favorito", error });
   }
 };
 
@@ -93,7 +94,7 @@ export const seleccionarEquipoFavorito = async (req, res) => {
   }
 };
 
-export const obtenerUsuariosConPuntaje = async () => {
+export const obtenerUsuariosConPuntajeFavorito = async () => {
   try {
     const usuarios = await User.findAll({
       attributes: [
@@ -108,7 +109,7 @@ export const obtenerUsuariosConPuntaje = async () => {
         {
           model: Pronostico,
           attributes: [],
-          where: { tipo: "general" },  // filtro tipo
+          where: { tipo: "favorito" },  // filtro para tipo favorito
         },
       ],
       group: ['Usuario.id'],
@@ -125,12 +126,12 @@ export const obtenerUsuariosConPuntaje = async () => {
       sumaTotal: (Number(usuario.totalPuntos) || 0) + (Number(usuario.golesTotales) || 0),
     }));
   } catch (error) {
-    console.error('Error al obtener los usuarios con puntaje:', error);
-    throw new Error('No se pudieron obtener los usuarios con puntaje');
+    console.error('Error al obtener los usuarios con puntaje favorito:', error);
+    throw new Error('No se pudieron obtener los usuarios con puntaje favorito');
   }
 };
 
-export const obtenerRankingPorFecha = async (numeroFecha) => {
+export const obtenerRankingPorFechaFavorito = async (numeroFecha) => {
   try {
     const usuarios = await Usuario.findAll({
       attributes: [
@@ -145,7 +146,7 @@ export const obtenerRankingPorFecha = async (numeroFecha) => {
         {
           model: Pronostico,
           attributes: [],
-          where: { tipo: "general" },  // filtro tipo
+          where: { tipo: "favorito" },  // filtro para tipo favorito
           include: [
             {
               model: Partido,
@@ -167,12 +168,12 @@ export const obtenerRankingPorFecha = async (numeroFecha) => {
       golesTotales: Number(usuario.golesTotales) || 0
     }));
   } catch (error) {
-    console.error('Error al obtener ranking por fecha:', error);
-    throw new Error('No se pudo obtener el ranking por fecha');
+    console.error('Error al obtener ranking por fecha favorito:', error);
+    throw new Error('No se pudo obtener el ranking por fecha favorito');
   }
 };
 
-export const obtenerPuntajeDeUsuarioPorFecha = async (userId, numeroFecha) => {
+export const obtenerPuntajeDeUsuarioPorFechaFavorito = async (userId, numeroFecha) => {
   try {
     const usuario = await User.findOne({
       where: { id: userId },
@@ -186,7 +187,7 @@ export const obtenerPuntajeDeUsuarioPorFecha = async (userId, numeroFecha) => {
         {
           model: Pronostico,
           attributes: [],
-          where: { tipo: "general" },  // filtro tipo
+          where: { tipo: "favorito" },  // filtro para tipo favorito
           include: [
             {
               model: Partido,
@@ -206,12 +207,12 @@ export const obtenerPuntajeDeUsuarioPorFecha = async (userId, numeroFecha) => {
       goles: Number(usuario?.golesFecha) || 0
     };
   } catch (error) {
-    console.error('Error al obtener puntaje del usuario en la fecha:', error);
-    throw new Error('No se pudo obtener el puntaje del usuario en la fecha');
+    console.error('Error al obtener puntaje del usuario en la fecha favorito:', error);
+    throw new Error('No se pudo obtener el puntaje del usuario en la fecha favorito');
   }
 };
 
-export const obtenerResumenDeUsuario = async (req, res) => {
+export const obtenerResumenDeUsuarioFavorito = async (req, res) => {
   const userId = parseInt(req.params.id, 10);
   const numeroFecha = parseInt(req.params.fecha, 10);
 
@@ -221,9 +222,9 @@ export const obtenerResumenDeUsuario = async (req, res) => {
 
   try {
     const [puntajeTotal, puntajeFecha, rankingFecha] = await Promise.all([
-      obtenerUsuariosConPuntaje(), // usa tipo "general"
-      obtenerPuntajeDeUsuarioPorFecha(userId, numeroFecha),
-      obtenerRankingPorFecha(numeroFecha),
+      obtenerUsuariosConPuntajeFavorito(),
+      obtenerPuntajeDeUsuarioPorFechaFavorito(userId, numeroFecha),
+      obtenerRankingPorFechaFavorito(numeroFecha),
     ]);
 
     const usuarioTotal = puntajeTotal.find(u => u.id === userId);
@@ -240,7 +241,7 @@ export const obtenerResumenDeUsuario = async (req, res) => {
       rankingFecha,
     });
   } catch (error) {
-    console.error("Error al obtener el resumen:", error);
-    res.status(500).json({ message: "Error al obtener el resumen", error });
+    console.error("Error al obtener el resumen favorito:", error);
+    res.status(500).json({ message: "Error al obtener el resumen favorito", error });
   }
 };

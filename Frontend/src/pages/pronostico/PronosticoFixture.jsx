@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import usePronosticoStore from "../../store/pronosticosStore";
 import useUserStore from "../../store/usersStore";
 import Rankings from "./rankings/Rankings";
+import Logo from "../../assets/Botintff.png";
+import ElegirEquipo from "./ElegirEquipoFavorito/ElegirEquipo";
 
 const PronosticoComponent = () => {
   const {
@@ -114,6 +116,7 @@ const PronosticoComponent = () => {
 
   return (
     <>
+      <ElegirEquipo />
       <div className="text-center mt-56">
         <h1 className="text-white text-3xl">Modo de juego: Normal</h1>
       </div>
@@ -283,6 +286,7 @@ const PronosticoComponent = () => {
                   <th className="  text-green-500 bg-black px-4 py-2">
                     Apaxionado
                   </th>
+                  <th className="  text-green-500 bg-black px-4 py-2">Logo</th>
                   <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
                 </tr>
               </thead>
@@ -292,6 +296,9 @@ const PronosticoComponent = () => {
                     <tr key={usuario.id} className="border-black border-2">
                       <td className="text-black text-center font-bold px-4 py-2 bg-white">
                         {usuario.nombre || usuario.user}
+                      </td>
+                      <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                        <img className="h-8" src={Logo} alt="Logo" />
                       </td>
                       <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
                         {usuario.puntos || 0}
@@ -328,20 +335,6 @@ const PronosticoComponent = () => {
                 Siguiente
               </button>
             </div>
-
-            {rankingFecha?.length > 0 ? (
-              rankingFecha
-                .filter((u) => u.id === user.id)
-                .map((usuario) => (
-                  <h1 className=" text-green-500 text-xl py-2 font-bold">
-                    Mi Puntaje: {usuario.puntos || 0}
-                  </h1>
-                ))
-            ) : (
-              <h1 colSpan={2} className="text-center p-2 text-white">
-                No hay datos.
-              </h1>
-            )}
           </div>
 
           {/* Ranking x Goles */}
@@ -415,19 +408,6 @@ const PronosticoComponent = () => {
                 Siguiente
               </button>
             </div>
-            {rankingFecha?.length > 0 ? (
-              rankingFecha
-                .filter((u) => u.id === user.id)
-                .map((usuario) => (
-                  <h1 className=" text-green-500 text-xl py-2 font-bold">
-                    Mi Puntaje: {usuario.golesFecha || 0}
-                  </h1>
-                ))
-            ) : (
-              <h1 colSpan={2} className="text-center p-2 text-white">
-                No hay datos.
-              </h1>
-            )}
           </div>
         </div>
 

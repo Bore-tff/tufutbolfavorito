@@ -16,6 +16,19 @@ export const loginRequest = async (user) =>
 export const logoutRequest = async () =>
   API.post('/logout');
 
+export const seleccionarEquipoFavorito = async (equipoFavorito) => {
+  const token = localStorage.getItem("token");
+
+  return API.post(
+    '/usuarios/equipo-favorito',
+    { equipoFavorito },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+};
 // Obtener lista de usuarios (sin puntajes)
 export const fetchUsers = () => API.get('/');
 

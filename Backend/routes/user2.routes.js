@@ -3,13 +3,13 @@ import {
   login,
   registro,
   logout,
-  getUsers,
-  obtenerUsuariosConPuntaje,
-  obtenerRankingPorFecha,
-  obtenerPuntajeDeUsuarioPorFecha,
-  obtenerResumenDeUsuario,
+  getUsersFavorito,
+  obtenerUsuariosConPuntajeFavorito,
+  obtenerRankingPorFechaFavorito,
+  obtenerPuntajeDeUsuarioPorFechaFavorito,
+  obtenerResumenDeUsuarioFavorito,
   seleccionarEquipoFavorito
-} from "../controllers/user.controllers.js";
+} from "../controllers/user2.controller.js";
 import verificarAuth from "../middlewares/verificarAuth.js";
 
 const router = Router();
@@ -21,17 +21,17 @@ router.post("/logout", logout);
 router.post("/usuarios/equipo-favorito", verificarAuth, seleccionarEquipoFavorito);
 
 // Usuarios
-router.get("/", getUsers);
+router.get("/", getUsersFavorito);
 
 // 1. 🔢 Ranking general
-router.get("/puntaje", obtenerUsuariosConPuntaje);
+router.get("/puntaje", obtenerUsuariosConPuntajeFavorito);
 
 // 2. 📅 Ranking por fecha
 // Ejemplo: /usuarios/puntaje/fecha/2
 router.get("/puntaje/fecha/:fecha", async (req, res) => {
   const { fecha } = req.params;
   try {
-    const ranking = await obtenerRankingPorFecha(Number(fecha));
+    const ranking = await obtenerRankingPorFechaFavorito(Number(fecha));
     res.json(ranking);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener ranking por fecha", error });
@@ -43,13 +43,13 @@ router.get("/puntaje/fecha/:fecha", async (req, res) => {
 router.get("/puntaje/usuario/:id/fecha/:fecha", async (req, res) => {
   const { id, fecha } = req.params;
   try {
-    const puntaje = await obtenerPuntajeDeUsuarioPorFecha(Number(id), Number(fecha));
+    const puntaje = await obtenerPuntajeDeUsuarioPorFechaFavorito(Number(id), Number(fecha));
     res.json(puntaje);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener puntaje del usuario", error });
   }
 });
 
-router.get("/resumen/:id/fecha/:fecha", obtenerResumenDeUsuario);
+router.get("/resumen/:id/fecha/:fecha", obtenerResumenDeUsuarioFavorito);
 
 export default router;

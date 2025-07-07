@@ -5,9 +5,14 @@ const Rankings = () => {
   const { usuarios, user, rankingFecha } = useUserStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
+  const [currentPage3, setCurrentPage3] = useState(1);
   const rowsPerPage = 5;
 
   const sortedRanking = [...(rankingFecha || [])].sort(
+    (a, b) => (b.puntos || 0) - (a.puntos || 0)
+  );
+
+  const sortedRankingGeneral = [...(usuarios || [])].sort(
     (a, b) => (b.puntos || 0) - (a.puntos || 0)
   );
 
@@ -21,6 +26,11 @@ const Rankings = () => {
   const paginatedRanking2 = sortedRanking.slice(
     (currentPage2 - 1) * rowsPerPage,
     currentPage2 * rowsPerPage
+  );
+
+  const paginatedRanking3 = sortedRankingGeneral.slice(
+    (currentPage3 - 1) * rowsPerPage,
+    currentPage3 * rowsPerPage
   );
 
   return (
@@ -79,19 +89,6 @@ const Rankings = () => {
             Siguiente
           </button>
         </div>
-        {rankingFecha?.length > 0 ? (
-          rankingFecha
-            .filter((u) => u.id === user.id)
-            .map((usuario) => (
-              <h1 className=" text-green-500 text-xl py-2 font-bold">
-                Mi Puntaje: {usuario.golesTotales || 0}
-              </h1>
-            ))
-        ) : (
-          <h1 colSpan={2} className="text-center p-2 text-white">
-            No hay datos.
-          </h1>
-        )}
       </div>
 
       {/* Ranking General */}
@@ -107,8 +104,8 @@ const Rankings = () => {
             </tr>
           </thead>
           <tbody>
-            {usuarios?.length > 0 ? (
-              usuarios
+            {paginatedRanking3?.length > 0 ? (
+              paginatedRanking3
                 .slice()
                 .sort((a, b) => (b.sumaTotal || 0) - (a.sumaTotal || 0))
                 .map((usuario) => (
@@ -130,26 +127,27 @@ const Rankings = () => {
             )}
           </tbody>
         </table>
-        {usuarios?.length > 0 ? (
-          usuarios
-            .filter((u) => u.id === user.id)
-            .map((usuario) => (
-              <tr key={usuario.id}>
-                <td
-                  colSpan={2}
-                  className="text-center text-green-500 px-4 py-2 text-xl  font-bold"
-                >
-                  Mi Puntaje Total: {usuario.sumaTotal || 0}
-                </td>
-              </tr>
-            ))
-        ) : (
-          <tr>
-            <td colSpan={2} className="text-center p-2 text-white">
-              No hay datos.
-            </td>
-          </tr>
-        )}
+        <div className="flex justify-center gap-2 mt-4">
+          <button
+            onClick={() => setCurrentPage3((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage3 === 1}
+            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
+          >
+            Anterior
+          </button>
+          <span className="text-white px-2">
+            Página {currentPage3} de {totalPages}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentPage3((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage3 === totalPages}
+            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
 
       {/* Apaxionado Campeón */}
@@ -206,19 +204,6 @@ const Rankings = () => {
             Siguiente
           </button>
         </div>
-        {rankingFecha?.length > 0 ? (
-          rankingFecha
-            .filter((u) => u.id === user.id)
-            .map((usuario) => (
-              <h1 className=" text-green-500 text-xl py-2 font-bold">
-                Mi Puntaje: {usuario.puntajeTotal || 0}
-              </h1>
-            ))
-        ) : (
-          <h1 colSpan={2} className="text-center p-2 text-white">
-            No hay datos.
-          </h1>
-        )}
       </div>
     </div>
   );

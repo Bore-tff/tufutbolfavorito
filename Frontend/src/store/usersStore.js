@@ -5,6 +5,7 @@ import {
   obtenerUsuariosConPuntaje,
   obtenerResumenDeUsuario,
   obtenerRankingPorFecha,
+  seleccionarEquipoFavorito
 } from "../api/auth";
 
 const useUserStore = create((set) => {
@@ -17,6 +18,9 @@ const useUserStore = create((set) => {
     rankingFecha: [],
     rankingGeneral: [],
     resumenUsuario: null,
+    
+    equipoFavorito: storedUser?.equipoFavorito || null,
+    mensaje: null,
     loading: false,
     error: null,
 
@@ -33,7 +37,7 @@ const useUserStore = create((set) => {
         const data = await response.json();
 
         if (response.ok) {
-          set({ user: data.user, loading: false });
+          set({ user: data.user, equipoFavorito: data.user.equipoFavorito || null, loading: false });
           localStorage.setItem("user", JSON.stringify(data.user));
           localStorage.setItem("token", data.token);
           return true;
@@ -67,6 +71,7 @@ const useUserStore = create((set) => {
       localStorage.removeItem("token");
       set({
         user: null,
+        equipoFavorito: null,
         resumenUsuario: null,
         rankingFecha: [],
         rankingGeneral: [],
@@ -86,6 +91,35 @@ const useUserStore = create((set) => {
     return []; // ⛑️ Devuelve array vacío en caso de error
   }
 },
+
+seleccionarEquipoFavorito: async (equipo) => {
+  try {
+    set({ loading: true, error: null });
+
+    const res = await seleccionarEquipoFavorito(equipo);
+    const { equipoFavorito, message } = res.data;
+
+    
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    const updatedUser = { ...currentUser, equipoFavorito };
+
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    set({
+      equipoFavorito,
+      user: updatedUser,
+      mensaje: message,
+      loading: false
+    });
+  } catch (error) {
+    console.error("Error al seleccionar equipo favorito:", error);
+    set({
+      error: error.response?.data?.message || "Error al guardar equipo favorito.",
+      loading: false
+    });
+  }
+},
+
 
     getUsersWithPuntaje: async () => {
       try {

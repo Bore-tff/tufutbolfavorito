@@ -35,6 +35,11 @@ const Usuario = sequelize.define("Usuario",
         isEmail: true
       }
     },
+    equipoFavorito: {
+     type: DataTypes.STRING,
+     allowNull: true,
+     defaultValue: null, 
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false
