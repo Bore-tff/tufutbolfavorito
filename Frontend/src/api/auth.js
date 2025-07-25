@@ -34,14 +34,24 @@ export const fetchUsers = () => API.get('/');
 
 // 1.  Ranking general de usuarios
 export const obtenerUsuariosConPuntaje = () => API.get('/puntaje');
+export const obtenerUsuariosConPuntajeFavoritos = () => API.get('/puntaje-favorito');
 
 // 2.  Ranking por fecha
 export const obtenerRankingPorFecha = (fecha) =>
   API.get(`/puntaje/fecha/${fecha}`);
 
+export const obtenerRankingPorFechaFavoritos = (fecha) =>
+  API.get(`/puntaje-favorito/fecha/${fecha}`);
+
 // 3.  Puntaje de un usuario en una fecha
 export const obtenerPuntajeDeUsuarioPorFecha = (userId, fecha) =>
   API.get(`/puntaje/usuario/${userId}/fecha/${fecha}`);
 
+export const obtenerPuntajeDeUsuarioPorFechaFavoritos = (userId, fecha) =>
+  API.get(`/puntaje-favorito/usuario/${userId}/fecha/${fecha}`);
+
 export const obtenerResumenDeUsuario = (userId, fecha) =>
   API.get(`/resumen/${userId}/fecha/${fecha}`);
+
+export const obtenerResumenDeUsuarioFavoritos = (userId, fecha) =>
+  API.get(`/resumen-favorito/${userId}/fecha/${fecha}`);

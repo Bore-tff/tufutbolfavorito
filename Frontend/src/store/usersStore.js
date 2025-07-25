@@ -5,7 +5,8 @@ import {
   obtenerUsuariosConPuntaje,
   obtenerResumenDeUsuario,
   obtenerRankingPorFecha,
-  seleccionarEquipoFavorito
+  seleccionarEquipoFavorito,
+  obtenerRankingPorFechaFavoritos
 } from "../api/auth";
 
 const useUserStore = create((set) => {
@@ -16,13 +17,15 @@ const useUserStore = create((set) => {
   return {
     user: storedUser,
     rankingFecha: [],
+    rankingsFavoritos: [],
     rankingGeneral: [],
     resumenUsuario: null,
-    
     equipoFavorito: storedUser?.equipoFavorito || null,
     mensaje: null,
     loading: false,
     error: null,
+
+    
 
     login: async (usuario, password) => {
       try {
@@ -52,18 +55,18 @@ const useUserStore = create((set) => {
     },
 
     register: async ({ user, password, nombre, apellido, email }) => {
-  set({ loading: true, error: null });
-  try {
-    const response = await registerRequest({ user, password, nombre, apellido, email });
-    set({ user: response.data, loading: false });
-  } catch (error) {
-    console.error("Error en el registro:", error);
-    const mensaje =
-      error.response?.data?.message || "Error en el registro";
-    set({ error: mensaje, loading: false });
-    throw error; // opcional, si querés seguir manejándolo en el componente
-  }
-},
+        set({ loading: true, error: null });
+        try {
+          const response = await registerRequest({ user, password, nombre, apellido, email });
+          set({ user: response.data, loading: false });
+        } catch (error) {
+          console.error("Error en el registro:", error);
+          const mensaje =
+            error.response?.data?.message || "Error en el registro";
+            set({ error: mensaje, loading: false });
+          throw error; // opcional, si querés seguir manejándolo en el componente
+        }
+      },
 
 
     logout: () => {
@@ -75,51 +78,25 @@ const useUserStore = create((set) => {
         resumenUsuario: null,
         rankingFecha: [],
         rankingGeneral: [],
+        rankingsFavoritos: [],
         error: null,
         loading: false,
       });
     },
 
+  /*----------------------------- MODO DE JUEGO NORMAL -----------------------------*/
+
     getRankingPorFecha: async (fecha) => {
-  try {
-    set({ loading: true, error: null });
-    const res = await obtenerRankingPorFecha(fecha);
-    set({ rankingFecha: res.data, loading: false });
-    return res.data; // ✅ Ahora devuelve los datos para usar en el componente
-  } catch (error) {
-    set({ error: "Error al obtener ranking por fecha", loading: false });
-    return []; // ⛑️ Devuelve array vacío en caso de error
-  }
-},
-
-seleccionarEquipoFavorito: async (equipo) => {
-  try {
-    set({ loading: true, error: null });
-
-    const res = await seleccionarEquipoFavorito(equipo);
-    const { equipoFavorito, message } = res.data;
-
-    
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    const updatedUser = { ...currentUser, equipoFavorito };
-
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-
-    set({
-      equipoFavorito,
-      user: updatedUser,
-      mensaje: message,
-      loading: false
-    });
-  } catch (error) {
-    console.error("Error al seleccionar equipo favorito:", error);
-    set({
-      error: error.response?.data?.message || "Error al guardar equipo favorito.",
-      loading: false
-    });
-  }
-},
-
+      try {
+        set({ loading: true, error: null });
+        const res = await obtenerRankingPorFecha(fecha);
+        set({ rankingFecha: res.data, loading: false });
+         return res.data; // ✅ Ahora devuelve los datos para usar en el componente
+         } catch (error) {
+        set({ error: "Error al obtener ranking por fecha", loading: false });
+         return []; // ⛑️ Devuelve array vacío en caso de error
+      }
+    },
 
     getUsersWithPuntaje: async () => {
       try {
@@ -147,11 +124,53 @@ seleccionarEquipoFavorito: async (equipo) => {
         set({
           resumenUsuario: data.usuario,
           rankingFecha: data.rankingFecha,
+          rankingGeneral: data.rankingGeneral,
           loading: false,
         });
       } catch (error) {
         set({ error: "Error al obtener el resumen del usuario", loading: false });
         console.error(error);
+      }
+    },
+
+  /*----------------------------- MODO DE JUEGO FAVORITO -----------------------------*/  
+  seleccionarEquipoFavorito: async (equipo) => {
+  try {
+    set({ loading: true, error: null });
+
+    const res = await seleccionarEquipoFavorito(equipo);
+    const { equipoFavorito, message } = res.data;
+
+    
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    const updatedUser = { ...currentUser, equipoFavorito };
+
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    set({
+      equipoFavorito,
+      user: updatedUser,
+      mensaje: message,
+      loading: false
+    });
+  } catch (error) {
+    console.error("Error al seleccionar equipo favorito:", error);
+    set({
+      error: error.response?.data?.message || "Error al guardar equipo favorito.",
+      loading: false
+    });
+  }
+},
+
+getRankingPorFechaFavoritos: async (fecha) => {
+      try {
+        set({ loading: true, error: null });
+        const res = await obtenerRankingPorFechaFavoritos(fecha);
+        set({ rankingsFavoritos: res.data, loading: false });
+         return res.data;
+         } catch (error) {
+        set({ error: "Error al obtener ranking por fecha", loading: false });
+         return [];
       }
     },
   };

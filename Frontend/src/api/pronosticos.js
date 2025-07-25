@@ -20,7 +20,19 @@ export const guardarTodosLosPronosticos = async (predictionsArray) => {
   return response.data;
 };
 
+export const guardarTodosLosPronosticosFavoritos = async (predictionsArray) => {
+  const response = await API.post("/guardar-todos-favoritos", {
+    pronosticos: predictionsArray,
+  });
+  return response.data;
+};
+
 export const actualizarTodosLosPronosticos = async () => {
   const response = await API.post("/calcular-puntajes");
+  return response.data;
+};
+
+export const actualizarTodosLosPronosticosFavoritos = async () => {
+  const response = await API.post("/calcular-puntajes-favoritos");
   return response.data;
 };

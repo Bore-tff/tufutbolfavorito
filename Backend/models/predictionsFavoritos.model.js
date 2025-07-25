@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
 import Partido from "./partido.model.js";
 
-const Pronostico = sequelize.define("Pronostico", {
+const PronosticoFavorito = sequelize.define("PronosticoFavorito", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -41,12 +41,12 @@ const Pronostico = sequelize.define("Pronostico", {
     },
   }
 }, {
-  tableName: "pronosticos",
+  tableName: "pronosticosFavoritos",
   timestamps: false,
 });
 
 // Asociación con Partido
-Pronostico.belongsTo(Partido, { foreignKey: "matchId" });
-Partido.hasMany(Pronostico, { foreignKey: "matchId" });
+PronosticoFavorito.belongsTo(Partido, { foreignKey: "matchId" });
+Partido.hasMany(PronosticoFavorito, { foreignKey: "matchId" });
 
-export default Pronostico;
+export default PronosticoFavorito;

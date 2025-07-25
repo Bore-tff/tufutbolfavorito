@@ -17,8 +17,10 @@ export const getMatches = async (req, res) => {
 
 
 export const guardarPronosticos = async (req, res) => {
+  
   try {
-    const pronosticos = req.body.pronosticos;
+    const { pronosticos } = req.body;
+    
     const userId = req.user.id;
 
     if (!Array.isArray(pronosticos) || pronosticos.length === 0) {
@@ -61,14 +63,12 @@ export const guardarPronosticos = async (req, res) => {
         puntos = 0;
         golesAcertados = 0;
 
-        // Puntos por resultado
         if (resultadoReal === resultadoPronosticado) {
           if (resultadoReal === "LOCAL") puntos = 2;
           else if (resultadoReal === "VISITANTE") puntos = 3;
           else puntos = 1;
         }
 
-        // Goles acertados
         if (homeScore === resultadoRealHome && resultadoRealHome > 0) {
           golesAcertados += resultadoRealHome;
         }
@@ -84,13 +84,12 @@ export const guardarPronosticos = async (req, res) => {
         homeScore,
         awayScore,
         puntos,
-        golesAcertados,
+        golesAcertados
       });
 
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
     }
 
-    // Actualiza puntos si hay nuevos scores disponibles (si no hay, no afecta)
     await recalcularPuntajes();
 
     res.status(201).json(nuevosPronosticos);
@@ -99,6 +98,9 @@ export const guardarPronosticos = async (req, res) => {
     res.status(500).json({ message: "Error interno del servidor" });
   }
 };
+
+
+
 
 
 export const recalcularPuntajes = async () => {

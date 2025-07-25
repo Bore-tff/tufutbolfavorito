@@ -8,7 +8,11 @@ import {
   obtenerRankingPorFecha,
   obtenerPuntajeDeUsuarioPorFecha,
   obtenerResumenDeUsuario,
-  seleccionarEquipoFavorito
+  seleccionarEquipoFavorito,
+  obtenerUsuariosConPuntajeFavoritos,
+  obtenerRankingPorFechaFavoritos,
+  obtenerPuntajeDeUsuarioPorFechaFavoritos,
+  obtenerResumenDeUsuarioFavoritos
 } from "../controllers/user.controllers.js";
 import verificarAuth from "../middlewares/verificarAuth.js";
 
@@ -25,9 +29,9 @@ router.get("/", getUsers);
 
 // 1. 🔢 Ranking general
 router.get("/puntaje", obtenerUsuariosConPuntaje);
+router.get("/puntaje-favorito", obtenerUsuariosConPuntajeFavoritos);
 
 // 2. 📅 Ranking por fecha
-// Ejemplo: /usuarios/puntaje/fecha/2
 router.get("/puntaje/fecha/:fecha", async (req, res) => {
   const { fecha } = req.params;
   try {
@@ -38,8 +42,17 @@ router.get("/puntaje/fecha/:fecha", async (req, res) => {
   }
 });
 
+router.get("/puntaje-favorito/fecha/:fecha", async (req, res) => {
+  const { fecha } = req.params;
+  try {
+    const ranking = await obtenerRankingPorFechaFavoritos(Number(fecha));
+    res.json(ranking);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener ranking por fecha", error });
+  }
+});
+
 // 3. 🙋 Puntaje de un usuario en una fecha
-// Ejemplo: /usuarios/puntaje/usuario/5/fecha/2
 router.get("/puntaje/usuario/:id/fecha/:fecha", async (req, res) => {
   const { id, fecha } = req.params;
   try {
@@ -50,6 +63,17 @@ router.get("/puntaje/usuario/:id/fecha/:fecha", async (req, res) => {
   }
 });
 
+router.get("/puntaje-favorito/usuario/:id/fecha/:fecha", async (req, res) => {
+  const { id, fecha } = req.params;
+  try {
+    const puntaje = await obtenerPuntajeDeUsuarioPorFechaFavoritos(Number(id), Number(fecha));
+    res.json(puntaje);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener puntaje del usuario", error });
+  }
+});
+
 router.get("/resumen/:id/fecha/:fecha", obtenerResumenDeUsuario);
+router.get("/resumen-favorito/:id/fecha/:fecha", obtenerResumenDeUsuarioFavoritos);
 
 export default router;

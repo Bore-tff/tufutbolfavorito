@@ -94,7 +94,7 @@ const PronosticoComponent = () => {
     setMensaje("⏳ Enviando pronóstico...");
 
     try {
-      await guardarPronosticos(predictionsArray);
+      await guardarPronosticos(predictionsArray, "general");
       await getRankingPorFecha(selectedFecha);
       setMensaje("✅ Pronóstico enviado correctamente");
     } catch (error) {

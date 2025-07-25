@@ -1,18 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useUserStore from "../../../store/usersStore";
 
 const Rankings = () => {
-  const { usuarios, user, rankingFecha } = useUserStore();
+  const { usuarios, user, rankingFecha, getUsersWithPuntaje, rankingGeneral } =
+    useUserStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
   const [currentPage3, setCurrentPage3] = useState(1);
   const rowsPerPage = 5;
 
-  const sortedRanking = [...(rankingFecha || [])].sort(
-    (a, b) => (b.puntos || 0) - (a.puntos || 0)
-  );
+  useEffect(() => {
+    getUsersWithPuntaje();
+  }, []);
 
-  const sortedRankingGeneral = [...(usuarios || [])].sort(
+  const sortedRanking = [...(rankingFecha || [])].sort(
     (a, b) => (b.puntos || 0) - (a.puntos || 0)
   );
 
@@ -28,10 +29,14 @@ const Rankings = () => {
     currentPage2 * rowsPerPage
   );
 
-  const paginatedRanking3 = sortedRankingGeneral.slice(
+  const paginatedRanking3 = sortedRanking.slice(
     (currentPage3 - 1) * rowsPerPage,
     currentPage3 * rowsPerPage
   );
+
+  console.log("usuarios ranking:", usuarios);
+  console.log("ranking fechaaa:", rankingFecha);
+  console.log("ranking General", rankingGeneral);
 
   return (
     <div className="flex flex-row justify-between items-start space-x-6 ml-5 mr-5 mt-64">
@@ -170,7 +175,7 @@ const Rankings = () => {
                     {usuario.nombre || usuario.user}
                   </td>
                   <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                    {usuario.golesTotales || 0}
+                    {usuario.puntajeTotal || 0}
                   </td>
                 </tr>
               ))
