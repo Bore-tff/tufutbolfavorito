@@ -68,13 +68,30 @@ export const guardarPronosticosFavoritos = async (req, res) => {
       else puntos = 1;
     }
 
-    if (homeScore === resultadoRealHome && resultadoRealHome > 0) {
-      golesAcertados += resultadoRealHome;
-    }
+    if (partido.home.name === equipoFavorito) {
+  const golesReales = Number(resultadoRealHome);
+  const golesPronosticados = Number(homeScore);
 
-    if (awayScore === resultadoRealAway && resultadoRealAway > 0) {
-      golesAcertados += resultadoRealAway;
+  if (golesReales > 0) {
+    if (golesPronosticados === golesReales) {
+      golesAcertados += golesReales;
+    } else if (golesPronosticados > 0 && golesPronosticados < golesReales) {
+      golesAcertados += golesPronosticados;
     }
+  }
+} else if (partido.away.name === equipoFavorito) {
+  const golesReales = Number(resultadoRealAway);
+  const golesPronosticados = Number(awayScore);
+
+  if (golesReales > 0) {
+    if (golesPronosticados === golesReales) {
+      golesAcertados += golesReales;
+    } else if (golesPronosticados > 0 && golesPronosticados < golesReales) {
+      golesAcertados += golesPronosticados;
+    }
+  }
+}
+
   }
 
   const nuevoPronostico = await PronosticoFavorito.create({
