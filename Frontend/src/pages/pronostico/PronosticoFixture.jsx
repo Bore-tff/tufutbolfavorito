@@ -118,7 +118,9 @@ const PronosticoComponent = () => {
     <>
       <ElegirEquipo />
       <div className="text-center mt-56">
-        <h1 className="text-white text-3xl">Modo de juego: Normal</h1>
+        <h1 className="text-green-500 bg-gray-800 rounded-xl pt-1 pb-2 ml-150 mr-150 text-3xl mb-10">
+          Modo de juego: Normal
+        </h1>
       </div>
       <div className="space-y-10 p-4 max-h-[650px] overflow-y-auto">
         {mensaje && (

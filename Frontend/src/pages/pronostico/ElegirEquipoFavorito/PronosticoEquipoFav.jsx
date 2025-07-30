@@ -134,9 +134,6 @@ const PronosticoEquipoFav = () => {
 
   return (
     <>
-      <div className="text-center mt-56">
-        <h1 className="text-white text-3xl">Modo de juego: Favorito</h1>
-      </div>
       <div className="space-y-10 p-4 max-h-[650px] overflow-y-auto">
         {mensaje && (
           <div className="text-center text-white font-bold bg-black p-2 rounded">

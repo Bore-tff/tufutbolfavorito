@@ -51,9 +51,16 @@ export default function ElegirEquipo() {
 
   if (equipoFavorito) {
     return (
-      <div className="text-white">
-        <h2>Equipo favorito:</h2>
-        <p>{equipoFavorito}</p>
+      <div>
+        <div className="text-center mt-25">
+          <h1 className="text-green-500 bg-gray-800 rounded-xl pt-1 pb-2 ml-150 mr-150 text-3xl mb-10">
+            Modo de juego: Favorito
+          </h1>
+        </div>
+        <div className="text-white ml-10 bg-gray-800 pl-5 pt-1 pb-1 w-55 rounded-xl">
+          <h2 className="text-2xl text-green-500">Equipo favorito:</h2>
+          <p className="text-xl mt-2">{equipoFavorito}</p>
+        </div>
         <PronosticoEquipoFav />
       </div>
     );
