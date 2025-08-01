@@ -168,7 +168,7 @@ const PronosticoEquipoFav = () => {
           {/* Tabla de partidos */}
           <div className="w-1/2 bg-gray-800 rounded-lg pt-5 px-5">
             <h1 className="text-white text-3xl font-bold mb-5">
-              PRONÓSTICOS DE PARTIDOS
+              FIXTURE (E.F.C - E.F.G)
             </h1>
 
             {/* Selector de Fechas */}
@@ -191,10 +191,6 @@ const PronosticoEquipoFav = () => {
             {/* Mostrar solo la fecha actual */}
             {currentFecha && (
               <>
-                <div className="text-left text-green-400 font-bold mb-1">
-                  FECHA {currentFecha.fecha}
-                </div>
-
                 <table className="w-full text-center border-collapse mb-4">
                   <thead>
                     <tr className="bg-black text-green-500 border-2 border-black">

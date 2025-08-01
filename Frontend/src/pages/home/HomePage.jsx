@@ -4,7 +4,7 @@ import useUserStore from "../../store/usersStore";
 import { useNavigate } from "react-router-dom";
 import usePronosticoStore from "../../store/pronosticosStore";
 import Banner from "../banner/Banner";
-import Logo from "../../assets/ahorasi.png";
+import Logo from "../../assets/3.png";
 
 function HomePage() {
   const { user, logout, getAllUsers, getUsersWithPuntaje } = useUserStore();
@@ -37,11 +37,11 @@ function HomePage() {
 
   return (
     <div>
-      <div className="w-full mt-4 flex justify-between items-center border-b border-green-500 pb-4 px-5">
-        <img className="h-48" src={Logo} alt="Logo" />
+      <div className="w-full mt-4 flex justify-evenly items-center border-b border-green-500 pb-4 px-5">
+        <img className="h-58" src={Logo} alt="Logo" />
         <div className="flex flex-col">
           <h1 className="text-6xl mb-4 font-bold text-green-600 ">
-            VIVE EL JUEGO SIENTE LA EMOCIÓN
+            VIVE EL JUEGO, SIENTE LA EMOCIÓN!!!
           </h1>
           <h1 className="text-5xl font-bold italic text-green-600 text-right float-text">
             PONÉ A PRUEBA TU PASIÓN...

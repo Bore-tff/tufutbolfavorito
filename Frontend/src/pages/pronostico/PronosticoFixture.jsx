@@ -113,6 +113,7 @@ const PronosticoComponent = () => {
   // Para mostrar los puntajes del usuario actual (primera tabla)
   const puntajesUsuarioActual = user; // Asumiendo que tienes esa estructura
   console.log("rankingFecha:", rankingFecha);
+  console.log(matches);
 
   return (
     <>
@@ -155,9 +156,7 @@ const PronosticoComponent = () => {
         <div className="flex flex-row justify-between items-start space-x-6 ml-5 mr-5">
           {/* Tabla de partidos */}
           <div className="w-1/2 bg-gray-800 rounded-lg pt-5 px-5">
-            <h1 className="text-white text-3xl font-bold mb-5">
-              PRONÓSTICOS DE PARTIDOS
-            </h1>
+            <h1 className="text-white text-3xl font-bold mb-5">FIXTURE</h1>
 
             {/* Selector de Fechas */}
             <div className="flex gap-2 mb-4">
@@ -179,10 +178,6 @@ const PronosticoComponent = () => {
             {/* Mostrar solo la fecha actual */}
             {currentFecha && (
               <>
-                <div className="text-left text-green-400 font-bold mb-1">
-                  FECHA {currentFecha.fecha}
-                </div>
-
                 <table className="w-full text-center border-collapse mb-4">
                   <thead>
                     <tr className="bg-black text-green-500 border-2 border-black">

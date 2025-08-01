@@ -1,25 +1,27 @@
 import React from "react";
-import Logo from "../../assets/3.png";
+import Logo from "../../assets/ahorasi.png";
 
 function Banner() {
   return (
-    <div className="ml-7 py-4 px-6 flex justify-center">
-      <div className="flex items-center flex-wrap text-lg md:text-xl font-semibold text-blue-500 text-center">
-        <span className="mr-2 text-white font-bold text-3xl">ELEGÍ</span>
+    <div className="ml-7 py-4 px-6 flex flex-col items-start space-y-4">
+      <span className="text-blue-500 text-3xl">
+        ¡BIENVENIDOS APAXIONADOS! SUMA A TU AMIGA/AMIGO Y EL QUE RAYE
+      </span>
 
-        <img src={Logo} alt="Logo TFF" className="w-45 h-40 mx-2" />
+      <div className="flex items-center flex-wrap text-lg md:text-xl font-semibold text-blue-500">
+        <span className="text-white font-bold text-3xl mr-4">ELEGÍ</span>
 
-        <span className="mr-2 text-white text-3xl">LOS</span>
-        <span className="mr-2 text-white text-3xl font-extrabold">
-          APAXIONADOS
-        </span>
-        <span className="mr-2 text-3xl">
-          PRONOSTICAN LOS RESULTADOS X FECHA.
-        </span>
-        <span className="text-blue-500 text-3xl">
-          SUMA GOLES + PUNTOS PARA SER EL CONQUISTADOR...
+        <img src={Logo} alt="Logo TFF" className="w-32 h-32 mx-4" />
+
+        <span className="text-white text-3xl">
+          LOS <span className="font-extrabold">APAXIONADOS</span> PRONOSTICAN
+          LOS RESULTADOS X FECHA.
         </span>
       </div>
+
+      <span className="text-blue-500 text-3xl">
+        SUMA GOLES + PUNTOS Y SE EL CONQUISTADOR...
+      </span>
     </div>
   );
 }
