@@ -27,6 +27,13 @@ export const guardarTodosLosPronosticosFavoritos = async (predictionsArray) => {
   return response.data;
 };
 
+export const guardarTodosLosPronosticosFavoritosGoleador = async (predictionsArray) => {
+  const response = await API.post("/guardar-todos-favoritos-goleador", {
+    pronosticos: predictionsArray,
+  });
+  return response.data;
+};
+
 export const actualizarTodosLosPronosticos = async () => {
   const response = await API.post("/calcular-puntajes");
   return response.data;
@@ -34,5 +41,10 @@ export const actualizarTodosLosPronosticos = async () => {
 
 export const actualizarTodosLosPronosticosFavoritos = async () => {
   const response = await API.post("/calcular-puntajes-favoritos");
+  return response.data;
+};
+
+export const actualizarTodosLosPronosticosFavoritosGoleador = async () => {
+  const response = await API.post("/calcular-puntajes-favoritos-goleador");
   return response.data;
 };

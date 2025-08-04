@@ -5,6 +5,7 @@ import generarId from "../helpers/generarId.js";
 import { sequelize } from "../config/db.js";
 import Pronostico from "./predictions.model.js";
 import PronosticoFavorito from "./predictionsFavoritos.model.js";
+import PronosticoFavoritoGoleador from "./predictionsFavoritosGoleador.model.js";
 
 dotenv.config();
 
@@ -37,6 +38,11 @@ const Usuario = sequelize.define("Usuario",
       }
     },
     equipoFavorito: {
+     type: DataTypes.STRING,
+     allowNull: true,
+     defaultValue: null, 
+    },
+    equipoFavoritoGoleador: {
      type: DataTypes.STRING,
      allowNull: true,
      defaultValue: null, 
@@ -80,5 +86,8 @@ Pronostico.belongsTo(Usuario, { foreignKey: "userId" });
 Usuario.hasMany(PronosticoFavorito, { foreignKey: "userId", onDelete: "CASCADE" });
 PronosticoFavorito.belongsTo(Usuario, {foreignKey: "userId"});
 
+// Relación 3:N
+Usuario.hasMany(PronosticoFavoritoGoleador, { foreignKey: "userId", onDelete: "CASCADE", as: "PronosticoFavoritoGoleador" });
+PronosticoFavoritoGoleador.belongsTo(Usuario, {foreignKey: "userId"});
 
 export default Usuario;

@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import Usuario from "../models/user.model.js";
 import Pronostico from "../models/predictions.model.js";
 import PronosticoFavorito from "../models/predictionsFavoritos.model.js";
+import PronosticoFavoritoGoleador from "../models/predictionsFavoritosGoleador.model.js";
 import Partido from '../models/partido.model.js';
 import { fn, col, literal } from 'sequelize';
 
@@ -248,6 +249,28 @@ export const seleccionarEquipoFavorito = async (req, res) => {
   }
 };
 
+export const seleccionarEquipoFavoritoGoleador = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { equipoFavoritoGoleador } = req.body;
+
+    if (!equipoFavoritoGoleador) return res.status(400).json({ message: "Debe elegir un equipo favorito goleador." });
+
+    const usuario = await Usuario.findByPk(userId);
+    if (!usuario) return res.status(404).json({ message: "Usuario no encontrado." });
+
+    if (usuario.equipoFavoritoGoleador) return res.status(400).json({ message: "Ya seleccionaste un equipo favorito goleador y no se puede cambiar." });
+
+    usuario.equipoFavoritoGoleador = equipoFavoritoGoleador;
+    await usuario.save();
+
+    res.status(200).json({ message: "Equipo favorito goleador guardado correctamente.", equipoFavoritoGoleador });
+  } catch (error) {
+    console.error("Error al guardar equipo favorito goleador:", error);
+    res.status(500).json({ message: "Error al guardar equipo favorito goleador." });
+  }
+};
+
 export const obtenerUsuariosConPuntajeFavoritos = async () => {
   try {
     const usuarios = await User.findAll({
@@ -256,8 +279,6 @@ export const obtenerUsuariosConPuntajeFavoritos = async () => {
         'user',
         'equipoFavorito',
         [fn('SUM', col('PronosticoFavoritos.puntos')), 'totalPuntos'],
-        [fn('SUM', col('PronosticoFavoritos.golesAcertados')), 'golesAcertados'],
-        [fn('SUM', col('PronosticoFavoritos.golesAcertados')), 'golesTotales']
       ],
       include: [
         {
@@ -274,9 +295,39 @@ export const obtenerUsuariosConPuntajeFavoritos = async () => {
       user: usuario.user,
       equipoFavorito: usuario.equipoFavorito,
       puntos: Number(usuario.totalPuntos) || 0,
+    }));
+  } catch (error) {
+    console.error('Error al obtener los usuarios con puntaje:', error);
+    throw new Error('No se pudieron obtener los usuarios con puntaje');
+  }
+};
+
+export const obtenerUsuariosConPuntajeFavoritosGoleador = async () => {
+  try {
+    const usuarios = await User.findAll({
+      attributes: [
+        'id',
+        'user',
+        'equipoFavoritoGoleador',
+        [fn('SUM', col('PronosticoFavoritoGoleador.golesAcertados')), 'golesAcertados'],
+        [fn('SUM', col('PronosticoFavoritoGoleador.golesAcertados')), 'golesTotales']
+      ],
+      include: [
+        {
+          model: PronosticoFavoritoGoleador,
+          attributes: [],
+        },
+      ],
+      group: ['Usuario.id'],
+      raw: true,
+    });
+
+    return usuarios.map(usuario => ({
+      id: usuario.id,
+      user: usuario.user,
+      equipoFavorito: usuario.equipoFavoritoGoleador,
       goles: Number(usuario.golesAcertados) || 0,
       golesTotales: Number(usuario.golesTotales) || 0,
-      sumaTotal: (Number(usuario.totalPuntos) || 0) + (Number(usuario.golesTotales) || 0),
     }));
   } catch (error) {
     console.error('Error al obtener los usuarios con puntaje:', error);
@@ -291,9 +342,8 @@ export const obtenerRankingPorFechaFavoritos = async (numeroFecha) => {
         'id',
         'user',
         [fn('SUM', literal(`CASE WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` = ${numeroFecha} THEN \`PronosticoFavoritos\`.\`puntos\` ELSE 0 END`)), 'puntosFecha'],
-        [fn('SUM', literal(`CASE WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` = ${numeroFecha} THEN \`PronosticoFavoritos\`.\`golesAcertados\` ELSE 0 END`)), 'golesFecha'],
         [fn('SUM', col('PronosticoFavoritos.puntos')), 'puntajeTotal'],
-        [fn('SUM', col('PronosticoFavoritos.golesAcertados')), 'golesTotales'],
+        
       ],
       include: [
         {
@@ -323,6 +373,44 @@ export const obtenerRankingPorFechaFavoritos = async (numeroFecha) => {
   } catch (error) {
     console.error('Error al obtener ranking de favoritos por fecha:', error);
     throw new Error('No se pudo obtener el ranking de favoritos por fecha');
+  }
+};
+
+export const obtenerRankingPorFechaFavoritosGoleador = async (numeroFecha) => {
+  try {
+    const usuarios = await Usuario.findAll({
+      attributes: [
+        'id',
+        'user',
+        [fn('SUM', literal(`CASE WHEN \`PronosticoFavoritoGoleador->Partido\`.\`fecha\` = ${numeroFecha} THEN \`PronosticoFavoritoGoleador\`.\`golesAcertados\` ELSE 0 END`)), 'golesFecha'],
+        [fn('SUM', col('PronosticoFavoritoGoleador.golesAcertados')), 'golesTotales'],
+      ],
+      include: [
+        {
+          model: PronosticoFavoritoGoleador,
+          as: "PronosticoFavoritoGoleador", // este alias lo definís en la relación
+          attributes: [],
+          include: [
+            {
+              model: Partido,
+              attributes: []
+            }
+          ]
+        }
+      ],
+      group: ['Usuario.id'],
+      raw: true,
+    });
+
+    return usuarios.map(usuario => ({
+      id: usuario.id,
+      user: usuario.user,
+      golesFecha: Number(usuario.golesFecha) || 0,
+      golesTotales: Number(usuario.golesTotales) || 0
+    }));
+  } catch (error) {
+    console.error('Error al obtener ranking de favoritos goleador por fecha:', error);
+    throw new Error('No se pudo obtener el ranking de favoritos goleador por fecha');
   }
 };
 
@@ -365,6 +453,43 @@ export const obtenerPuntajeDeUsuarioPorFechaFavoritos = async (userId, numeroFec
   }
 };
 
+export const obtenerPuntajeDeUsuarioPorFechaFavoritosGoleador = async (userId, numeroFecha) => {
+  try {
+    const usuario = await User.findOne({
+      where: { id: userId },
+      attributes: [
+        'id',
+        'user',
+        [fn('SUM', literal(`CASE WHEN \`PronosticoFavoritosGoleador->Partido\`.\`fecha\` = ${numeroFecha} THEN \`PronosticoFavoritoGoleador\`.\`golesAcertados\` ELSE 0 END`)), 'golesFecha']
+
+      ],
+      include: [
+        {
+          model: PronosticoFavoritoGoleador,
+          attributes: [],
+          include: [
+            {
+              model: Partido,
+              attributes: []
+            }
+          ]
+        }
+      ],
+      group: ['Usuario.id'],
+      raw: true,
+    });
+
+    return {
+      id: usuario?.id ?? userId,
+      user: usuario?.user ?? 'Desconocido',
+      goles: Number(usuario?.golesFecha) || 0
+    };
+  } catch (error) {
+    console.error('Error al obtener puntaje del usuario en la fecha:', error);
+    throw new Error('No se pudo obtener el puntaje del usuario en la fecha');
+  }
+};
+
 export const obtenerResumenDeUsuarioFavoritos = async (req, res) => {
   const userId = parseInt(req.params.id, 10);
   const numeroFecha = parseInt(req.params.fecha, 10);
@@ -388,6 +513,38 @@ export const obtenerResumenDeUsuarioFavoritos = async (req, res) => {
         user: usuarioTotal?.user || puntajeFecha.user,
         puntajeTotal: usuarioTotal?.puntos || 0,
         puntajeFecha: puntajeFecha.puntos || 0,
+        golesTotales: usuarioTotal?.goles || 0,
+        golesFecha: puntajeFecha.goles || 0,
+      },
+      rankingFecha,
+    });
+  } catch (error) {
+    console.error("Error al obtener el resumen:", error);
+    res.status(500).json({ message: "Error al obtener el resumen", error });
+  }
+};
+
+export const obtenerResumenDeUsuarioFavoritosGoleador = async (req, res) => {
+  const userId = parseInt(req.params.id, 10);
+  const numeroFecha = parseInt(req.params.fecha, 10);
+
+  if (isNaN(userId) || isNaN(numeroFecha)) {
+    return res.status(400).json({ message: "Parámetros inválidos" });
+  }
+
+  try {
+    const [puntajeTotal, puntajeFecha, rankingFecha] = await Promise.all([
+      obtenerUsuariosConPuntajeFavoritosGoleador(),
+      obtenerPuntajeDeUsuarioPorFechaFavoritosGoleador(userId, numeroFecha),
+      obtenerRankingPorFechaFavoritosGoleador(numeroFecha),
+    ]);
+
+    const usuarioTotal = puntajeTotal.find(u => u.id === userId);
+
+    return res.json({
+      usuario: {
+        id: userId,
+        user: usuarioTotal?.user || puntajeFecha.user,
         golesTotales: usuarioTotal?.goles || 0,
         golesFecha: puntajeFecha.goles || 0,
       },

@@ -6,7 +6,9 @@ import {
   obtenerResumenDeUsuario,
   obtenerRankingPorFecha,
   seleccionarEquipoFavorito,
-  obtenerRankingPorFechaFavoritos
+  obtenerRankingPorFechaFavoritos,
+  seleccionarEquipoFavoritoGoleador,
+  obtenerRankingPorFechaFavoritosGoleador
 } from "../api/auth";
 
 const useUserStore = create((set) => {
@@ -18,9 +20,11 @@ const useUserStore = create((set) => {
     user: storedUser,
     rankingFecha: [],
     rankingsFavoritos: [],
+    rankingsFavoritosGoleador:[],
     rankingGeneral: [],
     resumenUsuario: null,
     equipoFavorito: storedUser?.equipoFavorito || null,
+    equipoFavoritoGoleador: storedUser?.equipoFavoritoGoleador || null,
     mensaje: null,
     loading: false,
     error: null,
@@ -40,7 +44,7 @@ const useUserStore = create((set) => {
         const data = await response.json();
 
         if (response.ok) {
-          set({ user: data.user, equipoFavorito: data.user.equipoFavorito || null, loading: false });
+          set({ user: data.user, equipoFavorito: data.user.equipoFavorito, equipoFavoritoGoleador: data.user.equipoFavoritoGoleador || null, loading: false });
           localStorage.setItem("user", JSON.stringify(data.user));
           localStorage.setItem("token", data.token);
           return true;
@@ -75,8 +79,10 @@ const useUserStore = create((set) => {
       set({
         user: null,
         equipoFavorito: null,
+        equipoFavoritoGoleador: null,
         resumenUsuario: null,
         rankingFecha: [],
+        rankingsFavoritosGoleador: [],
         rankingGeneral: [],
         rankingsFavoritos: [],
         error: null,
@@ -162,6 +168,34 @@ const useUserStore = create((set) => {
   }
 },
 
+seleccionarEquipoFavoritoGoleador: async (equipo) => {
+  try {
+    set({ loading: true, error: null });
+
+    const res = await seleccionarEquipoFavoritoGoleador(equipo);
+    const { equipoFavoritoGoleador, message } = res.data;
+
+    
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    const updatedUser = { ...currentUser, equipoFavoritoGoleador };
+
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    set({
+      equipoFavoritoGoleador,
+      user: updatedUser,
+      mensaje: message,
+      loading: false
+    });
+  } catch (error) {
+    console.error("Error al seleccionar equipo favorito goleador:", error);
+    set({
+      error: error.response?.data?.message || "Error al guardar equipo favorito goleador.",
+      loading: false
+    });
+  }
+},
+
 getRankingPorFechaFavoritos: async (fecha) => {
       try {
         set({ loading: true, error: null });
@@ -173,7 +207,21 @@ getRankingPorFechaFavoritos: async (fecha) => {
          return [];
       }
     },
+
+    getRankingPorFechaFavoritosGoleador: async (fecha) => {
+      try {
+        set({ loading: true, error: null });
+        const res = await obtenerRankingPorFechaFavoritosGoleador(fecha);
+        set({ rankingsFavoritosGoleador: res.data, loading: false });
+         return res.data;
+         } catch (error) {
+        set({ error: "Error al obtener ranking por fecha", loading: false });
+         return [];
+      }
+    },
   };
+
+  
 });
 
 export default useUserStore;

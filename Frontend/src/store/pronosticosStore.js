@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import { getMatches, guardarTodosLosPronosticos, actualizarTodosLosPronosticos, actualizarTodosLosPronosticosFavoritos, guardarTodosLosPronosticosFavoritos } from '../api/pronosticos';
+import { getMatches, guardarTodosLosPronosticos, actualizarTodosLosPronosticos, actualizarTodosLosPronosticosFavoritos, guardarTodosLosPronosticosFavoritos, guardarTodosLosPronosticosFavoritosGoleador, actualizarTodosLosPronosticosFavoritosGoleador } from '../api/pronosticos';
 
 const usePronosticoStore = create((set) => ({
   matches: [],
@@ -103,10 +103,47 @@ guardarPronosticosFavorito: async (predictionData) => {
   }
 },
 
+guardarPronosticosFavoritoGoleador: async (predictionData) => {
+  set({ loading: true, error: null, successMessage: null });
+  try {
+    // Aquí guardás directamente los datos (array de pronósticos) que devuelve la API
+    const nuevosPronosticos = await guardarTodosLosPronosticosFavoritosGoleador(predictionData);
+
+    if (nuevosPronosticos) {
+      set((state) => ({
+        pronosticos: [...state.pronosticos, ...nuevosPronosticos], // no usar .data acá
+        loading: false,
+        successMessage: "Pronóstico guardado correctamente",
+      }));
+    }
+  } catch (error) {
+    set({
+      error: error.message || "Error al guardar el pronóstico",
+      loading: false,
+    });
+  }
+},
+
 actualizarPronosticosFavorito: async () => {
   set({ loading: true, error: null, successMessage: null });
   try {
     const response = await actualizarTodosLosPronosticosFavoritos(); // no necesita datos
+    set({
+      loading: false,
+      successMessage: response.message || "Puntajes actualizados correctamente",
+    });
+  } catch (error) {
+    set({
+      error: error.message || "Error al actualizar puntajes",
+      loading: false,
+    });
+  }
+},
+
+actualizarPronosticosFavoritoGoleador: async () => {
+  set({ loading: true, error: null, successMessage: null });
+  try {
+    const response = await actualizarTodosLosPronosticosFavoritosGoleador(); // no necesita datos
     set({
       loading: false,
       successMessage: response.message || "Puntajes actualizados correctamente",

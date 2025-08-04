@@ -9,6 +9,8 @@ const PronosticoEquipoFav = () => {
     matches,
     fetchMatchesFavorito,
     guardarPronosticosFavorito,
+    guardarPronosticosFavoritoGoleador,
+    actualizarPronosticosFavoritoGoleador,
     resultadoComparacion,
     actualizarPronosticos,
     error,
@@ -18,13 +20,17 @@ const PronosticoEquipoFav = () => {
     usuarios,
     user,
     equipoFavorito,
+    equipoFavoritoGoleador,
     getRankingPorFecha,
     getRankingPorFechaFavoritos,
+    getRankingPorFechaFavoritosGoleador,
     getUsersWithPuntaje,
     rankingGeneral,
     rankingsFavoritos,
+    rankingsFavoritosGoleador,
   } = useUserStore();
   const [predictions, setPredictions] = useState({});
+  const [predictionsGoleador, setPredictionsGoleador] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [localLoading, setLocalLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
@@ -46,10 +52,31 @@ const PronosticoEquipoFav = () => {
     })
     .filter(Boolean);
 
+  const matchesFavoritoGoleador = matches
+    .map((fecha) => {
+      const partidosFiltrados = fecha.partidos.filter(
+        (partido) =>
+          partido.home.name === equipoFavoritoGoleador ||
+          partido.away.name === equipoFavoritoGoleador
+      );
+      return partidosFiltrados.length > 0
+        ? { ...fecha, partidos: partidosFiltrados }
+        : null;
+    })
+    .filter(Boolean);
+
   const [selectedFecha, setSelectedFecha] = useState(
     matchesFavorito[0]?.fecha || 1
   );
+
+  const [selectedFechaGoleador, setSelectedFechaGoleador] = useState(
+    matchesFavoritoGoleador[0]?.fecha || 1
+  );
+
   const currentFecha = matchesFavorito.find((m) => m.fecha === selectedFecha);
+  const currentFechaGoleador = matchesFavoritoGoleador.find(
+    (m) => m.fecha === selectedFechaGoleador
+  );
 
   useEffect(() => {
     // Ejecuta la carga inicial
@@ -59,7 +86,8 @@ const PronosticoEquipoFav = () => {
     actualizarPronosticos();
     getUsersWithPuntaje();
     getRankingPorFechaFavoritos(selectedFecha);
-  }, [selectedFecha]);
+    getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
+  }, [selectedFecha, selectedFechaGoleador]);
 
   const handleInputChange = (matchId, team, value) => {
     setPredictions((prev) => ({
@@ -89,13 +117,14 @@ const PronosticoEquipoFav = () => {
 
   const handleSavePrediction = async () => {
     const partidosFecha = currentFecha?.partidos || [];
+
     const faltantes = partidosFecha.filter(({ id }) => {
       const p = predictions[id];
       return !p || p.home === undefined || p.away === undefined;
     });
 
     if (faltantes.length > 0) {
-      setMensaje("⚠️ Faltan completar goles para algunos partidos.");
+      setMensaje("⚠️ Faltan completar goles este pronostico.");
       setTimeout(() => setMensaje(""), 3000);
       return;
     }
@@ -111,7 +140,46 @@ const PronosticoEquipoFav = () => {
 
     try {
       await guardarPronosticosFavorito(predictionsArray);
+
       await getRankingPorFechaFavoritos(selectedFecha);
+
+      setMensaje("✅ Pronóstico enviado correctamente");
+    } catch (error) {
+      console.error("Error al guardar:", error);
+      setMensaje("❌ Error al enviar pronóstico");
+    } finally {
+      setLocalLoading(false);
+      setTimeout(() => setMensaje(""), 3000);
+    }
+  };
+
+  const handleSavePredictionGoleador = async () => {
+    const partidosFechaGoleador = currentFechaGoleador?.partidos || [];
+
+    const faltantesGoleador = partidosFechaGoleador.filter(({ id }) => {
+      const p = predictionsGoleador[id];
+      return !p || p.home === undefined || p.away === undefined;
+    });
+
+    if (faltantesGoleador.length > 0) {
+      setMensaje("⚠️ Faltan completar goles para este pronostico.");
+      setTimeout(() => setMensaje(""), 3000);
+      return;
+    }
+
+    const predictionsArray2 = partidosFechaGoleador.map(({ id }) => ({
+      matchId: id,
+      homeScore: Number(predictionsGoleador[id].home),
+      awayScore: Number(predictionsGoleador[id].away),
+    }));
+
+    setLocalLoading(true);
+    setMensaje("⏳ Enviando pronóstico...");
+
+    try {
+      await guardarPronosticosFavoritoGoleador(predictionsArray2);
+
+      await getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
       setMensaje("✅ Pronóstico enviado correctamente");
     } catch (error) {
       console.error("Error al guardar:", error);
@@ -267,6 +335,121 @@ const PronosticoEquipoFav = () => {
                 </div>
               </>
             )}
+
+            {currentFechaGoleador && (
+              <>
+                <table className="w-full text-center border-collapse mb-4">
+                  <thead>
+                    <tr className="bg-black text-green-500 border-2 border-black">
+                      <th className="px-2 py-1">Día</th>
+                      <th className="px-2 py-1">Local</th>
+                      <th className="px-2 py-1">GL</th>
+                      <th className="px-2 py-1">GV</th>
+                      <th className="px-2 py-1">Visitante</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {currentFechaGoleador.partidos.map(
+                      ({ id, home, away, date }) => {
+                        const esLocal = home.name === equipoFavoritoGoleador;
+                        const esVisitante =
+                          away.name === equipoFavoritoGoleador;
+
+                        return (
+                          <tr key={id}>
+                            <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold pt-1 pb-1 pl-1 pr-1">
+                              {date}
+                            </td>
+
+                            {/* Equipo Local */}
+                            <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
+                              <div className="flex items-center justify-end gap-2 pr-1 pl-1">
+                                <span>{home.name}</span>
+                                <img
+                                  className="h-8"
+                                  src={home.logo}
+                                  alt="Logo local"
+                                />
+                              </div>
+                            </td>
+
+                            {/* Goles Local */}
+                            <td className="border-2 bg-sky-500 border-gray-900">
+                              {esLocal ? (
+                                <input
+                                  type="number"
+                                  className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                                  placeholder="0"
+                                  value={predictionsGoleador[id]?.goles || ""}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      id,
+                                      "goles",
+                                      e.target.value
+                                    )
+                                  }
+                                  onWheel={(e) => e.target.blur()}
+                                />
+                              ) : (
+                                <div className="text-gray-400 text-sm font-semibold">
+                                  -
+                                </div>
+                              )}
+                            </td>
+
+                            {/* Goles Visitante */}
+                            <td className="border-2 bg-sky-500 border-gray-900">
+                              {esVisitante ? (
+                                <input
+                                  type="number"
+                                  className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                                  placeholder="0"
+                                  value={predictionsGoleador[id]?.goles || ""}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      id,
+                                      "goles",
+                                      e.target.value
+                                    )
+                                  }
+                                  onWheel={(e) => e.target.blur()}
+                                />
+                              ) : (
+                                <div className="text-gray-400 text-sm font-semibold">
+                                  -
+                                </div>
+                              )}
+                            </td>
+
+                            {/* Equipo Visitante */}
+                            <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
+                              <div className="flex items-center justify-start gap-2 pr-1 pl-1">
+                                <img
+                                  className="h-8"
+                                  src={away.logo}
+                                  alt="Logo visitante"
+                                />
+                                <span>{away.name}</span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      }
+                    )}
+                  </tbody>
+                </table>
+
+                <div className="text-left py-2">
+                  <button
+                    className="bg-green-500 text-black font-bold px-4 py-1 rounded shadow hover:bg-green-600 transition cursor-pointer"
+                    onClick={handleSavePredictionGoleador}
+                  >
+                    Enviar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Ranking x Fecha */}
@@ -357,9 +540,9 @@ const PronosticoEquipoFav = () => {
               {[1, 2].map((fecha) => (
                 <button
                   key={fecha}
-                  onClick={() => setSelectedFecha(fecha)}
+                  onClick={() => setSelectedFechaGoleador(fecha)}
                   className={`px-4 py-1 rounded font-bold transition cursor-pointer ${
-                    selectedFecha === fecha
+                    selectedFechaGoleador === fecha
                       ? "bg-green-500 text-black"
                       : "bg-gray-600 text-white hover:bg-gray-500"
                   }`}

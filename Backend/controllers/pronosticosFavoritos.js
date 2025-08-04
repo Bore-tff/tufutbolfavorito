@@ -2,8 +2,6 @@ import PronosticoFavorito from "../models/predictionsFavoritos.model.js";
 import Usuario from "../models/user.model.js";
 import axios from "axios";
 
-// En controllers/pronosticos.js
-
 
 export const guardarPronosticosFavoritos = async (req, res) => {
   
@@ -42,7 +40,6 @@ export const guardarPronosticosFavoritos = async (req, res) => {
   const resultadoRealAway = partido?.score?.away;
 
   let puntos = null;
-  let golesAcertados = null;
 
   const resultadoDisponible =
     resultadoRealHome !== null &&
@@ -60,7 +57,6 @@ export const guardarPronosticosFavoritos = async (req, res) => {
       homeScore < awayScore ? "VISITANTE" : "EMPATE";
 
     puntos = 0;
-    golesAcertados = 0;
 
     if (resultadoReal === resultadoPronosticado) {
       if (resultadoReal === "LOCAL") puntos = 2;
@@ -68,29 +64,7 @@ export const guardarPronosticosFavoritos = async (req, res) => {
       else puntos = 1;
     }
 
-    if (partido.home.name === equipoFavorito) {
-  const golesReales = Number(resultadoRealHome);
-  const golesPronosticados = Number(homeScore);
-
-  if (golesReales > 0) {
-    if (golesPronosticados === golesReales) {
-      golesAcertados += golesReales;
-    } else if (golesPronosticados > 0 && golesPronosticados < golesReales) {
-      golesAcertados += golesPronosticados;
-    }
-  }
-} else if (partido.away.name === equipoFavorito) {
-  const golesReales = Number(resultadoRealAway);
-  const golesPronosticados = Number(awayScore);
-
-  if (golesReales > 0) {
-    if (golesPronosticados === golesReales) {
-      golesAcertados += golesReales;
-    } else if (golesPronosticados > 0 && golesPronosticados < golesReales) {
-      golesAcertados += golesPronosticados;
-    }
-  }
-}
+    
 
   }
 
@@ -99,8 +73,7 @@ export const guardarPronosticosFavoritos = async (req, res) => {
     matchId,
     homeScore,
     awayScore,
-    puntos,
-    golesAcertados
+    puntos
   });
 
   nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
@@ -135,7 +108,6 @@ export const recalcularPuntajesFavoritos = async () => {
     const equipoFavorito = usuario.equipoFavorito;
 
     let puntos = 0;
-    let golesAcertados = 0;
 
     const resultadoReal =
       resultadoRealHome > resultadoRealAway ? "LOCAL" :
@@ -151,34 +123,6 @@ export const recalcularPuntajesFavoritos = async () => {
       else puntos = 1;
     }
 
-    if (partido.home.name === equipoFavorito) {
-  const golesRealesNum = Number(resultadoRealHome);
-  const golesPronosticadosNum = Number(pronostico.homeScore);
-
-  if (golesRealesNum > 0) {
-    if (golesPronosticadosNum === golesRealesNum) {
-      golesAcertados += golesRealesNum;
-    } else if (golesPronosticadosNum > 0 && golesPronosticadosNum < golesRealesNum) {
-      golesAcertados += golesPronosticadosNum;
-    }
-  }
-} else if (partido.away.name === equipoFavorito) {
-  const golesRealesNum = Number(resultadoRealAway);
-  const golesPronosticadosNum = Number(pronostico.awayScore);
-
-  if (golesRealesNum > 0) {
-    if (golesPronosticadosNum === golesRealesNum) {
-      golesAcertados += golesRealesNum;
-    } else if (golesPronosticadosNum > 0 && golesPronosticadosNum < golesRealesNum) {
-      golesAcertados += golesPronosticadosNum;
-    }
-  }
-}else {
-      // No participa el equipo favorito en este partido
-      golesAcertados = 0;
-    }
-
-    await pronostico.update({ puntos, golesAcertados });
   }
 };
 
