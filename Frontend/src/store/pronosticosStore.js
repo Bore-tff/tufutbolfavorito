@@ -37,16 +37,20 @@ guardarPronosticos: async (predictionData) => {
 
     if (nuevosPronosticos) {
       set((state) => ({
-        pronosticos: [...state.pronosticos, ...nuevosPronosticos], // no usar .data acá
+        pronosticos: [...state.pronosticos, ...nuevosPronosticos],
         loading: false,
         successMessage: "Pronóstico guardado correctamente",
       }));
+      return true; // Indica éxito
     }
+    set({ loading: false });
+    return false;
   } catch (error) {
     set({
       error: error.message || "Error al guardar el pronóstico",
       loading: false,
     });
+    return false;
   }
 },
 
@@ -85,21 +89,24 @@ fetchMatchesFavorito: async () => {
 guardarPronosticosFavorito: async (predictionData) => {
   set({ loading: true, error: null, successMessage: null });
   try {
-    // Aquí guardás directamente los datos (array de pronósticos) que devuelve la API
     const nuevosPronosticos = await guardarTodosLosPronosticosFavoritos(predictionData);
 
     if (nuevosPronosticos) {
       set((state) => ({
-        pronosticos: [...state.pronosticos, ...nuevosPronosticos], // no usar .data acá
+        pronosticos: [...state.pronosticos, ...nuevosPronosticos],
         loading: false,
         successMessage: "Pronóstico guardado correctamente",
       }));
+      return true; // Indica éxito
     }
+    set({ loading: false });
+    return false;
   } catch (error) {
     set({
       error: error.message || "Error al guardar el pronóstico",
       loading: false,
     });
+    return false;
   }
 },
 
@@ -111,16 +118,20 @@ guardarPronosticosFavoritoGoleador: async (predictionData) => {
 
     if (nuevosPronosticos) {
       set((state) => ({
-        pronosticos: [...state.pronosticos, ...nuevosPronosticos], // no usar .data acá
+        pronosticos: [...state.pronosticos, ...nuevosPronosticos],
         loading: false,
         successMessage: "Pronóstico guardado correctamente",
       }));
+      return true; // Indica éxito
     }
+    set({ loading: false });
+    return false;
   } catch (error) {
     set({
       error: error.message || "Error al guardar el pronóstico",
       loading: false,
     });
+    return false;
   }
 },
 

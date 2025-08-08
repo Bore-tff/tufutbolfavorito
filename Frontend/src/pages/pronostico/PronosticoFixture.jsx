@@ -93,17 +93,17 @@ const PronosticoComponent = () => {
     setLocalLoading(true);
     setMensaje("⏳ Enviando pronóstico...");
 
-    try {
-      await guardarPronosticos(predictionsArray, "general");
+    const success = await guardarPronosticos(predictionsArray, "general");
+
+    if (success) {
       await getRankingPorFecha(selectedFecha);
       setMensaje("✅ Pronóstico enviado correctamente");
-    } catch (error) {
-      console.error("Error al guardar:", error);
+    } else {
       setMensaje("❌ Error al enviar pronóstico");
-    } finally {
-      setLocalLoading(false);
-      setTimeout(() => setMensaje(""), 3000);
     }
+
+    setLocalLoading(false);
+    setTimeout(() => setMensaje(""), 3000);
   };
 
   // Usar rankingFecha y rankingGeneral directamente

@@ -87,6 +87,7 @@ const PronosticoEquipoFav = () => {
     getUsersWithPuntaje();
     getRankingPorFechaFavoritos(selectedFecha);
     getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
+    actualizarPronosticosFavoritoGoleador();
   }, [selectedFecha, selectedFechaGoleador]);
 
   const handleInputChange = (matchId, team, value) => {
@@ -99,18 +100,35 @@ const PronosticoEquipoFav = () => {
     }));
   };
 
+  const handleInputChangeGoleador = (matchId, team, value) => {
+    setPredictionsGoleador((prev) => ({
+      ...prev,
+      [matchId]: {
+        ...prev[matchId],
+        [team]: value,
+      },
+    }));
+  };
+
   const sortedRanking = [...(rankingsFavoritos || [])].sort(
     (a, b) => (b.puntos || 0) - (a.puntos || 0)
   );
 
+  const sortedRankingGoleador = [...(rankingsFavoritosGoleador || [])].sort(
+    (a, b) => (b.golesAcertados || 0) - (a.golesAcertados || 0)
+  );
+
+  console.log("2", rankingsFavoritosGoleador);
+
   const totalPages = Math.ceil(sortedRanking.length / rowsPerPage);
+  const totalPages2 = Math.ceil(sortedRankingGoleador.length / rowsPerPage);
 
   const paginatedRanking = sortedRanking.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
-  const paginatedRanking2 = sortedRanking.slice(
+  const paginatedRanking2 = sortedRankingGoleador.slice(
     (currentPage2 - 1) * rowsPerPage,
     currentPage2 * rowsPerPage
   );
@@ -138,28 +156,36 @@ const PronosticoEquipoFav = () => {
     setLocalLoading(true);
     setMensaje("⏳ Enviando pronóstico...");
 
-    try {
-      await guardarPronosticosFavorito(predictionsArray);
+    const success = await guardarPronosticosFavorito(predictionsArray);
 
+    if (success) {
       await getRankingPorFechaFavoritos(selectedFecha);
-
       setMensaje("✅ Pronóstico enviado correctamente");
-    } catch (error) {
-      console.error("Error al guardar:", error);
+    } else {
       setMensaje("❌ Error al enviar pronóstico");
-    } finally {
-      setLocalLoading(false);
-      setTimeout(() => setMensaje(""), 3000);
     }
+
+    setLocalLoading(false);
+    setTimeout(() => setMensaje(""), 3000);
   };
 
   const handleSavePredictionGoleador = async () => {
     const partidosFechaGoleador = currentFechaGoleador?.partidos || [];
 
-    const faltantesGoleador = partidosFechaGoleador.filter(({ id }) => {
-      const p = predictionsGoleador[id];
-      return !p || p.home === undefined || p.away === undefined;
-    });
+    const faltantesGoleador = partidosFechaGoleador.filter(
+      ({ id, home, away }) => {
+        const esLocal = home.name === equipoFavoritoGoleador;
+        const esVisitante = away.name === equipoFavoritoGoleador;
+
+        // Solo validar si es un partido de tu equipo
+        if (esLocal || esVisitante) {
+          const p = predictionsGoleador[id];
+          return !p || p.goles === undefined || p.goles === "";
+        }
+
+        return false; // No es tu equipo, no validar
+      }
+    );
 
     if (faltantesGoleador.length > 0) {
       setMensaje("⚠️ Faltan completar goles para este pronostico.");
@@ -167,27 +193,31 @@ const PronosticoEquipoFav = () => {
       return;
     }
 
-    const predictionsArray2 = partidosFechaGoleador.map(({ id }) => ({
-      matchId: id,
-      homeScore: Number(predictionsGoleador[id].home),
-      awayScore: Number(predictionsGoleador[id].away),
-    }));
+    const predictionsArray2 = partidosFechaGoleador
+      .filter(
+        ({ home, away }) =>
+          home.name === equipoFavoritoGoleador ||
+          away.name === equipoFavoritoGoleador
+      )
+      .map(({ id }) => ({
+        matchId: id,
+        goles: Number(predictionsGoleador[id].goles),
+      }));
 
     setLocalLoading(true);
     setMensaje("⏳ Enviando pronóstico...");
 
-    try {
-      await guardarPronosticosFavoritoGoleador(predictionsArray2);
+    const success = await guardarPronosticosFavoritoGoleador(predictionsArray2);
 
+    if (success) {
       await getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
       setMensaje("✅ Pronóstico enviado correctamente");
-    } catch (error) {
-      console.error("Error al guardar:", error);
+    } else {
       setMensaje("❌ Error al enviar pronóstico");
-    } finally {
-      setLocalLoading(false);
-      setTimeout(() => setMensaje(""), 3000);
     }
+
+    setLocalLoading(false);
+    setTimeout(() => setMensaje(""), 3000);
   };
 
   // Usar rankingFecha y rankingGeneral directamente
@@ -383,7 +413,7 @@ const PronosticoEquipoFav = () => {
                                   placeholder="0"
                                   value={predictionsGoleador[id]?.goles || ""}
                                   onChange={(e) =>
-                                    handleInputChange(
+                                    handleInputChangeGoleador(
                                       id,
                                       "goles",
                                       e.target.value
@@ -407,7 +437,7 @@ const PronosticoEquipoFav = () => {
                                   placeholder="0"
                                   value={predictionsGoleador[id]?.goles || ""}
                                   onChange={(e) =>
-                                    handleInputChange(
+                                    handleInputChangeGoleador(
                                       id,
                                       "goles",
                                       e.target.value
@@ -562,8 +592,8 @@ const PronosticoEquipoFav = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedRanking.length > 0 ? (
-                  paginatedRanking.map((usuario) => (
+                {paginatedRanking2.length > 0 ? (
+                  paginatedRanking2.map((usuario) => (
                     <tr key={usuario.id} className="border-black border-2">
                       <td className="text-black text-center font-bold px-4 py-2 bg-white">
                         {usuario.nombre || usuario.user}
@@ -572,7 +602,7 @@ const PronosticoEquipoFav = () => {
                         <img className="h-8" src={Logo} alt="Logo" />
                       </td>
                       <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                        {usuario.golesFecha || 0}
+                        {usuario.golesAcertados || 0}
                       </td>
                     </tr>
                   ))
@@ -587,20 +617,20 @@ const PronosticoEquipoFav = () => {
             </table>
             <div className="flex justify-center gap-2 mt-4">
               <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
+                onClick={() => setCurrentPage2((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage2 === 1}
                 className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
               >
                 Anterior
               </button>
               <span className="text-white px-2">
-                Página {currentPage} de {totalPages}
+                Página {currentPage2} de {totalPages2}
               </span>
               <button
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  setCurrentPage2((prev) => Math.min(prev + 1, totalPages2))
                 }
-                disabled={currentPage === totalPages}
+                disabled={currentPage2 === totalPages2}
                 className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
               >
                 Siguiente
