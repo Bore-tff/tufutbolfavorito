@@ -29,6 +29,10 @@ export const login = async (req, res) => {
 
     const token = jwt.sign({ id: usuario.id, user: usuario.user }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
+    const totalGolesAcertados = await PronosticoFavoritoGoleador.sum("golesAcertados", {
+      where: { userId: usuario.id },
+    });
+
     const totalPuntos = await Pronostico.sum("puntos", {
       where: { userId: usuario.id },
     });
@@ -40,6 +44,8 @@ export const login = async (req, res) => {
         id: usuario.id,
         nombre: usuario.user,
         equipoFavorito: usuario.equipoFavorito,
+        equipoFavoritoGoleador: usuario.equipoFavoritoGoleador,
+        golesAcertados: totalGolesAcertados || 0,
         puntos: totalPuntos || 0,
       },
     });
@@ -86,6 +92,7 @@ export const obtenerUsuariosConPuntaje = async () => {
     'id',
     'user',
     'equipoFavorito',
+    'equipoFavoritoGoleador',
     [fn('SUM', col('Pronosticos.puntos')), 'totalPuntos'],
     [fn('SUM', col('Pronosticos.golesAcertados')), 'golesAcertados'],
     [fn('SUM', literal('Pronosticos.puntos + Pronosticos.golesAcertados')), 'sumaTotal']
@@ -99,6 +106,7 @@ return usuarios.map(usuario => ({
   id: usuario.id,
   user: usuario.user,
   equipoFavorito: usuario.equipoFavorito,
+  equipoFavoritoGoleador: usuario.equipoFavoritoGoleador,
   puntos: Number(usuario.totalPuntos) || 0,
   goles: Number(usuario.golesAcertados) || 0,
   sumaTotal: Number(usuario.sumaTotal) || 0,
@@ -382,8 +390,7 @@ export const obtenerRankingPorFechaFavoritosGoleador = async (numeroFecha) => {
       attributes: [
         'id',
         'user',
-        [fn('SUM', literal(`CASE WHEN \`PronosticoFavoritoGoleador->Partido\`.\`fecha\` = ${numeroFecha} THEN \`PronosticoFavoritoGoleador\`.\`golesAcertados\` ELSE 0 END`)), 'golesFecha'],
-        [fn('SUM', col('PronosticoFavoritoGoleador.golesAcertados')), 'golesTotales'],
+        [fn('SUM', literal(`CASE WHEN \`PronosticoFavoritoGoleador->Partido\`.\`fecha\` = ${numeroFecha} THEN \`PronosticoFavoritoGoleador\`.\`golesAcertados\` ELSE 0 END`)), 'golesAcertados']
       ],
       include: [
         {
@@ -405,8 +412,7 @@ export const obtenerRankingPorFechaFavoritosGoleador = async (numeroFecha) => {
     return usuarios.map(usuario => ({
       id: usuario.id,
       user: usuario.user,
-      golesFecha: Number(usuario.golesFecha) || 0,
-      golesTotales: Number(usuario.golesTotales) || 0
+      golesAcertados: Number(usuario.golesAcertados) || 0,
     }));
   } catch (error) {
     console.error('Error al obtener ranking de favoritos goleador por fecha:', error);
@@ -482,7 +488,7 @@ export const obtenerPuntajeDeUsuarioPorFechaFavoritosGoleador = async (userId, n
     return {
       id: usuario?.id ?? userId,
       user: usuario?.user ?? 'Desconocido',
-      goles: Number(usuario?.golesFecha) || 0
+      goles: Number(usuario?.golesAcertados) || 0
     };
   } catch (error) {
     console.error('Error al obtener puntaje del usuario en la fecha:', error);
