@@ -22,3 +22,24 @@ input[type="number"]::-webkit-inner-spin-button {
 .float-text {
   animation: float 3s ease-in-out infinite;
 }
+
+/* ancho de la barra */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* color de fondo de la barra */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* color y forma del "pulgar" (la parte que se mueve) */
+::-webkit-scrollbar-thumb {
+  background: #22c55e;
+  border-radius: 4px;
+}
+
+/* hover del pulgar */
+::-webkit-scrollbar-thumb:hover {
+  background: #16a34a;
+}

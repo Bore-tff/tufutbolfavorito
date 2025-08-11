@@ -48,8 +48,10 @@ function HomePage() {
           </h1>
         </div>
         <div className="flex flex-col items-start relative top-15 pr-10">
-          <h1 className="font-bold text-xl text-white">
-            Bienvenido Apaxionado {usuario ? usuario.nombre : "Invitado"}
+          <h1 className="font-bold text-xl">
+            <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
+              Bienvenido Apaxionado {usuario ? usuario.nombre : "Invitado"}
+            </span>
           </h1>
 
           {user ? (

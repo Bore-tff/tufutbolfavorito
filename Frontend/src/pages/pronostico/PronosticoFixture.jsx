@@ -156,7 +156,11 @@ const PronosticoComponent = () => {
         <div className="flex flex-row justify-between items-start space-x-6 ml-5 mr-5">
           {/* Tabla de partidos */}
           <div className="w-1/2 bg-gray-800 rounded-lg pt-5 px-5">
-            <h1 className="text-white text-3xl font-bold mb-5">FIXTURE</h1>
+            <h1 className="text-white text-2xl font-bold mb-5">
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
+                FIXTURE
+              </span>
+            </h1>
 
             {/* Selector de Fechas */}
             <div className="flex gap-2 mb-4">
@@ -258,8 +262,10 @@ const PronosticoComponent = () => {
 
           {/* Ranking x Fecha */}
           <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
-            <h2 className="text-white text-3xl font-bold mb-2 text-center">
-              RANKING X FECHA
+            <h2 className="text-white text-2xl font-bold mb-2 text-center">
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
+                RANKING X FECHA
+              </span>
             </h2>
 
             <div className="flex justify-center gap-4 mb-4">
@@ -280,10 +286,12 @@ const PronosticoComponent = () => {
             <table className="w-full border-collapse ">
               <thead>
                 <tr className="border-black border-2">
-                  <th className="  text-green-500 bg-black px-4 py-2">
+                  <th className=" text-xl  text-green-500 bg-black px-4 py-2">
                     Apaxionado
                   </th>
-                  <th className="  text-green-500 bg-black px-4 py-2">Logo</th>
+                  <th className="  text-green-500 bg-black px-4 py-2">
+                    Premio
+                  </th>
                   <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
                 </tr>
               </thead>
@@ -315,7 +323,7 @@ const PronosticoComponent = () => {
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
+                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
               >
                 Anterior
               </button>
@@ -327,7 +335,7 @@ const PronosticoComponent = () => {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
+                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
               >
                 Siguiente
               </button>
@@ -336,8 +344,10 @@ const PronosticoComponent = () => {
 
           {/* Ranking x Goles */}
           <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
-            <h2 className="text-white text-3xl font-bold mb-2 text-center">
-              RANKING X FECHA DE GOLES
+            <h2 className="text-white text-2xl font-bold mb-2 text-center">
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
+                RANKING X FECHA
+              </span>
             </h2>
             <div className="flex justify-center gap-4 mb-4">
               {[1, 2].map((fecha) => (
@@ -357,8 +367,11 @@ const PronosticoComponent = () => {
             <table className="w-full border-collapse ">
               <thead>
                 <tr className="border-black border-2">
-                  <th className="  text-green-500 bg-black px-4 py-2">
+                  <th className="text-xl  text-green-500 bg-black px-4 py-2">
                     Apaxionado
+                  </th>
+                  <th className="  text-green-500 bg-black px-4 py-2">
+                    Premio
                   </th>
                   <th className="  text-green-500 bg-black px-4 py-2">Goles</th>
                 </tr>
@@ -369,6 +382,9 @@ const PronosticoComponent = () => {
                     <tr key={usuario.id} className="border-black border-2">
                       <td className="text-black text-center font-bold px-4 py-2 bg-white">
                         {usuario.nombre || usuario.user}
+                      </td>
+                      <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                        <img className="h-8" src={Logo} alt="Logo" />
                       </td>
                       <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
                         {usuario.golesFecha || 0}
@@ -388,7 +404,7 @@ const PronosticoComponent = () => {
               <button
                 onClick={() => setCurrentPage2((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage2 === 1}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
+                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
               >
                 Anterior
               </button>
@@ -400,7 +416,7 @@ const PronosticoComponent = () => {
                   setCurrentPage2((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage2 === totalPages}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
+                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
               >
                 Siguiente
               </button>

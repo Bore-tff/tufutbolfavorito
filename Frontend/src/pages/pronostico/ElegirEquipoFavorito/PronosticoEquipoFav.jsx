@@ -265,9 +265,14 @@ const PronosticoEquipoFav = () => {
         <div className="flex flex-row justify-between items-start space-x-6 ml-5 mr-5">
           {/* Tabla de partidos */}
           <div className="w-1/2 bg-gray-800 rounded-lg pt-5 px-5">
-            <h1 className="text-white text-3xl font-bold mb-5">
-              FIXTURE (E.F.C - E.F.G)
-            </h1>
+            <div className="text-white flex mb-2 bg-gray-800 pt-1 pb-1 w-120 rounded-xl">
+              <h2 className="text-2xl font-bold">
+                <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
+                  EQUIPO FAVORITO CAMPEON:
+                </span>
+              </h2>
+              <p className="text-xl mt-1 ml-2">{equipoFavorito}</p>
+            </div>
 
             {/* Selector de Fechas */}
             <div className="flex gap-2 mb-4">
@@ -368,6 +373,14 @@ const PronosticoEquipoFav = () => {
 
             {currentFechaGoleador && (
               <>
+                <div className="text-white flex bg-gray-800 mb-2 pt-1 pb-1 w-120 rounded-xl">
+                  <h2 className="text-2xl font-bold">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
+                      EQUIPO FAVORITO GOLEADOR:
+                    </span>
+                  </h2>
+                  <p className="text-xl mt-1 ml-2">{equipoFavoritoGoleador}</p>
+                </div>
                 <table className="w-full text-center border-collapse mb-4">
                   <thead>
                     <tr className="bg-black text-green-500 border-2 border-black">
@@ -422,9 +435,12 @@ const PronosticoEquipoFav = () => {
                                   onWheel={(e) => e.target.blur()}
                                 />
                               ) : (
-                                <div className="text-gray-400 text-sm font-semibold">
-                                  -
-                                </div>
+                                <input
+                                  type="number"
+                                  className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                                  placeholder="-"
+                                  disabled
+                                />
                               )}
                             </td>
 
@@ -446,9 +462,12 @@ const PronosticoEquipoFav = () => {
                                   onWheel={(e) => e.target.blur()}
                                 />
                               ) : (
-                                <div className="text-gray-400 text-sm font-semibold">
-                                  -
-                                </div>
+                                <input
+                                  type="number"
+                                  className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                                  placeholder="-"
+                                  disabled
+                                />
                               )}
                             </td>
 
@@ -484,8 +503,10 @@ const PronosticoEquipoFav = () => {
 
           {/* Ranking x Fecha */}
           <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
-            <h2 className="text-white text-3xl font-bold mb-2 text-center">
-              EQUIPO FAVORITO CAMPEON
+            <h2 className="text-white text-2xl font-bold mb-2 text-center">
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
+                EQUIPO FAVORITO CAMPEON
+              </span>
             </h2>
 
             <div className="flex justify-center gap-4 mb-4">
@@ -506,10 +527,12 @@ const PronosticoEquipoFav = () => {
             <table className="w-full border-collapse ">
               <thead>
                 <tr className="border-black border-2">
-                  <th className="  text-green-500 bg-black px-4 py-2">
+                  <th className="text-xl  text-green-500 bg-black px-4 py-2">
                     Apaxionado
                   </th>
-                  <th className="  text-green-500 bg-black px-4 py-2">Logo</th>
+                  <th className="  text-green-500 bg-black px-4 py-2">
+                    Premio
+                  </th>
                   <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
                 </tr>
               </thead>
@@ -541,7 +564,7 @@ const PronosticoEquipoFav = () => {
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
+                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
               >
                 Anterior
               </button>
@@ -553,7 +576,7 @@ const PronosticoEquipoFav = () => {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
+                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
               >
                 Siguiente
               </button>
@@ -562,8 +585,10 @@ const PronosticoEquipoFav = () => {
 
           {/* Ranking x Goles */}
           <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
-            <h2 className="text-white text-3xl font-bold mb-2 text-center">
-              EQUIPO FAVORITO GOLEADOR
+            <h2 className="text-white text-2xl font-bold mb-2 text-center">
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
+                EQUIPO FAVORITO GOLEADOR
+              </span>
             </h2>
 
             <div className="flex justify-center gap-4 mb-4">
@@ -584,10 +609,12 @@ const PronosticoEquipoFav = () => {
             <table className="w-full border-collapse ">
               <thead>
                 <tr className="border-black border-2">
-                  <th className="  text-green-500 bg-black px-4 py-2">
+                  <th className="text-xl  text-green-500 bg-black px-4 py-2">
                     Apaxionado
                   </th>
-                  <th className="  text-green-500 bg-black px-4 py-2">Logo</th>
+                  <th className="  text-green-500 bg-black px-4 py-2">
+                    Premio
+                  </th>
                   <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
                 </tr>
               </thead>
@@ -619,7 +646,7 @@ const PronosticoEquipoFav = () => {
               <button
                 onClick={() => setCurrentPage2((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage2 === 1}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
+                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
               >
                 Anterior
               </button>
@@ -631,7 +658,7 @@ const PronosticoEquipoFav = () => {
                   setCurrentPage2((prev) => Math.min(prev + 1, totalPages2))
                 }
                 disabled={currentPage2 === totalPages2}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
+                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
               >
                 Siguiente
               </button>
