@@ -6,8 +6,8 @@ import {
   obtenerResumenDeUsuario,
   obtenerRankingPorFecha,
   seleccionarEquipoFavorito,
-  obtenerRankingPorFechaFavoritos,
   seleccionarEquipoFavoritoGoleador,
+  obtenerRankingPorFechaFavoritos,
   obtenerRankingPorFechaFavoritosGoleador
 } from "../api/auth";
 
@@ -140,61 +140,78 @@ const useUserStore = create((set) => {
     },
 
   /*----------------------------- MODO DE JUEGO FAVORITO -----------------------------*/  
-  seleccionarEquipoFavorito: async (equipo) => {
-  try {
-    set({ loading: true, error: null });
+  actualizarEquipoFavorito: async (tipo, equipo) => {
+      try {
+        set({ loading: true, error: null });
 
-    const res = await seleccionarEquipoFavorito(equipo);
-    const { equipoFavorito, message } = res.data;
+        let res;
+        if (tipo === "campeon") {
+          res = await seleccionarEquipoFavorito(equipo);
+        } else if (tipo === "goleador") {
+          res = await seleccionarEquipoFavoritoGoleador(equipo);
+        } else {
+          throw new Error("Tipo de equipo no válido");
+        }
 
-    
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    const updatedUser = { ...currentUser, equipoFavorito };
+        const data = res.data;
+        const currentUser = JSON.parse(localStorage.getItem("user")) || {};
 
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+        const updatedUser = {
+          ...currentUser,
+          ...(tipo === "campeon" && { equipoFavorito: data.equipoFavorito }),
+          ...(tipo === "goleador" && { equipoFavoritoGoleador: data.equipoFavoritoGoleador }),
+        };
 
-    set({
-      equipoFavorito,
-      user: updatedUser,
-      mensaje: message,
-      loading: false
-    });
-  } catch (error) {
-    console.error("Error al seleccionar equipo favorito:", error);
-    set({
-      error: error.response?.data?.message || "Error al guardar equipo favorito.",
-      loading: false
-    });
-  }
-},
+        localStorage.setItem("user", JSON.stringify(updatedUser));
 
-seleccionarEquipoFavoritoGoleador: async (equipo) => {
-  try {
-    set({ loading: true, error: null });
+        set({
+          user: updatedUser,
+          equipoFavorito: updatedUser.equipoFavorito,
+          equipoFavoritoGoleador: updatedUser.equipoFavoritoGoleador,
+          mensaje: data.message,
+          loading: false,
+        });
+      } catch (error) {
+        set({
+          error: error?.response?.data?.message || "Error al guardar equipo favorito.",
+          loading: false,
+        });
+      }
+    },
 
-    const res = await seleccionarEquipoFavoritoGoleador(equipo);
-    const { equipoFavoritoGoleador, message } = res.data;
+    // GUARDAR AMBOS A LA VEZ
+    guardarAmbosFavoritos: async (equipoCampeon, equipoGoleador) => {
+      try {
+        set({ loading: true, error: null, mensaje: null });
 
-    
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    const updatedUser = { ...currentUser, equipoFavoritoGoleador };
+        const [resCampeon, resGoleador] = await Promise.all([
+          seleccionarEquipoFavorito(equipoCampeon),
+          seleccionarEquipoFavoritoGoleador(equipoGoleador),
+        ]);
 
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+        const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+        const updatedUser = {
+          ...currentUser,
+          equipoFavorito: resCampeon.data.equipoFavorito,
+          equipoFavoritoGoleador: resGoleador.data.equipoFavoritoGoleador,
+        };
 
-    set({
-      equipoFavoritoGoleador,
-      user: updatedUser,
-      mensaje: message,
-      loading: false
-    });
-  } catch (error) {
-    console.error("Error al seleccionar equipo favorito goleador:", error);
-    set({
-      error: error.response?.data?.message || "Error al guardar equipo favorito goleador.",
-      loading: false
-    });
-  }
-},
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+
+        set({
+          user: updatedUser,
+          equipoFavorito: updatedUser.equipoFavorito,
+          equipoFavoritoGoleador: updatedUser.equipoFavoritoGoleador,
+          mensaje: resCampeon.data.message || resGoleador.data.message || "Equipos guardados con éxito",
+          loading: false,
+        });
+      } catch (error) {
+        set({
+          error: error?.response?.data?.message || "Error al guardar equipos favoritos.",
+          loading: false,
+        });
+      }
+    },
 
 getRankingPorFechaFavoritos: async (fecha) => {
       try {

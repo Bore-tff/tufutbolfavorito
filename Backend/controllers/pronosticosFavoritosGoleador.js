@@ -116,10 +116,10 @@ export const recalcularPuntajesFavoritosGoleador = async () => {
 
   for (const pronostico of pronosticos) {
     const partido = partidos.find(p => p.id === pronostico.matchId);
-    if (!partido) continue;
+    if (!partido?.score) continue;
 
-    const resultadoRealHome = partido.score?.home;
-    const resultadoRealAway = partido.score?.away;
+    const resultadoRealHome = partido.score.home;
+    const resultadoRealAway = partido.score.away;
     if (resultadoRealHome == null || resultadoRealAway == null) continue;
 
     const usuario = await Usuario.findByPk(pronostico.userId);
@@ -129,16 +129,16 @@ export const recalcularPuntajesFavoritosGoleador = async () => {
 
     let golesAcertados = 0;
 
-    // Si juega el equipo favorito, sumamos goles acertados
     if (partido.home.name === equipoFavorito) {
       golesAcertados = Number(resultadoRealHome);
     } else if (partido.away.name === equipoFavorito) {
       golesAcertados = Number(resultadoRealAway);
     }
 
-    // En este juego "goleador", asumimos que puntos = goles acertados
+    // En este juego "goleador", los puntos = goles acertados
     const puntos = golesAcertados;
 
-    await pronostico.update({ golesAcertados });
+    // Actualizamos ambos campos en la base de datos
+    await pronostico.update({ golesAcertados, puntos });
   }
 };

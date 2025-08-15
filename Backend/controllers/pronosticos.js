@@ -17,10 +17,8 @@ export const getMatches = async (req, res) => {
 
 
 export const guardarPronosticos = async (req, res) => {
-  
   try {
     const { pronosticos } = req.body;
-    
     const userId = req.user.id;
 
     if (!Array.isArray(pronosticos) || pronosticos.length === 0) {
@@ -37,21 +35,15 @@ export const guardarPronosticos = async (req, res) => {
       if (matchId === undefined || homeScore === undefined || awayScore === undefined) continue;
 
       const partido = partidos.find((m) => m.id === matchId);
-      if (!partido) continue;
 
-      const resultadoRealHome = partido?.score?.home;
-      const resultadoRealAway = partido?.score?.away;
-
+      // Si no existe el partido o no hay score, guardamos puntos y golesAcertados como null
       let puntos = null;
       let golesAcertados = null;
 
-      const resultadoDisponible =
-        resultadoRealHome !== null &&
-        resultadoRealAway !== null &&
-        resultadoRealHome !== undefined &&
-        resultadoRealAway !== undefined;
+      if (partido?.score?.home != null && partido?.score?.away != null) {
+        const resultadoRealHome = partido.score.home;
+        const resultadoRealAway = partido.score.away;
 
-      if (resultadoDisponible) {
         const resultadoReal =
           resultadoRealHome > resultadoRealAway ? "LOCAL" :
           resultadoRealHome < resultadoRealAway ? "VISITANTE" : "EMPATE";
@@ -72,7 +64,6 @@ export const guardarPronosticos = async (req, res) => {
         if (homeScore === resultadoRealHome && resultadoRealHome > 0) {
           golesAcertados += resultadoRealHome;
         }
-
         if (awayScore === resultadoRealAway && resultadoRealAway > 0) {
           golesAcertados += resultadoRealAway;
         }
@@ -90,8 +81,6 @@ export const guardarPronosticos = async (req, res) => {
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
     }
 
-    await recalcularPuntajes();
-
     res.status(201).json(nuevosPronosticos);
   } catch (error) {
     console.error("Error al guardar los pronósticos:", error);
@@ -99,10 +88,7 @@ export const guardarPronosticos = async (req, res) => {
   }
 };
 
-
-
-
-
+// Recalcular puntajes pendientes si ahora existen resultados
 export const recalcularPuntajes = async () => {
   const response = await axios.get("https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions");
   const partidos = response.data.flatMap(f => f.partidos);
@@ -111,12 +97,10 @@ export const recalcularPuntajes = async () => {
 
   for (const pronostico of pronosticos) {
     const partido = partidos.find(p => p.id === pronostico.matchId);
-    if (!partido) continue;
+    if (!partido?.score) continue;
 
-    const resultadoRealHome = partido.score?.home;
-    const resultadoRealAway = partido.score?.away;
-
-    if (resultadoRealHome == null || resultadoRealAway == null) continue;
+    const resultadoRealHome = partido.score.home;
+    const resultadoRealAway = partido.score.away;
 
     let puntos = 0;
     let golesAcertados = 0;
@@ -138,7 +122,6 @@ export const recalcularPuntajes = async () => {
     if (pronostico.homeScore === resultadoRealHome && resultadoRealHome > 0) {
       golesAcertados += resultadoRealHome;
     }
-
     if (pronostico.awayScore === resultadoRealAway && resultadoRealAway > 0) {
       golesAcertados += resultadoRealAway;
     }
@@ -146,6 +129,7 @@ export const recalcularPuntajes = async () => {
     await pronostico.update({ puntos, golesAcertados });
   }
 };
+
 
 export const actualizarPuntajesPendientes = async (req, res) => {
   try {

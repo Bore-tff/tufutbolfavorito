@@ -92,21 +92,20 @@ export const recalcularPuntajesFavoritos = async () => {
   const response = await axios.get("https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions");
   const partidos = response.data.flatMap(f => f.partidos);
 
+  // Solo pronósticos con puntos null
   const pronosticos = await PronosticoFavorito.findAll({ where: { puntos: null } });
 
   for (const pronostico of pronosticos) {
     const partido = partidos.find(p => p.id === pronostico.matchId);
-    if (!partido) continue;
+    if (!partido?.score) continue;
 
-    const resultadoRealHome = partido.score?.home;
-    const resultadoRealAway = partido.score?.away;
+    const resultadoRealHome = partido.score.home;
+    const resultadoRealAway = partido.score.away;
+
+    // Si algún score es null o undefined, saltar
     if (resultadoRealHome == null || resultadoRealAway == null) continue;
 
-    const usuario = await Usuario.findByPk(pronostico.userId);
-    if (!usuario || !usuario.equipoFavorito) continue;
-
-    const equipoFavorito = usuario.equipoFavorito;
-
+    // Calculamos puntos
     let puntos = 0;
 
     const resultadoReal =
@@ -123,7 +122,10 @@ export const recalcularPuntajesFavoritos = async () => {
       else puntos = 1;
     }
 
+    // Actualizamos el pronóstico en la base de datos
+    await pronostico.update({ puntos });
   }
 };
+
 
   

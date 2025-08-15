@@ -50,10 +50,8 @@ const Rankings = () => {
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">
-              <th className="text-xl  text-green-500 bg-black px-4 py-2">
-                Apaxionado
-              </th>
-              <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
+              <th className="text-xl  text-green-500 bg-black px-4 py-2"></th>
+              <th className="  text-green-500 bg-black px-4 py-2">Goles</th>
             </tr>
           </thead>
           <tbody>
@@ -104,7 +102,7 @@ const Rankings = () => {
       <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
-            RANKING GENERAL (PTS + GOLES)
+            RANKING GENERAL
           </span>
         </h2>
         <table className="w-full border-collapse">
@@ -113,7 +111,9 @@ const Rankings = () => {
               <th className="text-xl  text-green-500 bg-black px-4 py-2">
                 Apaxionado
               </th>
-              <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
+              <th className="  text-green-500 bg-black px-4 py-2">
+                Goles + Pts
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -173,9 +173,7 @@ const Rankings = () => {
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">
-              <th className="text-xl  text-green-500 bg-black px-4 py-2">
-                Apaxionado
-              </th>
+              <th className="text-xl  text-green-500 bg-black px-4 py-2"></th>
               <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
             </tr>
           </thead>
