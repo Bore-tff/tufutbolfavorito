@@ -1,13 +1,12 @@
 import PronosticoFavorito from "../models/predictionsFavoritos.model.js";
+import Partido from "../models/partido.model.js";
 import Usuario from "../models/user.model.js";
 import axios from "axios";
 
 
 export const guardarPronosticosFavoritos = async (req, res) => {
-  
   try {
     const { pronosticos } = req.body;
-    
     const userId = req.user.id;
 
     const usuario = await Usuario.findByPk(userId);
@@ -20,110 +19,92 @@ export const guardarPronosticosFavoritos = async (req, res) => {
       return res.status(400).json({ message: "Se requiere al menos un pronóstico" });
     }
 
-    const response = await axios.get("https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions");
-    const partidos = response.data.flatMap(f => f.partidos);
-
     const nuevosPronosticos = [];
 
     for (const p of pronosticos) {
-  const { matchId, homeScore, awayScore } = p;
-  if (matchId === undefined || homeScore === undefined || awayScore === undefined) continue;
+      const { matchId, homeScore, awayScore } = p;
+      if (matchId === undefined || homeScore === undefined || awayScore === undefined) continue;
 
-  const partido = partidos.find((m) => m.id === matchId);
-  if (!partido) continue;
+      const partido = await Partido.findByPk(matchId);
+      if (!partido) continue;
 
-  // Solo procesar si participa el equipo favorito
-  if (partido.home.name !== equipoFavorito && partido.away.name !== equipoFavorito) continue;
+      // Solo procesar si participa el equipo favorito
+      if (partido.homeTeam !== equipoFavorito && partido.awayTeam !== equipoFavorito) continue;
 
-  // resto del cálculo como ya tenés...
-  const resultadoRealHome = partido?.score?.home;
-  const resultadoRealAway = partido?.score?.away;
+      let puntos = 0;
 
-  let puntos = null;
+      // Calculamos resultado real
+      const resultadoReal =
+        partido.homeScore > partido.awayScore ? "LOCAL" :
+        partido.homeScore < partido.awayScore ? "VISITANTE" : "EMPATE";
 
-  const resultadoDisponible =
-    resultadoRealHome !== null &&
-    resultadoRealAway !== null &&
-    resultadoRealHome !== undefined &&
-    resultadoRealAway !== undefined;
+      // Calculamos resultado pronosticado
+      const resultadoPronosticado =
+        homeScore > awayScore ? "LOCAL" :
+        homeScore < awayScore ? "VISITANTE" : "EMPATE";
 
-  if (resultadoDisponible) {
-    const resultadoReal =
-      resultadoRealHome > resultadoRealAway ? "LOCAL" :
-      resultadoRealHome < resultadoRealAway ? "VISITANTE" : "EMPATE";
+      // Si el pronóstico coincide con el resultado
+      if (resultadoReal === resultadoPronosticado) {
+        if (resultadoReal === "LOCAL" && partido.homeTeam === equipoFavorito) puntos = 2;
+        else if (resultadoReal === "VISITANTE" && partido.awayTeam === equipoFavorito) puntos = 3;
+        else if (resultadoReal === "EMPATE") puntos = 1;
+      }
 
-    const resultadoPronosticado =
-      homeScore > awayScore ? "LOCAL" :
-      homeScore < awayScore ? "VISITANTE" : "EMPATE";
+      const nuevoPronostico = await PronosticoFavorito.create({
+        userId,
+        matchId,
+        homeScore,
+        awayScore,
+        puntos
+      });
 
-    puntos = 0;
-
-    if (resultadoReal === resultadoPronosticado) {
-      if (resultadoReal === "LOCAL") puntos = 2;
-      else if (resultadoReal === "VISITANTE") puntos = 3;
-      else puntos = 1;
+      nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
     }
-
-    
-
-  }
-
-  const nuevoPronostico = await PronosticoFavorito.create({
-    userId,
-    matchId,
-    homeScore,
-    awayScore,
-    puntos
-  });
-
-  nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
-}
 
     await recalcularPuntajesFavoritos();
 
     res.status(201).json(nuevosPronosticos);
   } catch (error) {
-    console.error("Error al guardar los pronósticos:", error);
+    console.error("Error al guardar los pronósticos favoritos:", error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 };
 
+// Recalcular puntajes de pronósticos favoritos
 export const recalcularPuntajesFavoritos = async () => {
-  const response = await axios.get("https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions");
-  const partidos = response.data.flatMap(f => f.partidos);
+  try {
+    const response = await axios.get("https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions");
+    const partidos = response.data.flatMap(f => f.partidos);
 
-  // Solo pronósticos con puntos null
-  const pronosticos = await PronosticoFavorito.findAll({ where: { puntos: null } });
+    const pronosticos = await PronosticoFavorito.findAll();
 
-  for (const pronostico of pronosticos) {
-    const partido = partidos.find(p => p.id === pronostico.matchId);
-    if (!partido?.score) continue;
+    for (const pronostico of pronosticos) {
+      const partido = partidos.find(p => p.id === pronostico.matchId);
+      if (!partido?.score) continue;
 
-    const resultadoRealHome = partido.score.home;
-    const resultadoRealAway = partido.score.away;
+      const usuario = await Usuario.findByPk(pronostico.userId);
+      if (!usuario?.equipoFavorito) continue;
+      const equipoFavorito = usuario.equipoFavorito;
 
-    // Si algún score es null o undefined, saltar
-    if (resultadoRealHome == null || resultadoRealAway == null) continue;
+      const resultadoReal =
+        partido.score.home > partido.score.away ? "LOCAL" :
+        partido.score.home < partido.score.away ? "VISITANTE" : "EMPATE";
 
-    // Calculamos puntos
-    let puntos = 0;
+      const resultadoPronostico =
+        pronostico.homeScore > pronostico.awayScore ? "LOCAL" :
+        pronostico.homeScore < pronostico.awayScore ? "VISITANTE" : "EMPATE";
 
-    const resultadoReal =
-      resultadoRealHome > resultadoRealAway ? "LOCAL" :
-      resultadoRealHome < resultadoRealAway ? "VISITANTE" : "EMPATE";
+      let puntos = 0;
+      if (resultadoReal === resultadoPronostico) {
+        if (resultadoReal === "LOCAL" && partido.home.name === equipoFavorito) puntos = 2;
+        else if (resultadoReal === "VISITANTE" && partido.away.name === equipoFavorito) puntos = 3;
+        else if (resultadoReal === "EMPATE") puntos = 1;
+      }
 
-    const resultadoPronosticado =
-      pronostico.homeScore > pronostico.awayScore ? "LOCAL" :
-      pronostico.homeScore < pronostico.awayScore ? "VISITANTE" : "EMPATE";
-
-    if (resultadoReal === resultadoPronosticado) {
-      if (resultadoReal === "LOCAL") puntos = 2;
-      else if (resultadoReal === "VISITANTE") puntos = 3;
-      else puntos = 1;
+      await pronostico.update({ puntos });
     }
-
-    // Actualizamos el pronóstico en la base de datos
-    await pronostico.update({ puntos });
+  } catch (error) {
+    console.error("Error al recalcular puntajes favoritos:", error);
   }
 };
 

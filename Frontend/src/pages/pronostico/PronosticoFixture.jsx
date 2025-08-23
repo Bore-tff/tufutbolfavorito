@@ -32,6 +32,7 @@ const PronosticoComponent = () => {
   const [currentPage2, setCurrentPage2] = useState(1);
   const rowsPerPage = 5;
   console.log("Usuarios:", usuarios);
+  console.log("200", matches);
 
   const currentFecha = matches.find((m) => m.fecha === selectedFecha);
 

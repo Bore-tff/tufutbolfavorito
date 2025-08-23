@@ -28,18 +28,17 @@ export const sincronizarPartidos = async (req, res) => {
 
       for (const p of partidos) {
         await Partido.findOrCreate({
-          where: {
-            homeTeam: p.home.name,
-            awayTeam: p.away.name,
-            fecha,
-            date: parseFechaHora(p.date),
-          },
-          defaults: {
-            homeScore: p.score?.home ?? null,
-            awayScore: p.score?.away ?? null,
-          },
-        });
-      }
+        where: { id: p.id }, // usar el id del mockAPI como PK
+        defaults: {
+         homeTeam: p.home.name,
+         awayTeam: p.away.name,
+         fecha,
+         date: parseFechaHora(p.date),
+         homeScore: p.score?.home ?? null,
+         awayScore: p.score?.away ?? null,
+        },
+      });
+     }
     }
 
     res.status(200).json({ message: "Partidos sincronizados correctamente" });

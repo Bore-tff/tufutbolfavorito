@@ -25,17 +25,9 @@ function Banner() {
           <img src={Logo} alt="Logo TFF" className="w-32 h-32 mx-4" />
 
           <span className="text-blue-500 font-bold text-3xl">
-            LOS{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
-              APAXIONADOS
-            </span>{" "}
-            PRONOSTICAN LOS RESULTADOS X FECHA.
+            Y SUMA GOLES + PUNTOS Y SE EL CONQUISTADOR . . .
           </span>
         </div>
-
-        <span className="text-blue-500 font-bold text-3xl">
-          SUMA GOLES + PUNTOS Y SE EL CONQUISTADOR . . .
-        </span>
       </div>
     </motion.div>
   );

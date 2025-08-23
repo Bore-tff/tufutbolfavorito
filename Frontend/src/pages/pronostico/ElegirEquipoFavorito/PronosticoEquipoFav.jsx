@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import usePronosticoStore from "../../../store/pronosticosStore";
 import useUserStore from "../../../store/usersStore";
-import Rankings from "../rankings/Rankings";
 import { motion } from "framer-motion";
 import Logo from "../../../assets/Botintff.png";
 
@@ -17,12 +16,12 @@ const PronosticoEquipoFav = () => {
     error,
     loading,
   } = usePronosticoStore();
+
   const {
     usuarios,
     user,
     equipoFavorito,
     equipoFavoritoGoleador,
-    getRankingPorFecha,
     getRankingPorFechaFavoritos,
     getRankingPorFechaFavoritosGoleador,
     getUsersWithPuntaje,
@@ -30,16 +29,15 @@ const PronosticoEquipoFav = () => {
     rankingsFavoritos,
     rankingsFavoritosGoleador,
   } = useUserStore();
+
   const [predictions, setPredictions] = useState({});
   const [predictionsGoleador, setPredictionsGoleador] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
-  const [localLoading, setLocalLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
   const rowsPerPage = 5;
-  console.log("Usuarios:", usuarios);
 
+  // Filtrar partidos por equipo favorito
   const matchesFavorito = matches
     .map((fecha) => {
       const partidosFiltrados = fecha.partidos.filter(
@@ -69,7 +67,6 @@ const PronosticoEquipoFav = () => {
   const [selectedFecha, setSelectedFecha] = useState(
     matchesFavorito[0]?.fecha || 1
   );
-
   const [selectedFechaGoleador, setSelectedFechaGoleador] = useState(
     matchesFavoritoGoleador[0]?.fecha || 1
   );
@@ -79,35 +76,38 @@ const PronosticoEquipoFav = () => {
     (m) => m.fecha === selectedFechaGoleador
   );
 
+  // 🔹 Carga inicial al montar
   useEffect(() => {
-    // Ejecuta la carga inicial
-    setCurrentPage(1);
-    setCurrentPage2(1);
     fetchMatchesFavorito();
     actualizarPronosticos();
     getUsersWithPuntaje();
-    getRankingPorFechaFavoritos(selectedFecha);
-    getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
     actualizarPronosticosFavoritoGoleador();
-  }, [selectedFecha, selectedFechaGoleador]);
+  }, []);
+
+  // 🔹 Actualización ranking al cambiar fecha
+  useEffect(() => {
+    getRankingPorFechaFavoritos(selectedFecha);
+    setPredictions({}); // Limpiar inputs al cambiar de fecha
+    setCurrentPage(1);
+  }, [selectedFecha]);
+
+  useEffect(() => {
+    getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
+    setPredictionsGoleador({}); // Limpiar inputs al cambiar de fecha
+    setCurrentPage2(1);
+  }, [selectedFechaGoleador]);
 
   const handleInputChange = (matchId, team, value) => {
     setPredictions((prev) => ({
       ...prev,
-      [matchId]: {
-        ...prev[matchId],
-        [team]: value,
-      },
+      [matchId]: { ...prev[matchId], [team]: value },
     }));
   };
 
   const handleInputChangeGoleador = (matchId, team, value) => {
     setPredictionsGoleador((prev) => ({
       ...prev,
-      [matchId]: {
-        ...prev[matchId],
-        [team]: value,
-      },
+      [matchId]: { ...prev[matchId], [team]: value },
     }));
   };
 
@@ -118,8 +118,6 @@ const PronosticoEquipoFav = () => {
   const sortedRankingGoleador = [...(rankingsFavoritosGoleador || [])].sort(
     (a, b) => (b.golesAcertados || 0) - (a.golesAcertados || 0)
   );
-
-  console.log("2", rankingsFavoritosGoleador);
 
   const totalPages = Math.ceil(sortedRanking.length / rowsPerPage);
   const totalPages2 = Math.ceil(sortedRankingGoleador.length / rowsPerPage);
@@ -134,16 +132,17 @@ const PronosticoEquipoFav = () => {
     currentPage2 * rowsPerPage
   );
 
+  // 🔹 Guardar pronóstico equipo favorito
   const handleSavePrediction = async () => {
     const partidosFecha = currentFecha?.partidos || [];
 
     const faltantes = partidosFecha.filter(({ id }) => {
       const p = predictions[id];
-      return !p || p.home === undefined || p.away === undefined;
+      return !p || p.home === "" || p.away === "";
     });
 
     if (faltantes.length > 0) {
-      setMensaje("⚠️ Faltan completar goles este pronostico.");
+      setMensaje("⚠️ Faltan completar goles este pronóstico.");
       setTimeout(() => setMensaje(""), 3000);
       return;
     }
@@ -154,22 +153,24 @@ const PronosticoEquipoFav = () => {
       awayScore: Number(predictions[id].away),
     }));
 
-    setLocalLoading(true);
     setMensaje("⏳ Enviando pronóstico...");
-
-    const success = await guardarPronosticosFavorito(predictionsArray);
-
-    if (success) {
-      await getRankingPorFechaFavoritos(selectedFecha);
-      setMensaje("✅ Pronóstico enviado correctamente");
-    } else {
+    try {
+      const success = await guardarPronosticosFavorito(predictionsArray);
+      if (success) {
+        await getRankingPorFechaFavoritos(selectedFecha);
+        setMensaje("✅ Pronóstico enviado correctamente");
+      } else {
+        setMensaje("❌ Error al enviar pronóstico");
+      }
+    } catch (error) {
+      console.error(error);
       setMensaje("❌ Error al enviar pronóstico");
+    } finally {
+      setTimeout(() => setMensaje(""), 3000);
     }
-
-    setLocalLoading(false);
-    setTimeout(() => setMensaje(""), 3000);
   };
 
+  // 🔹 Guardar pronóstico equipo goleador
   const handleSavePredictionGoleador = async () => {
     const partidosFechaGoleador = currentFechaGoleador?.partidos || [];
 
@@ -178,18 +179,16 @@ const PronosticoEquipoFav = () => {
         const esLocal = home.name === equipoFavoritoGoleador;
         const esVisitante = away.name === equipoFavoritoGoleador;
 
-        // Solo validar si es un partido de tu equipo
         if (esLocal || esVisitante) {
           const p = predictionsGoleador[id];
-          return !p || p.goles === undefined || p.goles === "";
+          return !p || p.goles === "" || p.goles === undefined;
         }
-
-        return false; // No es tu equipo, no validar
+        return false;
       }
     );
 
     if (faltantesGoleador.length > 0) {
-      setMensaje("⚠️ Faltan completar goles para este pronostico.");
+      setMensaje("⚠️ Faltan completar goles para este pronóstico.");
       setTimeout(() => setMensaje(""), 3000);
       return;
     }
@@ -205,20 +204,23 @@ const PronosticoEquipoFav = () => {
         goles: Number(predictionsGoleador[id].goles),
       }));
 
-    setLocalLoading(true);
     setMensaje("⏳ Enviando pronóstico...");
-
-    const success = await guardarPronosticosFavoritoGoleador(predictionsArray2);
-
-    if (success) {
-      await getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
-      setMensaje("✅ Pronóstico enviado correctamente");
-    } else {
+    try {
+      const success = await guardarPronosticosFavoritoGoleador(
+        predictionsArray2
+      );
+      if (success) {
+        await getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
+        setMensaje("✅ Pronóstico enviado correctamente");
+      } else {
+        setMensaje("❌ Error al enviar pronóstico");
+      }
+    } catch (error) {
+      console.error(error);
       setMensaje("❌ Error al enviar pronóstico");
+    } finally {
+      setTimeout(() => setMensaje(""), 3000);
     }
-
-    setLocalLoading(false);
-    setTimeout(() => setMensaje(""), 3000);
   };
 
   // Usar rankingFecha y rankingGeneral directamente
@@ -245,7 +247,6 @@ const PronosticoEquipoFav = () => {
               {mensaje}
             </div>
           )}
-          {successMessage && <p className="text-green-400">{successMessage}</p>}
 
           {/* Resultados comparación */}
           {resultadoComparacion?.map((resultado, index) => (
