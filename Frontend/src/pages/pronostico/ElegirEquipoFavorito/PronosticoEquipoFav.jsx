@@ -233,6 +233,8 @@ const PronosticoEquipoFav = () => {
   console.log("datos", paginatedRanking);
   console.log("ranfav", rankingsFavoritos);
 
+  console.log("dale", currentFecha);
+
   return (
     <>
       <motion.div
@@ -391,6 +393,21 @@ const PronosticoEquipoFav = () => {
                       {equipoFavoritoGoleador}
                     </p>
                   </div>
+                  <div className="flex gap-2 mb-4">
+                    {matchesFavorito.map(({ fecha }) => (
+                      <button
+                        key={fecha}
+                        onClick={() => setSelectedFechaGoleador(fecha)}
+                        className={`px-3 py-1 cursor-pointer rounded font-bold transition ${
+                          selectedFechaGoleador === fecha
+                            ? "bg-green-500 text-black"
+                            : "bg-gray-600 text-white hover:bg-gray-500"
+                        }`}
+                      >
+                        Fecha {fecha}
+                      </button>
+                    ))}
+                  </div>
                   <table className="w-full text-center border-collapse mb-4">
                     <thead>
                       <tr className="bg-black text-green-500 border-2 border-black">
@@ -520,7 +537,7 @@ const PronosticoEquipoFav = () => {
               </h2>
 
               <div className="flex justify-center gap-4 mb-4">
-                {[1, 2].map((fecha) => (
+                {[1, 2, 3].map((fecha) => (
                   <button
                     key={fecha}
                     onClick={() => setSelectedFecha(fecha)}
@@ -602,7 +619,7 @@ const PronosticoEquipoFav = () => {
               </h2>
 
               <div className="flex justify-center gap-4 mb-4">
-                {[1, 2].map((fecha) => (
+                {[1, 2, 3].map((fecha) => (
                   <button
                     key={fecha}
                     onClick={() => setSelectedFechaGoleador(fecha)}
