@@ -92,17 +92,26 @@ const useUserStore = create((set) => {
 
   /*----------------------------- MODO DE JUEGO NORMAL -----------------------------*/
 
-    getRankingPorFecha: async (fecha) => {
-      try {
-        set({ loading: true, error: null });
-        const res = await obtenerRankingPorFecha(fecha);
-        set({ rankingFecha: res.data, loading: false });
-         return res.data; // ✅ Ahora devuelve los datos para usar en el componente
-         } catch (error) {
-        set({ error: "Error al obtener ranking por fecha", loading: false });
-         return []; // ⛑️ Devuelve array vacío en caso de error
-      }
-    },
+   getRankingPorFecha: async (fecha) => {
+  try {
+    set({ loading: true, error: null });
+
+    const res = await obtenerRankingPorFecha(fecha);
+    const nuevosUsuarios = res.data;
+
+    set((state) => {
+      // eliminamos la fecha que se actualiza si existía
+      const otrasFechas = state.rankingFecha.filter(r => r.fecha !== fecha);
+      // agregamos la nueva fecha
+      return { rankingFecha: [...otrasFechas, ...nuevosUsuarios], loading: false };
+    });
+
+    return nuevosUsuarios; // ✅ Devuelve los datos para usar en el componente
+  } catch (error) {
+    set({ error: "Error al obtener ranking por fecha", loading: false });
+    return []; // ⛑️ Devuelve array vacío en caso de error
+  }
+},
 
     getUsersWithPuntaje: async () => {
       try {

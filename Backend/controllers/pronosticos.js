@@ -15,7 +15,6 @@ export const getMatches = async (req, res) => {
 
 // En controllers/pronosticos.js
 
-
 export const guardarPronosticos = async (req, res) => {
   try {
     const { pronosticos } = req.body;
@@ -25,8 +24,16 @@ export const guardarPronosticos = async (req, res) => {
       return res.status(400).json({ message: "Se requiere al menos un pronóstico" });
     }
 
-    const response = await axios.get("https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions");
-    const partidos = response.data.flatMap(f => f.partidos);
+    // Traemos todos los partidos desde la API y agregamos la fecha a cada partido
+    const response = await axios.get(
+      "https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions"
+    );
+    const partidos = response.data.flatMap(f =>
+      f.partidos.map(p => ({
+        ...p,
+        fecha: f.fecha // agregamos fecha directamente al partido
+      }))
+    );
 
     const nuevosPronosticos = [];
 
@@ -34,9 +41,15 @@ export const guardarPronosticos = async (req, res) => {
       const { matchId, homeScore, awayScore } = p;
       if (matchId === undefined || homeScore === undefined || awayScore === undefined) continue;
 
-      const partido = partidos.find((m) => m.id === matchId);
+      const partido = partidos.find(m => m.id === matchId);
 
-      // Si no existe el partido o no hay score, guardamos puntos y golesAcertados como null
+      // Validación: si el partido no existe o no tiene fecha, lo ignoramos
+      if (!partido || partido.fecha == null) {
+        console.warn(`Pronóstico ignorado: partido ${matchId} sin fecha`);
+        continue;
+      }
+
+      // Inicializamos puntos y golesAcertados
       let puntos = null;
       let golesAcertados = null;
 
@@ -69,13 +82,15 @@ export const guardarPronosticos = async (req, res) => {
         }
       }
 
+      // Guardamos el pronóstico incluyendo la fecha
       const nuevoPronostico = await Pronostico.create({
         userId,
         matchId,
         homeScore,
         awayScore,
         puntos,
-        golesAcertados
+        golesAcertados,
+        fecha: partido.fecha
       });
 
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));

@@ -27,14 +27,23 @@ const PronosticoComponent = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [localLoading, setLocalLoading] = useState(false);
   const [selectedFecha, setSelectedFecha] = useState(matches[0]?.fecha || 1);
+  const [selectedFechaRanking, setSelectedFechaRanking] = useState(
+    matches[0]?.fecha || 1
+  );
   const [mensaje, setMensaje] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
   const rowsPerPage = 5;
   console.log("Usuarios:", usuarios);
   console.log("200", matches);
+  console.log("ranking fechaaa:", rankingFecha);
 
   const currentFecha = matches.find((m) => m.fecha === selectedFecha);
+  const currentFechaRanking = rankingFecha
+    .filter((r) => r.fecha === selectedFechaRanking)
+    .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
+
+  console.log("currentFechaRanking", currentFechaRanking);
 
   useEffect(() => {
     // Ejecuta la carga inicial
@@ -43,8 +52,8 @@ const PronosticoComponent = () => {
     fetchMatches();
     actualizarPronosticos();
     getUsersWithPuntaje();
-    getRankingPorFecha(selectedFecha);
-  }, [selectedFecha]);
+    getRankingPorFecha(selectedFechaRanking);
+  }, [selectedFechaRanking]);
 
   const handleInputChange = (matchId, team, value) => {
     setPredictions((prev) => ({
@@ -118,7 +127,9 @@ const PronosticoComponent = () => {
   // Para mostrar los puntajes del usuario actual (primera tabla)
   const puntajesUsuarioActual = user; // Asumiendo que tienes esa estructura
   console.log("rankingFecha:", rankingFecha);
-  console.log(matches);
+  console.log("paginated", paginatedRanking);
+  console.log("curentMatches", currentFecha);
+  console.log("matches", matches);
 
   return (
     <>
@@ -274,12 +285,12 @@ const PronosticoComponent = () => {
             </h2>
 
             <div className="flex justify-center gap-4 mb-4">
-              {[1, 2].map((fecha) => (
+              {[1, 2, 3].map((fecha) => (
                 <button
                   key={fecha}
-                  onClick={() => setSelectedFecha(fecha)}
+                  onClick={() => setSelectedFechaRanking(fecha)}
                   className={`px-4 py-1 rounded font-bold transition cursor-pointer ${
-                    selectedFecha === fecha
+                    selectedFechaRanking === fecha
                       ? "bg-green-500 text-black"
                       : "bg-gray-600 text-white hover:bg-gray-500"
                   }`}
@@ -288,63 +299,63 @@ const PronosticoComponent = () => {
                 </button>
               ))}
             </div>
-            <table className="w-full border-collapse ">
-              <thead>
-                <tr className="border-black border-2">
-                  <th className=" text-xl  text-green-500 bg-black px-4 py-2">
-                    Apaxionado
-                  </th>
-                  <th className="  text-green-500 bg-black px-4 py-2">
-                    Premio
-                  </th>
-                  <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedRanking.length > 0 ? (
-                  paginatedRanking.map((usuario) => (
-                    <tr key={usuario.id} className="border-black border-2">
-                      <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                        {usuario.nombre || usuario.user}
-                      </td>
-                      <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                        <img className="h-8" src={Logo} alt="Logo" />
-                      </td>
-                      <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                        {usuario.puntos || 0}
-                      </td>
+
+            {currentFechaRanking && (
+              <>
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-black border-2">
+                      <th className="text-xl text-green-500 bg-black px-4 py-2">
+                        Apaxionado
+                      </th>
+                      <th className="text-green-500 bg-black px-4 py-2">
+                        Premio
+                      </th>
+                      <th className="text-green-500 bg-black px-4 py-2">Pts</th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={2} className="text-center p-2 text-white">
-                      No hay datos para esta fecha.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <div className="flex justify-center gap-2 mt-4">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
-              >
-                Anterior
-              </button>
-              <span className="text-white px-2">
-                Página {currentPage} de {totalPages}
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
-              >
-                Siguiente
-              </button>
-            </div>
+                  </thead>
+                  <tbody>
+                    {currentFechaRanking.length > 0 &&
+                      currentFechaRanking.map((usuario) => (
+                        <tr key={usuario.id} className="border-black border-2">
+                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                            {usuario.user}
+                          </td>
+                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                            <img className="h-8" src={Logo} alt="Logo" />
+                          </td>
+                          <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                            {usuario.puntos || 0}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+                <div className="flex justify-center gap-2 mt-4">
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
+                  >
+                    Anterior
+                  </button>
+                  <span className="text-white px-2">
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Ranking x Goles */}

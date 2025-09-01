@@ -148,6 +148,7 @@ export const obtenerRankingPorFecha = async (numeroFecha) => {
     return usuarios.map(usuario => ({
       id: usuario.id,
       user: usuario.user,
+      fecha: numeroFecha,
       puntos: Number(usuario.puntosFecha) || 0,
       puntajeTotal: Number(usuario.puntajeTotal) || 0,
       golesFecha: Number(usuario.golesFecha) || 0,
