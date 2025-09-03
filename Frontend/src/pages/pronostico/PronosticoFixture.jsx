@@ -27,6 +27,7 @@ const PronosticoComponent = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [localLoading, setLocalLoading] = useState(false);
   const [selectedFecha, setSelectedFecha] = useState(matches[0]?.fecha || 1);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedFechaRanking, setSelectedFechaRanking] = useState(
     matches[0]?.fecha || 1
   );
@@ -34,16 +35,19 @@ const PronosticoComponent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
   const rowsPerPage = 5;
-  console.log("Usuarios:", usuarios);
-  console.log("200", matches);
-  console.log("ranking fechaaa:", rankingFecha);
 
   const currentFecha = matches.find((m) => m.fecha === selectedFecha);
   const currentFechaRanking = rankingFecha
     .filter((r) => r.fecha === selectedFechaRanking)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
-  console.log("currentFechaRanking", currentFechaRanking);
+  const puntosFecha =
+    user?.puntajesPorFecha?.find((p) => p.fecha === selectedFechaRanking)
+      ?.puntosFecha || 0;
+
+  const golesFecha =
+    user?.puntajesPorFecha?.find((p) => p.fecha === selectedFechaRanking)
+      ?.golesFecha || 0;
 
   useEffect(() => {
     // Ejecuta la carga inicial
@@ -69,17 +73,22 @@ const PronosticoComponent = () => {
     (a, b) => (b.puntos || 0) - (a.puntos || 0)
   );
 
-  const totalPages = Math.ceil(sortedRanking.length / rowsPerPage);
+  const filteredRanking =
+    currentFechaRanking?.filter((usuario) =>
+      usuario.user.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
-  const paginatedRanking = sortedRanking.slice(
+  const paginatedRanking = filteredRanking.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
-  const paginatedRanking2 = sortedRanking.slice(
+  const paginatedRanking2 = filteredRanking.slice(
     (currentPage2 - 1) * rowsPerPage,
     currentPage2 * rowsPerPage
   );
+
+  const totalPages = Math.ceil(filteredRanking.length / rowsPerPage) || 1;
 
   const handleSavePrediction = async () => {
     const partidosFecha = currentFecha?.partidos || [];
@@ -126,10 +135,6 @@ const PronosticoComponent = () => {
 
   // Para mostrar los puntajes del usuario actual (primera tabla)
   const puntajesUsuarioActual = user; // Asumiendo que tienes esa estructura
-  console.log("rankingFecha:", rankingFecha);
-  console.log("paginated", paginatedRanking);
-  console.log("curentMatches", currentFecha);
-  console.log("matches", matches);
 
   return (
     <>
@@ -302,6 +307,16 @@ const PronosticoComponent = () => {
 
             {currentFechaRanking && (
               <>
+                <input
+                  type="text"
+                  placeholder="Buscar apaxionado..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1); // 👈 resetear a página 1 al buscar
+                  }}
+                  className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                />
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-black border-2">
@@ -315,21 +330,26 @@ const PronosticoComponent = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {currentFechaRanking.length > 0 &&
-                      currentFechaRanking.map((usuario) => (
-                        <tr key={usuario.id} className="border-black border-2">
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            {usuario.user}
-                          </td>
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            <img className="h-8" src={Logo} alt="Logo" />
-                          </td>
-                          <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                            {usuario.puntos || 0}
-                          </td>
-                        </tr>
-                      ))}
+                    {paginatedRanking.map((usuario) => (
+                      <tr key={usuario.id} className="border-black border-2">
+                        <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                          {usuario.user}
+                        </td>
+                        <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                          <img className="h-8" src={Logo} alt="Logo" />
+                        </td>
+                        <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                          {usuario.puntos || 0}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
+                  <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
+                    <p className="font-bold text-green-500">
+                      Tus puntos en la fecha {selectedFechaRanking} son{" "}
+                      {puntosFecha}
+                    </p>
+                  </div>
                 </table>
                 <div className="flex justify-center gap-2 mt-4">
                   <button
@@ -365,13 +385,14 @@ const PronosticoComponent = () => {
                 RANKING X FECHA
               </span>
             </h2>
+
             <div className="flex justify-center gap-4 mb-4">
-              {[1, 2].map((fecha) => (
+              {[1, 2, 3].map((fecha) => (
                 <button
                   key={fecha}
-                  onClick={() => setSelectedFecha(fecha)}
+                  onClick={() => setSelectedFechaRanking(fecha)}
                   className={`px-4 py-1 rounded font-bold transition cursor-pointer ${
-                    selectedFecha === fecha
+                    selectedFechaRanking === fecha
                       ? "bg-green-500 text-black"
                       : "bg-gray-600 text-white hover:bg-gray-500"
                   }`}
@@ -380,63 +401,80 @@ const PronosticoComponent = () => {
                 </button>
               ))}
             </div>
-            <table className="w-full border-collapse ">
-              <thead>
-                <tr className="border-black border-2">
-                  <th className="text-xl  text-green-500 bg-black px-4 py-2">
-                    Apaxionado
-                  </th>
-                  <th className="  text-green-500 bg-black px-4 py-2">
-                    Premio
-                  </th>
-                  <th className="  text-green-500 bg-black px-4 py-2">Goles</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedRanking2.length > 0 ? (
-                  paginatedRanking2.map((usuario) => (
-                    <tr key={usuario.id} className="border-black border-2">
-                      <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                        {usuario.nombre || usuario.user}
-                      </td>
-                      <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                        <img className="h-8" src={Logo} alt="Logo" />
-                      </td>
-                      <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                        {usuario.golesFecha || 0}
-                      </td>
+
+            {currentFechaRanking && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Buscar apaxionado..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1); // 👈 resetear a página 1 al buscar
+                  }}
+                  className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                />
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-black border-2">
+                      <th className="text-xl text-green-500 bg-black px-4 py-2">
+                        Apaxionado
+                      </th>
+                      <th className="text-green-500 bg-black px-4 py-2">
+                        Premio
+                      </th>
+                      <th className="text-green-500 bg-black px-4 py-2">
+                        Goles
+                      </th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={2} className="text-center p-2 text-white">
-                      No hay datos para esta fecha.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <div className="flex justify-center gap-2 mt-4">
-              <button
-                onClick={() => setCurrentPage2((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage2 === 1}
-                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
-              >
-                Anterior
-              </button>
-              <span className="text-white px-2">
-                Página {currentPage2} de {totalPages}
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentPage2((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage2 === totalPages}
-                className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
-              >
-                Siguiente
-              </button>
-            </div>
+                  </thead>
+                  <tbody>
+                    {paginatedRanking.map((usuario) => (
+                      <tr key={usuario.id} className="border-black border-2">
+                        <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                          {usuario.user}
+                        </td>
+                        <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                          <img className="h-8" src={Logo} alt="Logo" />
+                        </td>
+                        <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                          {usuario.golesFecha || 0}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <div className="mt-4 border-2 border-green-500 rounded-lg py-2 px-1 text-xl text-center">
+                    <p className="font-bold text-green-500">
+                      Tus goles en la fecha {selectedFechaRanking} son{" "}
+                      {golesFecha}
+                    </p>
+                  </div>
+                </table>
+                <div className="flex justify-center gap-2 mt-4">
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 cursor-pointer disabled:opacity-50"
+                  >
+                    Anterior
+                  </button>
+                  <span className="text-white px-2">
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

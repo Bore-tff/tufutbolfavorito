@@ -27,14 +27,37 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, usuario.password);
     if (!isMatch) return res.status(401).json({ message: "Contraseña incorrecta" });
 
-    const token = jwt.sign({ id: usuario.id, user: usuario.user }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    const token = jwt.sign(
+      { id: usuario.id, user: usuario.user },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
+    // 📌 Totales generales
     const totalGolesAcertados = await PronosticoFavoritoGoleador.sum("golesAcertados", {
       where: { userId: usuario.id },
     });
 
     const totalPuntos = await Pronostico.sum("puntos", {
       where: { userId: usuario.id },
+    });
+
+    // 📌 Puntos y goles por fecha
+    const puntajePorFecha = await Pronostico.findAll({
+      where: { userId: usuario.id },
+      attributes: [
+        "Partido.fecha",
+        [fn("SUM", col("Pronostico.puntos")), "puntosFecha"],
+        [fn("SUM", col("Pronostico.golesAcertados")), "golesFecha"],
+      ],
+      include: [
+        {
+          model: Partido,
+          attributes: [],
+        },
+      ],
+      group: ["Partido.fecha"],
+      raw: true,
     });
 
     return res.status(200).json({
@@ -47,12 +70,14 @@ export const login = async (req, res) => {
         equipoFavoritoGoleador: usuario.equipoFavoritoGoleador,
         golesAcertados: totalGolesAcertados || 0,
         puntos: totalPuntos || 0,
+        puntajesPorFecha: puntajePorFecha, // 👈 acá va el array [{fecha, puntosFecha, golesFecha}]
       },
     });
   } catch (error) {
     return res.status(500).json({ message: "Error en el servidor", error });
   }
 };
+
 
 export const logout = (req, res) => {
   try {
@@ -95,6 +120,8 @@ export const obtenerUsuariosConPuntaje = async () => {
     'equipoFavoritoGoleador',
     [fn('SUM', col('Pronosticos.puntos')), 'totalPuntos'],
     [fn('SUM', col('Pronosticos.golesAcertados')), 'golesAcertados'],
+    [fn('SUM', literal(`CASE WHEN \`Pronosticos->Partido\`.\`fecha\` = ${numeroFecha} THEN \`Pronosticos\`.\`puntos\` ELSE 0 END`)), 'puntosFecha'],
+    [fn('SUM', literal(`CASE WHEN \`Pronosticos->Partido\`.\`fecha\` = ${numeroFecha} THEN \`Pronosticos\`.\`golesAcertados\` ELSE 0 END`)), 'golesFecha'],
     [fn('SUM', literal('Pronosticos.puntos + Pronosticos.golesAcertados')), 'sumaTotal']
   ],
   include: [{ model: Pronostico, attributes: [] }],
@@ -106,9 +133,11 @@ return usuarios.map(usuario => ({
   id: usuario.id,
   user: usuario.user,
   equipoFavorito: usuario.equipoFavorito,
+  puntos: Number(usuario.puntosFecha) || 0,
   equipoFavoritoGoleador: usuario.equipoFavoritoGoleador,
   puntos: Number(usuario.totalPuntos) || 0,
   goles: Number(usuario.golesAcertados) || 0,
+  golesFecha: Number(usuario.golesFecha) || 0,
   sumaTotal: Number(usuario.sumaTotal) || 0,
 }));
   } catch (error) {

@@ -24,6 +24,30 @@ const Rankings = () => {
     currentPage * rowsPerPage
   );
 
+  // ---------------- Ranking por Goleador ----------------
+  const sortedRankingGoleador = [...(rankingFecha || [])].sort(
+    (a, b) => (b.golesTotales || 0) - (a.golesTotales || 0)
+  );
+  const totalPagesGoleador = Math.ceil(
+    sortedRankingGoleador.length / rowsPerPage
+  );
+  const paginatedRankingGoleador = sortedRankingGoleador.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  // ---------------- Ranking Campeón ----------------
+  const sortedRankingCampeon = [...(rankingFecha || [])].sort(
+    (a, b) => (b.puntajeTotal || 0) - (a.puntajeTotal || 0)
+  );
+  const totalPagesCampeon = Math.ceil(
+    sortedRankingCampeon.length / rowsPerPage
+  );
+  const paginatedRankingCampeon = sortedRankingCampeon.slice(
+    (currentPage2 - 1) * rowsPerPage,
+    currentPage2 * rowsPerPage
+  );
+
   const paginatedRanking2 = sortedRanking.slice(
     (currentPage2 - 1) * rowsPerPage,
     currentPage2 * rowsPerPage
@@ -41,6 +65,7 @@ const Rankings = () => {
   return (
     <div className="flex flex-row justify-between items-start space-x-6 ml-5 mb-20 mr-5 mt-64">
       {/* Ranking Goleador */}
+      {/* Ranking Goleador */}
       <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
@@ -50,13 +75,13 @@ const Rankings = () => {
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">
-              <th className="text-xl  text-green-500 bg-black px-4 py-2"></th>
-              <th className="  text-green-500 bg-black px-4 py-2">Goles</th>
+              <th className="text-xl text-green-500 bg-black px-4 py-2"></th>
+              <th className="text-green-500 bg-black px-4 py-2">Goles</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedRanking.length > 0 ? (
-              paginatedRanking.map((usuario) => (
+            {paginatedRankingGoleador.length > 0 ? (
+              paginatedRankingGoleador.map((usuario) => (
                 <tr key={usuario.id} className="border-black border-2">
                   <td className="text-black text-center font-bold px-4 py-2 bg-white">
                     {usuario.nombre || usuario.user}
@@ -84,13 +109,13 @@ const Rankings = () => {
             Anterior
           </button>
           <span className="text-white px-2">
-            Página {currentPage} de {totalPages}
+            Página {currentPage} de {totalPagesGoleador}
           </span>
           <button
             onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              setCurrentPage((prev) => Math.min(prev + 1, totalPagesGoleador))
             }
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPagesGoleador}
             className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
           >
             Siguiente
@@ -173,13 +198,13 @@ const Rankings = () => {
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">
-              <th className="text-xl  text-green-500 bg-black px-4 py-2"></th>
-              <th className="  text-green-500 bg-black px-4 py-2">Pts</th>
+              <th className="text-xl text-green-500 bg-black px-4 py-2"></th>
+              <th className="text-green-500 bg-black px-4 py-2">Pts</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedRanking2.length > 0 ? (
-              paginatedRanking2.map((usuario) => (
+            {paginatedRankingCampeon.length > 0 ? (
+              paginatedRankingCampeon.map((usuario) => (
                 <tr key={usuario.id} className="border-black border-2">
                   <td className="text-black text-center font-bold px-4 py-2 bg-white">
                     {usuario.nombre || usuario.user}
@@ -207,13 +232,13 @@ const Rankings = () => {
             Anterior
           </button>
           <span className="text-white px-2">
-            Página {currentPage2} de {totalPages}
+            Página {currentPage2} de {totalPagesCampeon}
           </span>
           <button
             onClick={() =>
-              setCurrentPage2((prev) => Math.min(prev + 1, totalPages))
+              setCurrentPage2((prev) => Math.min(prev + 1, totalPagesCampeon))
             }
-            disabled={currentPage2 === totalPages}
+            disabled={currentPage2 === totalPagesCampeon}
             className="px-3 py-1 bg-green-600 font-bold rounded hover:bg-green-500 disabled:opacity-50 cursor-pointer"
           >
             Siguiente
