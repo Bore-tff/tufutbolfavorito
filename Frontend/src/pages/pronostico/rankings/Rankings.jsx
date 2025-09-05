@@ -4,6 +4,9 @@ import useUserStore from "../../../store/usersStore";
 const Rankings = () => {
   const { usuarios, user, rankingFecha, getUsersWithPuntaje, rankingGeneral } =
     useUserStore();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm2, setSearchTerm2] = useState("");
+  const [searchTerm3, setSearchTerm3] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
   const [currentPage3, setCurrentPage3] = useState(1);
@@ -17,21 +20,38 @@ const Rankings = () => {
     (a, b) => (b.puntos || 0) - (a.puntos || 0)
   );
 
-  const totalPages = Math.ceil(sortedRanking.length / rowsPerPage);
+  const filteredRankingGeneral = sortedRanking
+    .slice()
+    .sort((a, b) => (b.sumaTotal || 0) - (a.sumaTotal || 0))
+    .filter((usuario) =>
+      (usuario.nombre || usuario.user)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
 
-  const paginatedRanking = sortedRanking.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
+  const totalPages = Math.ceil(filteredRankingGeneral.length / rowsPerPage);
+
+  const paginatedRanking3 = filteredRankingGeneral.slice(
+    (currentPage3 - 1) * rowsPerPage,
+    currentPage3 * rowsPerPage
   );
 
   // ---------------- Ranking por Goleador ----------------
   const sortedRankingGoleador = [...(rankingFecha || [])].sort(
     (a, b) => (b.golesTotales || 0) - (a.golesTotales || 0)
   );
-  const totalPagesGoleador = Math.ceil(
-    sortedRankingGoleador.length / rowsPerPage
+
+  const filteredRankingGoleador = sortedRankingGoleador.filter((usuario) =>
+    (usuario.nombre || usuario.user)
+      .toLowerCase()
+      .includes(searchTerm2.toLowerCase())
   );
-  const paginatedRankingGoleador = sortedRankingGoleador.slice(
+
+  const totalPagesGoleador = Math.ceil(
+    filteredRankingGoleador.length / rowsPerPage
+  );
+
+  const paginatedRankingGoleador = filteredRankingGoleador.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
@@ -40,22 +60,20 @@ const Rankings = () => {
   const sortedRankingCampeon = [...(rankingFecha || [])].sort(
     (a, b) => (b.puntajeTotal || 0) - (a.puntajeTotal || 0)
   );
+
+  const filteredRankingCampeon = sortedRankingCampeon.filter((usuario) =>
+    (usuario.nombre || usuario.user)
+      .toLowerCase()
+      .includes(searchTerm3.toLowerCase())
+  );
+
   const totalPagesCampeon = Math.ceil(
-    sortedRankingCampeon.length / rowsPerPage
-  );
-  const paginatedRankingCampeon = sortedRankingCampeon.slice(
-    (currentPage2 - 1) * rowsPerPage,
-    currentPage2 * rowsPerPage
+    filteredRankingCampeon.length / rowsPerPage
   );
 
-  const paginatedRanking2 = sortedRanking.slice(
+  const paginatedRankingCampeon = filteredRankingCampeon.slice(
     (currentPage2 - 1) * rowsPerPage,
     currentPage2 * rowsPerPage
-  );
-
-  const paginatedRanking3 = sortedRanking.slice(
-    (currentPage3 - 1) * rowsPerPage,
-    currentPage3 * rowsPerPage
   );
 
   console.log("usuarios ranking:", usuarios);
@@ -72,6 +90,16 @@ const Rankings = () => {
             APAXIONADO GOLEADOR DE LA COPA
           </span>
         </h2>
+        <input
+          type="text"
+          placeholder="Buscar apaxionado..."
+          value={searchTerm2}
+          onChange={(e) => {
+            setSearchTerm2(e.target.value);
+            setCurrentPage(1); // 👈 resetear página cuando se busca
+          }}
+          className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+        />
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">
@@ -130,6 +158,16 @@ const Rankings = () => {
             RANKING GENERAL
           </span>
         </h2>
+        <input
+          type="text"
+          placeholder="Buscar apaxionado..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // 👈 resetear página cuando se busca
+          }}
+          className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+        />
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">
@@ -195,6 +233,16 @@ const Rankings = () => {
             APAXIONADO CAMPEÓN DE LA COPA
           </span>
         </h2>
+        <input
+          type="text"
+          placeholder="Buscar apaxionado..."
+          value={searchTerm3}
+          onChange={(e) => {
+            setSearchTerm3(e.target.value);
+            setCurrentPage(1); // 👈 resetear página cuando se busca
+          }}
+          className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+        />
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">

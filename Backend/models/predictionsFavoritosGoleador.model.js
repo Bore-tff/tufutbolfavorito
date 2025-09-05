@@ -12,6 +12,10 @@ const PronosticoFavoritoGoleador = sequelize.define("PronosticoFavoritoGoleador"
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  fecha: {
+  type: DataTypes.INTEGER,
+  allowNull: false
+  },
   golesAcertados: {
   type: DataTypes.INTEGER,
   defaultValue: 0,

@@ -9,6 +9,7 @@ export const guardarPronosticosFavoritos = async (req, res) => {
     const { pronosticos } = req.body;
     const userId = req.user.id;
 
+    // Verificar que el usuario tenga un equipo favorito
     const usuario = await Usuario.findByPk(userId);
     if (!usuario || !usuario.equipoFavorito) {
       return res.status(400).json({ message: "Debe seleccionar un equipo favorito antes de pronosticar." });
@@ -55,13 +56,12 @@ export const guardarPronosticosFavoritos = async (req, res) => {
         matchId,
         homeScore,
         awayScore,
-        puntos
+        puntos,
+        fecha: partido.fecha // 👈 se guarda la fecha del partido
       });
 
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
     }
-
-    await recalcularPuntajesFavoritos();
 
     res.status(201).json(nuevosPronosticos);
   } catch (error) {

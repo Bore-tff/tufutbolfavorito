@@ -90,6 +90,7 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
       const nuevoPronostico = await PronosticoFavoritoGoleador.create({
         userId,
         matchId,
+        fecha: fechaPartido,
         golesPronosticados: goles, // lo guardamos para mostrarlo después
         golesAcertados
       });

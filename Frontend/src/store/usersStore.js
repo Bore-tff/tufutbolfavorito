@@ -223,28 +223,52 @@ const useUserStore = create((set) => {
     },
 
 getRankingPorFechaFavoritos: async (fecha) => {
-      try {
-        set({ loading: true, error: null });
-        const res = await obtenerRankingPorFechaFavoritos(fecha);
-        set({ rankingsFavoritos: res.data, loading: false });
-         return res.data;
-         } catch (error) {
-        set({ error: "Error al obtener ranking por fecha", loading: false });
-         return [];
-      }
-    },
+  try {
+    set({ loading: true, error: null });
+
+    const res = await obtenerRankingPorFechaFavoritos(fecha);
+    const nuevosUsuarios = res.data;
+
+    set((state) => {
+      // 🔹 eliminamos la fecha que se actualiza si ya existía
+      const otrasFechas = state.rankingsFavoritos.filter(r => r.fecha !== fecha);
+      // 🔹 agregamos la nueva fecha con sus usuarios
+      return { 
+        rankingsFavoritos: [...otrasFechas, ...nuevosUsuarios], 
+        loading: false 
+      };
+    });
+
+    return nuevosUsuarios; // ✅ para usar directo en componentes
+  } catch (error) {
+    set({ error: "Error al obtener ranking por fecha", loading: false });
+    return [];
+  }
+},
 
     getRankingPorFechaFavoritosGoleador: async (fecha) => {
-      try {
-        set({ loading: true, error: null });
-        const res = await obtenerRankingPorFechaFavoritosGoleador(fecha);
-        set({ rankingsFavoritosGoleador: res.data, loading: false });
-         return res.data;
-         } catch (error) {
-        set({ error: "Error al obtener ranking por fecha", loading: false });
-         return [];
-      }
-    },
+  try {
+    set({ loading: true, error: null });
+
+    const res = await obtenerRankingPorFechaFavoritosGoleador(fecha);
+    const nuevosUsuarios = res.data;
+
+    set((state) => {
+      const otrasFechas = state.rankingsFavoritosGoleador.filter(
+        (r) => r.fecha !== fecha
+      );
+      return {
+        rankingsFavoritosGoleador: [...otrasFechas, ...nuevosUsuarios],
+        loading: false,
+      };
+    });
+
+    return nuevosUsuarios;
+  } catch (error) {
+    set({ error: "Error al obtener ranking goleador por fecha", loading: false });
+    return [];
+  }
+}
   };
 
   

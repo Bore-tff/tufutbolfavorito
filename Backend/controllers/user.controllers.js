@@ -403,6 +403,7 @@ export const obtenerRankingPorFechaFavoritos = async (numeroFecha) => {
     return usuarios.map(usuario => ({
       id: usuario.id,
       user: usuario.user,
+      fecha: numeroFecha,
       puntos: Number(usuario.puntosFecha) || 0,
       puntajeTotal: Number(usuario.puntajeTotal) || 0,
       golesFecha: Number(usuario.golesFecha) || 0,
@@ -442,6 +443,7 @@ export const obtenerRankingPorFechaFavoritosGoleador = async (numeroFecha) => {
     return usuarios.map(usuario => ({
       id: usuario.id,
       user: usuario.user,
+      fecha: numeroFecha,
       golesAcertados: Number(usuario.golesAcertados) || 0,
     }));
   } catch (error) {
