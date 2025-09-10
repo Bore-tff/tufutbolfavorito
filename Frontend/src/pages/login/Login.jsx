@@ -14,7 +14,6 @@ function Login() {
 
     try {
       const success = await login(usuario, password);
-      console.log("Respuesta del login:", success);
 
       if (success) {
         toast.success("Inicio de sesión exitoso");

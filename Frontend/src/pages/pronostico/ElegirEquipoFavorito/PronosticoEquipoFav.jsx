@@ -75,10 +75,6 @@ const PronosticoEquipoFav = () => {
   const [selectedFechaGoleador, setSelectedFechaGoleador] = useState(
     matchesFavoritoGoleador[0]?.fecha || 1
   );
-  const [selectedFechaRankingGoleador, setSelectedFechaRankingGoleador] =
-    useState(matches[0]?.fecha || 1);
-
-  console.log("y", matches);
 
   const currentFecha = matchesFavorito.find((m) => m.fecha === selectedFecha);
   const currentFechaRanking = rankingsFavoritos
@@ -86,10 +82,8 @@ const PronosticoEquipoFav = () => {
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
   const currentFechaRankingGoleador = rankingsFavoritosGoleador
-    .filter((r) => r.fecha === selectedFechaRankingGoleador)
+    .filter((r) => r.fecha === selectedFechaRanking)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
-
-  console.log("dale loco", rankingsFavoritosGoleador);
 
   const currentFechaGoleador = matchesFavoritoGoleador.find(
     (m) => m.fecha === selectedFechaGoleador
@@ -111,10 +105,10 @@ const PronosticoEquipoFav = () => {
   }, [selectedFechaRanking]);
 
   useEffect(() => {
-    getRankingPorFechaFavoritosGoleador(selectedFechaRankingGoleador);
+    getRankingPorFechaFavoritosGoleador(selectedFechaRanking);
     setPredictionsGoleador({}); // Limpiar inputs al cambiar de fecha
     setCurrentPage2(1);
-  }, [selectedFechaRankingGoleador]);
+  }, [selectedFechaRanking]);
 
   const handleInputChange = (matchId, team, value) => {
     setPredictions((prev) => ({
@@ -271,11 +265,6 @@ const PronosticoEquipoFav = () => {
 
   // Para mostrar los puntajes del usuario actual (primera tabla)
   const puntajesUsuarioActual = user; // Asumiendo que tienes esa estructura
-
-  console.log("datos", paginatedRanking);
-  console.log("ranfav", rankingsFavoritos);
-
-  console.log("dale", currentFecha);
 
   return (
     <>
@@ -680,9 +669,9 @@ const PronosticoEquipoFav = () => {
                 {[1, 2, 3].map((fecha) => (
                   <button
                     key={fecha}
-                    onClick={() => setSelectedFechaRankingGoleador(fecha)}
+                    onClick={() => setSelectedFechaRanking(fecha)}
                     className={`px-4 py-1 rounded font-bold transition cursor-pointer ${
-                      selectedFechaRankingGoleador === fecha
+                      selectedFechaRanking === fecha
                         ? "bg-green-500 text-black"
                         : "bg-gray-600 text-white hover:bg-gray-500"
                     }`}
@@ -734,8 +723,8 @@ const PronosticoEquipoFav = () => {
                     </tbody>
                     <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
                       <p className="font-bold text-green-500">
-                        Tus puntos en la fecha {selectedFechaRankingGoleador}{" "}
-                        son {golesFecha}
+                        Tus puntos en la fecha {selectedFechaRanking} son{" "}
+                        {golesFecha}
                       </p>
                     </div>
                   </table>

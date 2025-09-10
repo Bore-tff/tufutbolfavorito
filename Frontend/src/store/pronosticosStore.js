@@ -18,7 +18,7 @@ const usePronosticoStore = create((set) => ({
   set({ loading: true, error: null });
   try {
     const data = await getMatches();
-    console.log("getMatches data:", data);
+    
     set((state) => ({ ...state, matches: data.data, loading: false }));
 
     // 🔁 Llama para recalcular puntos si ahora hay resultados disponibles
@@ -75,7 +75,7 @@ fetchMatchesFavorito: async () => {
   set({ loading: true, error: null });
   try {
     const data = await getMatches();
-    console.log("getMatches data:", data);
+    
     set((state) => ({ ...state, matches: data.data, loading: false }));
 
     // 🔁 Llama para recalcular puntos si ahora hay resultados disponibles

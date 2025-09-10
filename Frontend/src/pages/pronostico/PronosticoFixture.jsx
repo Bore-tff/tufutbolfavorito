@@ -41,14 +41,6 @@ const PronosticoComponent = () => {
     .filter((r) => r.fecha === selectedFechaRanking)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
-  const puntosFecha =
-    user?.puntajesPorFecha?.find((p) => p.fecha === selectedFechaRanking)
-      ?.puntosFecha || 0;
-
-  const golesFecha =
-    user?.puntajesPorFecha?.find((p) => p.fecha === selectedFechaRanking)
-      ?.golesFecha || 0;
-
   useEffect(() => {
     // Ejecuta la carga inicial
     setCurrentPage(1);
@@ -82,6 +74,12 @@ const PronosticoComponent = () => {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+
+  const puntosFecha =
+    paginatedRanking.find((u) => u.id === user?.id)?.puntos || 0;
+
+  const golesFecha =
+    paginatedRanking.find((u) => u.id === user?.id)?.golesFecha || 0;
 
   const paginatedRanking2 = filteredRanking.slice(
     (currentPage2 - 1) * rowsPerPage,

@@ -26,14 +26,11 @@ export default function ElegirEquipo() {
     getAllUsers();
   }, [getAllUsers]);
 
-  console.log(usuarios);
-  console.log("1", user);
-
   useEffect(() => {
     const fetchEquipos = async () => {
       try {
         const res = await getMatches();
-        console.log("Respuesta de fetchMatches:", res);
+
         const partidasPorFecha = res.data; // ajustá según tu respuesta real
 
         // Extraer equipos únicos
@@ -83,8 +80,6 @@ export default function ElegirEquipo() {
     // Llamada al store
     await guardarAmbosFavoritos(equipo, equipoGoleador);
   };
-
-  console.log("elegir", usuarios);
 
   return (
     <motion.div

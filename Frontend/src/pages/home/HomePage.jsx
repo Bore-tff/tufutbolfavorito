@@ -10,8 +10,6 @@ function HomePage() {
   const { user, logout, getAllUsers, getUsersWithPuntaje } = useUserStore();
   const { puntosObtenidos, pronosticos } = usePronosticoStore();
   const [usuario, setUsuario] = useState(null);
-  console.log(user);
-  console.log("puntos", pronosticos);
 
   const navigate = useNavigate();
 
@@ -27,11 +25,9 @@ function HomePage() {
     getUsersWithPuntaje();
   }, []);
 
-  console.log(getUsersWithPuntaje);
-
   const handleLogout = () => {
     logout(); // Esto borra el estado del usuario en el store
-    console.log("Sesión cerrada correctamente");
+
     navigate("/login"); // Redirige a la página de login
   };
 

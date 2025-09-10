@@ -76,10 +76,6 @@ const Rankings = () => {
     currentPage2 * rowsPerPage
   );
 
-  console.log("usuarios ranking:", usuarios);
-  console.log("ranking fechaaa:", rankingFecha);
-  console.log("ranking General", rankingGeneral);
-
   return (
     <div className="flex flex-row justify-between items-start space-x-6 ml-5 mb-20 mr-5 mt-64">
       {/* Ranking Goleador */}

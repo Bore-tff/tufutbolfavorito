@@ -1,4 +1,5 @@
 import PronosticoFavoritoGoleador from "../models/predictionsFavoritosGoleador.model.js";
+import Partido from "../models/partido.model.js";
 import Usuario from "../models/user.model.js";
 import axios from "axios";
 
@@ -8,7 +9,7 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
     const { pronosticos } = req.body;
     const userId = req.user.id;
 
-    // 1️⃣ Verificar que el usuario tenga equipo favorito goleador
+    // Verificar que el usuario tenga equipo favorito goleador
     const usuario = await Usuario.findByPk(userId);
     if (!usuario || !usuario.equipoFavoritoGoleador) {
       return res.status(400).json({
@@ -17,16 +18,21 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
     }
     const equipoFavorito = usuario.equipoFavoritoGoleador;
 
-    // 2️⃣ Validar que haya pronósticos
+    // Validar que haya pronósticos
     if (!Array.isArray(pronosticos) || pronosticos.length === 0) {
       return res.status(400).json({ message: "Se requiere al menos un pronóstico" });
     }
 
-    // 3️⃣ Traer todos los partidos desde la API externa
+    // Traer todos los partidos desde la API externa
     const response = await axios.get(
       "https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions"
     );
-    const partidos = response.data.flatMap(f => f.partidos);
+    const partidos = response.data.flatMap(f =>
+      f.partidos.map(p => ({
+        ...p,
+        fecha: f.fecha // 👈 agregamos la fecha/jornada
+      }))
+    );
 
     const nuevosPronosticos = [];
 
@@ -38,75 +44,53 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
       if (!partido) continue;
 
       // Solo procesar si participa el equipo favorito
-      if (
-        partido.home.name !== equipoFavorito &&
-        partido.away.name !== equipoFavorito
-      ) {
-        continue;
-      }
-
-      // 4️⃣ Resultado real del partido
-      const resultadoRealHome = partido.score?.home ?? null;
-      const resultadoRealAway = partido.score?.away ?? null;
+      if (partido.home.name !== equipoFavorito && partido.away.name !== equipoFavorito) continue;
 
       let golesAcertados = null;
 
-      // 5️⃣ Calcular goles acertados solo si hay resultado real disponible
+      const resultadoRealHome = partido.score?.home ?? null;
+      const resultadoRealAway = partido.score?.away ?? null;
+
       const resultadoDisponible =
         resultadoRealHome !== null &&
-        resultadoRealAway !== null &&
-        resultadoRealHome !== undefined &&
-        resultadoRealAway !== undefined;
+        resultadoRealAway !== null;
 
       if (resultadoDisponible) {
         golesAcertados = 0;
+        const golesReales = partido.home.name === equipoFavorito
+          ? Number(resultadoRealHome)
+          : Number(resultadoRealAway);
+        const golesPronosticados = Number(goles);
 
-        if (partido.home.name === equipoFavorito) {
-          const golesReales = Number(resultadoRealHome);
-          const golesPronosticados = Number(goles);
-
-          if (golesReales > 0) {
-            if (golesPronosticados === golesReales) {
-              golesAcertados += golesReales;
-            } else if (golesPronosticados > 0 && golesPronosticados < golesReales) {
-              golesAcertados += golesPronosticados;
-            }
-          }
-        } else if (partido.away.name === equipoFavorito) {
-          const golesReales = Number(resultadoRealAway);
-          const golesPronosticados = Number(goles);
-
-          if (golesReales > 0) {
-            if (golesPronosticados === golesReales) {
-              golesAcertados += golesReales;
-            } else if (golesPronosticados > 0 && golesPronosticados < golesReales) {
-              golesAcertados += golesPronosticados;
-            }
-          }
+        if (golesReales > 0) {
+          if (golesPronosticados === golesReales) golesAcertados += golesReales;
+          else if (golesPronosticados > 0 && golesPronosticados < golesReales)
+            golesAcertados += golesPronosticados;
         }
       }
 
-      // 6️⃣ Guardar pronóstico
+      // Guardar pronóstico
       const nuevoPronostico = await PronosticoFavoritoGoleador.create({
         userId,
         matchId,
-        fecha: fechaPartido,
-        golesPronosticados: goles, // lo guardamos para mostrarlo después
+        fecha: partido.fecha, // ✅ igual que pronosticosFavoritos
+        golesPronosticados: goles,
         golesAcertados
       });
 
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
     }
 
-    // 7️⃣ Recalcular puntajes
-    await recalcularPuntajesFavoritosGoleador();
+    // Recalcular puntajes si es necesario
+    // await recalcularPuntajesFavoritosGoleador();
 
     res.status(201).json(nuevosPronosticos);
   } catch (error) {
-    console.error("Error al guardar los pronósticos:", error);
+    console.error("Error al guardar los pronósticos favoritos goleador:", error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 };
+
 
 
 export const recalcularPuntajesFavoritosGoleador = async () => {
