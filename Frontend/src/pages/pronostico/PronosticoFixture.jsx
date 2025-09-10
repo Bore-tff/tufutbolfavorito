@@ -429,19 +429,21 @@ const PronosticoComponent = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedRanking.map((usuario) => (
-                      <tr key={usuario.id} className="border-black border-2">
-                        <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                          {usuario.user}
-                        </td>
-                        <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                          <img className="h-8" src={Logo} alt="Logo" />
-                        </td>
-                        <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                          {usuario.golesFecha || 0}
-                        </td>
-                      </tr>
-                    ))}
+                    {[...paginatedRanking]
+                      .sort((a, b) => (b.golesFecha || 0) - (a.golesFecha || 0))
+                      .map((usuario) => (
+                        <tr key={usuario.id} className="border-black border-2">
+                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                            {usuario.user}
+                          </td>
+                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                            <img className="h-8" src={Logo} alt="Logo" />
+                          </td>
+                          <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                            {usuario.golesFecha || 0}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                   <div className="mt-4 border-2 border-green-500 rounded-lg py-2 px-1 text-xl text-center">
                     <p className="font-bold text-green-500">
