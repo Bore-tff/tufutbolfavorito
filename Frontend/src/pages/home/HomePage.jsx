@@ -68,7 +68,7 @@ function HomePage() {
         </div>
       </div>
       <Banner />
-      <div className="flex gap-4 p-4">
+      <div className="flex gap-1 p-1">
         <div className="flex-1 space-y-4">
           <PronosticoFixture />
         </div>

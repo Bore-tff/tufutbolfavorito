@@ -3,7 +3,7 @@ import Partido from "../models/partido.model.js";
 import Usuario from "../models/user.model.js";
 import axios from "axios";
 
-
+// Guardar pronósticos favoritos goleador sin calcular goles si aún no hay resultados
 export const guardarPronosticosFavoritosGoleador = async (req, res) => {
   try {
     const { pronosticos } = req.body;
@@ -18,23 +18,22 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
     }
     const equipoFavorito = usuario.equipoFavoritoGoleador;
 
-    // Validar que haya pronósticos
     if (!Array.isArray(pronosticos) || pronosticos.length === 0) {
       return res.status(400).json({ message: "Se requiere al menos un pronóstico" });
     }
 
-    // Traer todos los partidos desde la API externa
+    const nuevosPronosticos = [];
+
+    // Traemos todos los partidos desde la API
     const response = await axios.get(
       "https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions"
     );
     const partidos = response.data.flatMap(f =>
       f.partidos.map(p => ({
         ...p,
-        fecha: f.fecha // 👈 agregamos la fecha/jornada
+        fecha: f.fecha
       }))
     );
-
-    const nuevosPronosticos = [];
 
     for (const p of pronosticos) {
       const { matchId, goles } = p;
@@ -43,25 +42,24 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
       const partido = partidos.find(m => m.id === matchId);
       if (!partido) continue;
 
-      // Solo procesar si participa el equipo favorito
+      // Solo procesar si participa el equipo favorito goleador
       if (partido.home.name !== equipoFavorito && partido.away.name !== equipoFavorito) continue;
 
-      let golesAcertados = null;
+      let golesAcertados = null; // null si aún no hay resultados
 
       const resultadoRealHome = partido.score?.home ?? null;
       const resultadoRealAway = partido.score?.away ?? null;
 
       const resultadoDisponible =
-        resultadoRealHome !== null &&
-        resultadoRealAway !== null;
+        resultadoRealHome !== null && resultadoRealAway !== null;
 
       if (resultadoDisponible) {
-        golesAcertados = 0;
         const golesReales = partido.home.name === equipoFavorito
           ? Number(resultadoRealHome)
           : Number(resultadoRealAway);
         const golesPronosticados = Number(goles);
 
+        golesAcertados = 0;
         if (golesReales > 0) {
           if (golesPronosticados === golesReales) golesAcertados += golesReales;
           else if (golesPronosticados > 0 && golesPronosticados < golesReales)
@@ -69,11 +67,10 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
         }
       }
 
-      // Guardar pronóstico
       const nuevoPronostico = await PronosticoFavoritoGoleador.create({
         userId,
         matchId,
-        fecha: partido.fecha, // ✅ igual que pronosticosFavoritos
+        fecha: partido.fecha,
         golesPronosticados: goles,
         golesAcertados
       });
@@ -81,49 +78,46 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
     }
 
-    // Recalcular puntajes si es necesario
-    // await recalcularPuntajesFavoritosGoleador();
-
     res.status(201).json(nuevosPronosticos);
   } catch (error) {
     console.error("Error al guardar los pronósticos favoritos goleador:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    res.status(500).json({ message: "Error interno del servidor", error: error.message });
   }
 };
 
-
-
+// Recalcular puntajes y goles acertados cuando existan resultados
 export const recalcularPuntajesFavoritosGoleador = async () => {
-  const response = await axios.get("https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions");
-  const partidos = response.data.flatMap(f => f.partidos);
+  try {
+    const response = await axios.get(
+      "https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions"
+    );
+    const partidos = response.data.flatMap(f => f.partidos);
 
-  const pronosticos = await PronosticoFavoritoGoleador.findAll({ where: { golesAcertados: null } });
+    const pronosticos = await PronosticoFavoritoGoleador.findAll({ where: { golesAcertados: null } });
 
-  for (const pronostico of pronosticos) {
-    const partido = partidos.find(p => p.id === pronostico.matchId);
-    if (!partido?.score) continue;
+    for (const pronostico of pronosticos) {
+      const partido = partidos.find(p => p.id === pronostico.matchId);
+      if (!partido?.score) continue;
+      if (partido.score.home == null || partido.score.away == null) continue;
 
-    const resultadoRealHome = partido.score.home;
-    const resultadoRealAway = partido.score.away;
-    if (resultadoRealHome == null || resultadoRealAway == null) continue;
+      const usuario = await Usuario.findByPk(pronostico.userId);
+      if (!usuario || !usuario.equipoFavoritoGoleador) continue;
+      const equipoFavorito = usuario.equipoFavoritoGoleador;
 
-    const usuario = await Usuario.findByPk(pronostico.userId);
-    if (!usuario || !usuario.equipoFavoritoGoleador) continue;
+      let golesAcertados = 0;
 
-    const equipoFavorito = usuario.equipoFavoritoGoleador;
+      if (partido.home.name === equipoFavorito) {
+        golesAcertados = Number(partido.score.home);
+      } else if (partido.away.name === equipoFavorito) {
+        golesAcertados = Number(partido.score.away);
+      }
 
-    let golesAcertados = 0;
+      // En este juego "goleador", los puntos = goles acertados
+      const puntos = golesAcertados;
 
-    if (partido.home.name === equipoFavorito) {
-      golesAcertados = Number(resultadoRealHome);
-    } else if (partido.away.name === equipoFavorito) {
-      golesAcertados = Number(resultadoRealAway);
+      await pronostico.update({ golesAcertados, puntos });
     }
-
-    // En este juego "goleador", los puntos = goles acertados
-    const puntos = golesAcertados;
-
-    // Actualizamos ambos campos en la base de datos
-    await pronostico.update({ golesAcertados, puntos });
+  } catch (error) {
+    console.error("Error al recalcular puntajes favoritos goleador:", error);
   }
 };

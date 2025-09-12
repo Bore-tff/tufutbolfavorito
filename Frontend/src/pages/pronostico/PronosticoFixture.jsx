@@ -142,7 +142,7 @@ const PronosticoComponent = () => {
           Modo de juego: Normal
         </h1>
       </div>
-      <div className="space-y-10 p-4 max-h-[650px] overflow-y-auto">
+      <div className="space-y-10 p-4 max-h-[650px] ">
         {mensaje && (
           <div className="text-center text-white font-bold bg-black p-2 rounded">
             {mensaje}
@@ -172,9 +172,9 @@ const PronosticoComponent = () => {
         ))}
 
         {/* Primer container horizontal */}
-        <div className="flex flex-row justify-between items-start space-x-6 ml-5 mr-5">
+        <div className="flex flex-row justify-start items-start space-x-6 ml-5 mr-5">
           {/* Tabla de partidos */}
-          <div className="w-1/2 bg-gray-800 rounded-lg pt-5 px-5">
+          <div className="w-1/4 bg-gray-800 rounded-lg pt-5 px-5">
             <h1 className="text-white text-2xl font-bold mb-5">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 FIXTURE
@@ -280,19 +280,19 @@ const PronosticoComponent = () => {
           </div>
 
           {/* Ranking x Fecha */}
-          <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="w-full md:w-1/4 p-4 rounded-lg shadow-lg bg-gray-800">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 RANKING X FECHA
               </span>
             </h2>
 
-            <div className="flex justify-center gap-4 mb-4">
-              {[1, 2, 3].map((fecha) => (
+            <div className="flex gap-2 mb-4 overflow-x-auto px-2 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((fecha) => (
                 <button
                   key={fecha}
                   onClick={() => setSelectedFechaRanking(fecha)}
-                  className={`px-4 py-1 rounded font-bold transition cursor-pointer ${
+                  className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
                     selectedFechaRanking === fecha
                       ? "bg-green-500 text-black"
                       : "bg-gray-600 text-white hover:bg-gray-500"
@@ -377,19 +377,19 @@ const PronosticoComponent = () => {
           </div>
 
           {/* Ranking x Goles */}
-          <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="w-full md:w-1/4 p-4 rounded-lg shadow-lg bg-gray-800">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 RANKING X FECHA
               </span>
             </h2>
 
-            <div className="flex justify-center gap-4 mb-4">
-              {[1, 2, 3].map((fecha) => (
+            <div className="flex gap-2 mb-4 overflow-x-auto max-w-full px-2 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((fecha) => (
                 <button
                   key={fecha}
                   onClick={() => setSelectedFechaRanking(fecha)}
-                  className={`px-4 py-1 rounded font-bold transition cursor-pointer ${
+                  className={`flex-shrink-0 px-4 py-1 mb-4 rounded font-bold transition cursor-pointer ${
                     selectedFechaRanking === fecha
                       ? "bg-green-500 text-black"
                       : "bg-gray-600 text-white hover:bg-gray-500"

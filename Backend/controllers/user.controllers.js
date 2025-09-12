@@ -120,8 +120,7 @@ export const obtenerUsuariosConPuntaje = async () => {
     'equipoFavoritoGoleador',
     [fn('SUM', col('Pronosticos.puntos')), 'totalPuntos'],
     [fn('SUM', col('Pronosticos.golesAcertados')), 'golesAcertados'],
-    [fn('SUM', literal(`CASE WHEN \`Pronosticos->Partido\`.\`fecha\` = ${numeroFecha} THEN \`Pronosticos\`.\`puntos\` ELSE 0 END`)), 'puntosFecha'],
-    [fn('SUM', literal(`CASE WHEN \`Pronosticos->Partido\`.\`fecha\` = ${numeroFecha} THEN \`Pronosticos\`.\`golesAcertados\` ELSE 0 END`)), 'golesFecha'],
+    
     [fn('SUM', literal('Pronosticos.puntos + Pronosticos.golesAcertados')), 'sumaTotal']
   ],
   include: [{ model: Pronostico, attributes: [] }],
@@ -133,11 +132,11 @@ return usuarios.map(usuario => ({
   id: usuario.id,
   user: usuario.user,
   equipoFavorito: usuario.equipoFavorito,
-  puntos: Number(usuario.puntosFecha) || 0,
+  
   equipoFavoritoGoleador: usuario.equipoFavoritoGoleador,
   puntos: Number(usuario.totalPuntos) || 0,
   goles: Number(usuario.golesAcertados) || 0,
-  golesFecha: Number(usuario.golesFecha) || 0,
+  
   sumaTotal: Number(usuario.sumaTotal) || 0,
 }));
   } catch (error) {

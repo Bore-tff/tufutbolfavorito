@@ -303,9 +303,9 @@ const PronosticoEquipoFav = () => {
           ))}
 
           {/* Primer container horizontal */}
-          <div className="flex flex-row justify-between items-start space-x-6 ml-5 mr-5">
+          <div className="flex flex-row justify-start items-start space-x-6 ml-5 mr-5">
             {/* Tabla de partidos */}
-            <div className="w-1/2 bg-gray-800 rounded-lg pt-5 px-5">
+            <div className="w-1/3 bg-gray-800 rounded-lg pt-5 px-5">
               <div className="text-white flex mb-2 bg-gray-800 pt-1 pb-1 w-120 rounded-xl">
                 <h2 className="text-2xl font-bold">
                   <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
@@ -560,7 +560,7 @@ const PronosticoEquipoFav = () => {
             </div>
 
             {/* Ranking x Fecha */}
-            <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
+            <div className="w-1/4 p-4 rounded-lg shadow-lg bg-gray-800">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO CAMPEON
@@ -568,7 +568,7 @@ const PronosticoEquipoFav = () => {
               </h2>
 
               <div className="flex justify-center gap-4 mb-4">
-                {[1, 2, 3].map((fecha) => (
+                {[1, 2, 3, 4].map((fecha) => (
                   <button
                     key={fecha}
                     onClick={() => setSelectedFechaRanking(fecha)}
@@ -658,7 +658,7 @@ const PronosticoEquipoFav = () => {
             </div>
 
             {/* Ranking x Goles */}
-            <div className="w-1/3 p-4 rounded-lg shadow-lg bg-gray-800">
+            <div className="w-1/4 p-4 rounded-lg shadow-lg bg-gray-800">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO GOLEADOR
@@ -666,7 +666,7 @@ const PronosticoEquipoFav = () => {
               </h2>
 
               <div className="flex justify-center gap-4 mb-4">
-                {[1, 2, 3].map((fecha) => (
+                {[1, 2, 3, 4].map((fecha) => (
                   <button
                     key={fecha}
                     onClick={() => setSelectedFechaRanking(fecha)}
