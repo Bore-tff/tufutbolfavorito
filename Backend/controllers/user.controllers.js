@@ -310,65 +310,112 @@ export const seleccionarEquipoFavoritoGoleador = async (req, res) => {
 
 export const obtenerUsuariosConPuntajeFavoritos = async () => {
   try {
-    const usuarios = await User.findAll({
-      attributes: [
-        'id',
-        'user',
-        'equipoFavorito',
-        [fn('SUM', col('PronosticoFavoritos.puntos')), 'totalPuntos'],
-      ],
+    // Traemos los puntajes agrupados por usuario y fecha
+    const usuarios = await Usuario.findAll({
+      attributes: ["id", "user", "equipoFavorito"],
       include: [
         {
           model: PronosticoFavorito,
-          attributes: [],
+          attributes: [
+            "fecha",
+            [fn("SUM", col("PronosticoFavoritos.puntos")), "puntosFecha"],
+          ],
         },
       ],
-      group: ['Usuario.id'],
+      group: ["Usuario.id", "PronosticoFavoritos.fecha"],
+      order: [[{ model: PronosticoFavorito }, "fecha", "ASC"]],
       raw: true,
     });
 
-    return usuarios.map(usuario => ({
-      id: usuario.id,
-      user: usuario.user,
-      equipoFavorito: usuario.equipoFavorito,
-      puntos: Number(usuario.totalPuntos) || 0,
-    }));
+    // Agrupamos por usuario y acumulamos los puntos
+    const acumulados = {};
+
+    for (const row of usuarios) {
+      const { id, user, equipoFavorito, "PronosticoFavoritos.fecha": fecha, puntosFecha } = row;
+
+      if (!acumulados[id]) {
+        acumulados[id] = {
+          id,
+          user,
+          equipoFavorito,
+          historial: [], // puntos acumulados por fecha
+          total: 0,
+        };
+      }
+
+      // sumamos los puntos de esta fecha a lo acumulado hasta ahora
+      acumulados[id].total += Number(puntosFecha) || 0;
+
+      acumulados[id].historial.push({
+        fecha,
+        puntosEnFecha: Number(puntosFecha) || 0,
+        puntosAcumulados: acumulados[id].total,
+      });
+    }
+
+    // Devolvemos un array
+    return Object.values(acumulados);
   } catch (error) {
-    console.error('Error al obtener los usuarios con puntaje:', error);
-    throw new Error('No se pudieron obtener los usuarios con puntaje');
+    console.error("Error al obtener los usuarios con puntaje:", error);
+    throw new Error("No se pudieron obtener los usuarios con puntaje");
   }
 };
 
 export const obtenerUsuariosConPuntajeFavoritosGoleador = async () => {
   try {
+    // Traemos goles por usuario y fecha
     const usuarios = await User.findAll({
-      attributes: [
-        'id',
-        'user',
-        'equipoFavoritoGoleador',
-        [fn('SUM', col('PronosticoFavoritoGoleador.golesAcertados')), 'golesAcertados'],
-        [fn('SUM', col('PronosticoFavoritoGoleador.golesAcertados')), 'golesTotales']
-      ],
+      attributes: ["id", "user", "equipoFavoritoGoleador"],
       include: [
         {
           model: PronosticoFavoritoGoleador,
-          attributes: [],
+          attributes: [
+            "fecha",
+            [fn("SUM", col("PronosticoFavoritoGoleadors.golesAcertados")), "golesFecha"]
+          ],
         },
       ],
-      group: ['Usuario.id'],
+      group: ["User.id", "PronosticoFavoritoGoleadors.fecha"],
+      order: [[{ model: PronosticoFavoritoGoleador }, "fecha", "ASC"]],
       raw: true,
     });
 
-    return usuarios.map(usuario => ({
-      id: usuario.id,
-      user: usuario.user,
-      equipoFavorito: usuario.equipoFavoritoGoleador,
-      goles: Number(usuario.golesAcertados) || 0,
-      golesTotales: Number(usuario.golesTotales) || 0,
-    }));
+    // Armamos acumulados por usuario
+    const acumulados = {};
+
+    for (const row of usuarios) {
+      const {
+        id,
+        user,
+        equipoFavoritoGoleador,
+        "PronosticoFavoritoGoleadors.fecha": fecha,
+        golesFecha
+      } = row;
+
+      if (!acumulados[id]) {
+        acumulados[id] = {
+          id,
+          user,
+          equipoFavorito: equipoFavoritoGoleador,
+          total: 0,
+          historial: [],
+        };
+      }
+
+      // acumulamos goles
+      acumulados[id].total += Number(golesFecha) || 0;
+
+      acumulados[id].historial.push({
+        fecha,
+        golesEnFecha: Number(golesFecha) || 0,
+        golesAcumulados: acumulados[id].total,
+      });
+    }
+
+    return Object.values(acumulados);
   } catch (error) {
-    console.error('Error al obtener los usuarios con puntaje:', error);
-    throw new Error('No se pudieron obtener los usuarios con puntaje');
+    console.error("Error al obtener los usuarios con puntaje:", error);
+    throw new Error("No se pudieron obtener los usuarios con puntaje");
   }
 };
 
@@ -378,14 +425,36 @@ export const obtenerRankingPorFechaFavoritos = async (numeroFecha) => {
       attributes: [
         'id',
         'user',
-        [fn('SUM', literal(`CASE WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` = ${numeroFecha} THEN \`PronosticoFavoritos\`.\`puntos\` ELSE 0 END`)), 'puntosFecha'],
-        [fn('SUM', col('PronosticoFavoritos.puntos')), 'puntajeTotal'],
-        
+        // ✅ Puntos SOLO de la fecha seleccionada
+        [
+          fn(
+            'SUM',
+            literal(`CASE 
+              WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` = ${numeroFecha} 
+              THEN \`PronosticoFavoritos\`.\`puntos\` 
+              ELSE 0 
+            END`)
+          ),
+          'puntosFecha'
+        ],
+
+        // ✅ Puntos acumulados hasta la fecha seleccionada
+        [
+          fn(
+            'SUM',
+            literal(`CASE 
+              WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` <= ${numeroFecha} 
+              THEN \`PronosticoFavoritos\`.\`puntos\` 
+              ELSE 0 
+            END`)
+          ),
+          'puntajeTotal'
+        ]
       ],
       include: [
         {
           model: PronosticoFavorito,
-          as: "PronosticoFavoritos", // este alias lo definís en la relación
+          as: "PronosticoFavoritos",
           attributes: [],
           include: [
             {
@@ -403,10 +472,8 @@ export const obtenerRankingPorFechaFavoritos = async (numeroFecha) => {
       id: usuario.id,
       user: usuario.user,
       fecha: numeroFecha,
-      puntos: Number(usuario.puntosFecha) || 0,
-      puntajeTotal: Number(usuario.puntajeTotal) || 0,
-      golesFecha: Number(usuario.golesFecha) || 0,
-      golesTotales: Number(usuario.golesTotales) || 0
+      puntos: Number(usuario.puntosFecha) || 0,     // puntos de esta fecha
+      puntajeTotal: Number(usuario.puntajeTotal) || 0 // acumulado hasta la fecha
     }));
   } catch (error) {
     console.error('Error al obtener ranking de favoritos por fecha:', error);
@@ -418,36 +485,67 @@ export const obtenerRankingPorFechaFavoritosGoleador = async (numeroFecha) => {
   try {
     const usuarios = await Usuario.findAll({
       attributes: [
-        'id',
-        'user',
-        [fn('SUM', literal(`CASE WHEN \`PronosticoFavoritoGoleador->Partido\`.\`fecha\` = ${numeroFecha} THEN \`PronosticoFavoritoGoleador\`.\`golesAcertados\` ELSE 0 END`)), 'golesAcertados']
+        "id",
+        "user",
+
+        // Goles SOLO de la fecha actual
+        [
+          fn(
+            "SUM",
+            literal(`CASE 
+              WHEN \`PronosticoFavoritoGoleador->Partido\`.\`fecha\` = ${numeroFecha} 
+              THEN \`PronosticoFavoritoGoleador\`.\`golesAcertados\` 
+              ELSE 0 
+            END`)
+          ),
+          "golesAcertados", // 👈 usamos el mismo nombre que en el modelo
+        ],
+
+        // Goles acumulados hasta esa fecha
+        [
+          fn(
+            "SUM",
+            literal(`CASE 
+              WHEN \`PronosticoFavoritoGoleador->Partido\`.\`fecha\` <= ${numeroFecha} 
+              THEN \`PronosticoFavoritoGoleador\`.\`golesAcertados\` 
+              ELSE 0 
+            END`)
+          ),
+          "golesTotales",
+        ],
       ],
       include: [
         {
           model: PronosticoFavoritoGoleador,
-          as: "PronosticoFavoritoGoleador", // este alias lo definís en la relación
+          as: "PronosticoFavoritoGoleador",
           attributes: [],
           include: [
             {
               model: Partido,
-              attributes: []
-            }
-          ]
-        }
+              attributes: [],
+            },
+          ],
+        },
       ],
-      group: ['Usuario.id'],
+      group: ["Usuario.id"],
       raw: true,
     });
 
-    return usuarios.map(usuario => ({
+    return usuarios.map((usuario) => ({
       id: usuario.id,
       user: usuario.user,
       fecha: numeroFecha,
-      golesAcertados: Number(usuario.golesAcertados) || 0,
+      golesAcertados: Number(usuario.golesAcertados) || 0, // 👈 mismo nombre que espera tu front
+      golesTotales: Number(usuario.golesTotales) || 0,
     }));
   } catch (error) {
-    console.error('Error al obtener ranking de favoritos goleador por fecha:', error);
-    throw new Error('No se pudo obtener el ranking de favoritos goleador por fecha');
+    console.error(
+      "Error al obtener ranking de favoritos goleador por fecha:",
+      error
+    );
+    throw new Error(
+      "No se pudo obtener el ranking de favoritos goleador por fecha"
+    );
   }
 };
 

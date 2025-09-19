@@ -31,6 +31,10 @@ const Partido = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    fase: {
+      type: DataTypes.STRING, // 👈 eliminatorias: "Cuartos", "Semi", "Final"
+      allowNull: true,
+    },
     date: {
       type: DataTypes.DATE,
       allowNull: false,

@@ -19,26 +19,32 @@ function parseFechaHora(fechaStr) {
 
 export const sincronizarPartidos = async (req, res) => {
   try {
-    const response = await axios.get("https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions");
+    const response = await axios.get(
+      "https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions"
+    );
     const fechas = response.data;
 
     for (const fechaObj of fechas) {
-      const fecha = parseInt(fechaObj.fecha);
+      // si es número => fase de grupos, si no => eliminatoria
+      const fechaNum = parseInt(fechaObj.fecha);
+      const esNumero = !isNaN(fechaNum);
+
       const partidos = fechaObj.partidos;
 
       for (const p of partidos) {
         await Partido.findOrCreate({
-        where: { id: p.id }, // usar el id del mockAPI como PK
-        defaults: {
-         homeTeam: p.home.name,
-         awayTeam: p.away.name,
-         fecha,
-         date: parseFechaHora(p.date),
-         homeScore: p.score?.home ?? null,
-         awayScore: p.score?.away ?? null,
-        },
-      });
-     }
+          where: { id: p.id }, // usamos el id del mockAPI como PK
+          defaults: {
+            homeTeam: p.home.name,
+            awayTeam: p.away.name,
+            fecha: esNumero ? fechaNum : null,
+            fase: esNumero ? null : fechaObj.fecha, // 👈 guardamos "Cuartos", "Final", etc
+            date: parseFechaHora(p.date),
+            homeScore: p.score?.home ?? null,
+            awayScore: p.score?.away ?? null,
+          },
+        });
+      }
     }
 
     res.status(200).json({ message: "Partidos sincronizados correctamente" });

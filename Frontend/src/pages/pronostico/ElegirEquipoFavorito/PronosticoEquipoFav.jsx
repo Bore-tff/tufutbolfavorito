@@ -42,14 +42,22 @@ const PronosticoEquipoFav = () => {
   // Filtrar partidos por equipo favorito
   const matchesFavorito = matches
     .map((fecha) => {
+      // Filtrar solo los partidos donde participa el equipo favorito
       const partidosFiltrados = fecha.partidos.filter(
         (partido) =>
           partido.home.name === equipoFavorito ||
           partido.away.name === equipoFavorito
       );
-      return partidosFiltrados.length > 0
-        ? { ...fecha, partidos: partidosFiltrados }
-        : null;
+
+      if (partidosFiltrados.length === 0) return null;
+
+      // Retornar fecha + fase + partidos filtrados
+      return {
+        ...fecha,
+        partidos: partidosFiltrados,
+        // si tu JSON tiene fecha como número o fase como texto
+        label: fecha.fase ? fecha.fase : `Fecha ${fecha.fecha}`,
+      };
     })
     .filter(Boolean);
 
@@ -266,6 +274,8 @@ const PronosticoEquipoFav = () => {
   // Para mostrar los puntajes del usuario actual (primera tabla)
   const puntajesUsuarioActual = user; // Asumiendo que tienes esa estructura
 
+  console.log("a veer", matchesFavorito);
+
   return (
     <>
       <motion.div
@@ -274,7 +284,7 @@ const PronosticoEquipoFav = () => {
         animate={{ y: 0, opacity: 1 }} // Baja a su posición original y aparece
         transition={{ duration: 0.8, ease: "easeOut" }} // Suavidad
       >
-        <div className="space-y-10 p-4 max-h-[650px] overflow-y-auto">
+        <div className="space-y-10 p-4 ">
           {mensaje && (
             <div className="text-center text-white font-bold bg-black p-2 rounded">
               {mensaje}
@@ -303,9 +313,9 @@ const PronosticoEquipoFav = () => {
           ))}
 
           {/* Primer container horizontal */}
-          <div className="flex flex-row justify-start items-start space-x-6 ml-5 mr-5">
+          <div className=" justify-start items-start ml-80 mr-80">
             {/* Tabla de partidos */}
-            <div className="w-1/3 bg-gray-800 rounded-lg pt-5 px-5">
+            <div className="w-full bg-gray-800 rounded-lg pt-5 px-5">
               <div className="text-white flex mb-2 bg-gray-800 pt-1 pb-1 w-120 rounded-xl">
                 <h2 className="text-2xl font-bold">
                   <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
@@ -316,20 +326,22 @@ const PronosticoEquipoFav = () => {
               </div>
 
               {/* Selector de Fechas */}
-              <div className="flex gap-2 mb-4">
-                {matchesFavorito.map(({ fecha }) => (
-                  <button
-                    key={fecha}
-                    onClick={() => setSelectedFecha(fecha)}
-                    className={`px-3 py-1 cursor-pointer rounded font-bold transition ${
-                      selectedFecha === fecha
-                        ? "bg-green-500 text-black"
-                        : "bg-gray-600 text-white hover:bg-gray-500"
-                    }`}
-                  >
-                    Fecha {fecha}
-                  </button>
-                ))}
+              <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+                <div className="flex gap-2 flex-nowrap">
+                  {matchesFavorito.map(({ fecha, label }) => (
+                    <button
+                      key={fecha ?? label} // usamos label si fecha es null
+                      onClick={() => setSelectedFecha(fecha)}
+                      className={`flex-shrink-0 px-3 py-1 cursor-pointer rounded font-bold transition mb-2 ${
+                        selectedFecha === fecha
+                          ? "bg-green-500 text-black"
+                          : "bg-gray-600 text-white hover:bg-gray-500"
+                      }`}
+                    >
+                      {label} {/* muestra "Fecha 14" o "Cuartos de Final" */}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Mostrar solo la fecha actual */}
@@ -349,7 +361,7 @@ const PronosticoEquipoFav = () => {
                     <tbody>
                       {currentFecha.partidos.map(({ id, home, away, date }) => (
                         <tr key={id}>
-                          <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold pt-1 pb-1 pl-1 pr-1">
+                          <td className="border-2 border-gray-900 w-54 bg-white text-gray-900 font-bold pt-1 pb-1 pl-1 pr-1">
                             {date}
                           </td>
                           <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
@@ -365,7 +377,7 @@ const PronosticoEquipoFav = () => {
                           <td className="border-2 bg-sky-500 border-gray-900">
                             <input
                               type="number"
-                              className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                              className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                               placeholder="0"
                               value={predictions[id]?.home || ""}
                               onChange={(e) =>
@@ -377,7 +389,7 @@ const PronosticoEquipoFav = () => {
                           <td className="border-2 bg-sky-500 border-gray-900">
                             <input
                               type="number"
-                              className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                              className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                               placeholder="0"
                               value={predictions[id]?.away || ""}
                               onChange={(e) =>
@@ -411,7 +423,9 @@ const PronosticoEquipoFav = () => {
                   </div>
                 </>
               )}
+            </div>
 
+            <div className="bg-gray-800 rounded-xl mt-10 px-5 pt-5">
               {currentFechaGoleador && (
                 <>
                   <div className="text-white flex bg-gray-800 mb-2 pt-1 pb-1 w-120 rounded-xl">
@@ -424,20 +438,22 @@ const PronosticoEquipoFav = () => {
                       {equipoFavoritoGoleador}
                     </p>
                   </div>
-                  <div className="flex gap-2 mb-4">
-                    {matchesFavorito.map(({ fecha }) => (
-                      <button
-                        key={fecha}
-                        onClick={() => setSelectedFechaGoleador(fecha)}
-                        className={`px-3 py-1 cursor-pointer rounded font-bold transition ${
-                          selectedFechaGoleador === fecha
-                            ? "bg-green-500 text-black"
-                            : "bg-gray-600 text-white hover:bg-gray-500"
-                        }`}
-                      >
-                        Fecha {fecha}
-                      </button>
-                    ))}
+                  <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+                    <div className="flex gap-2 flex-nowrap">
+                      {matchesFavorito.map(({ fecha }) => (
+                        <button
+                          key={fecha}
+                          onClick={() => setSelectedFechaGoleador(fecha)}
+                          className={`flex-shrink-0 px-3 py-1 cursor-pointer rounded font-bold transition mb-2 ${
+                            selectedFechaGoleador === fecha
+                              ? "bg-green-500 text-black"
+                              : "bg-gray-600 text-white hover:bg-gray-500"
+                          }`}
+                        >
+                          Fecha {fecha}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <table className="w-full text-center border-collapse mb-4">
                     <thead>
@@ -459,7 +475,7 @@ const PronosticoEquipoFav = () => {
 
                           return (
                             <tr key={id}>
-                              <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold pt-1 pb-1 pl-1 pr-1">
+                              <td className="border-2 w-54 border-gray-900 bg-white text-gray-900 font-bold pt-1 pb-1 pl-1 pr-1">
                                 {date}
                               </td>
 
@@ -480,7 +496,7 @@ const PronosticoEquipoFav = () => {
                                 {esLocal ? (
                                   <input
                                     type="number"
-                                    className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                                    className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                                     placeholder="0"
                                     value={predictionsGoleador[id]?.goles || ""}
                                     onChange={(e) =>
@@ -495,7 +511,7 @@ const PronosticoEquipoFav = () => {
                                 ) : (
                                   <input
                                     type="number"
-                                    className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                                    className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                                     placeholder="-"
                                     disabled
                                   />
@@ -507,7 +523,7 @@ const PronosticoEquipoFav = () => {
                                 {esVisitante ? (
                                   <input
                                     type="number"
-                                    className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                                    className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                                     placeholder="0"
                                     value={predictionsGoleador[id]?.goles || ""}
                                     onChange={(e) =>
@@ -522,7 +538,7 @@ const PronosticoEquipoFav = () => {
                                 ) : (
                                   <input
                                     type="number"
-                                    className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                                    className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                                     placeholder="-"
                                     disabled
                                   />
@@ -558,29 +574,33 @@ const PronosticoEquipoFav = () => {
                 </>
               )}
             </div>
+          </div>
 
+          <div className="flex justify-center">
             {/* Ranking x Fecha */}
-            <div className="w-1/4 p-4 rounded-lg shadow-lg bg-gray-800">
+            <div className="w-2xl p-4 rounded-lg shadow-lg bg-gray-800">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO CAMPEON
                 </span>
               </h2>
 
-              <div className="flex justify-center gap-4 mb-4">
-                {[1, 2, 3, 4].map((fecha) => (
-                  <button
-                    key={fecha}
-                    onClick={() => setSelectedFechaRanking(fecha)}
-                    className={`px-4 py-1 rounded font-bold transition cursor-pointer ${
-                      selectedFechaRanking === fecha
-                        ? "bg-green-500 text-black"
-                        : "bg-gray-600 text-white hover:bg-gray-500"
-                    }`}
-                  >
-                    Fecha {fecha}
-                  </button>
-                ))}
+              <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+                <div className="flex space-x-2 flex-nowrap">
+                  {matchesFavorito.map(({ fecha }) => (
+                    <button
+                      key={fecha}
+                      onClick={() => setSelectedFechaRanking(fecha)}
+                      className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
+                        selectedFechaRanking === fecha
+                          ? "bg-green-500 text-black"
+                          : "bg-gray-600 text-white hover:bg-gray-500"
+                      }`}
+                    >
+                      Fecha {fecha}
+                    </button>
+                  ))}
+                </div>
               </div>
               {currentFechaRanking && (
                 <>
@@ -618,7 +638,7 @@ const PronosticoEquipoFav = () => {
                             <img className="h-8" src={Logo} alt="Logo" />
                           </td>
                           <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                            {usuario.puntos || 0}
+                            {usuario.puntajeTotal || 0}
                           </td>
                         </tr>
                       ))}
@@ -658,27 +678,29 @@ const PronosticoEquipoFav = () => {
             </div>
 
             {/* Ranking x Goles */}
-            <div className="w-1/4 p-4 rounded-lg shadow-lg bg-gray-800">
+            <div className="w-2xl p-4 ml-5 rounded-lg shadow-lg bg-gray-800">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO GOLEADOR
                 </span>
               </h2>
 
-              <div className="flex justify-center gap-4 mb-4">
-                {[1, 2, 3, 4].map((fecha) => (
-                  <button
-                    key={fecha}
-                    onClick={() => setSelectedFechaRanking(fecha)}
-                    className={`px-4 py-1 rounded font-bold transition cursor-pointer ${
-                      selectedFechaRanking === fecha
-                        ? "bg-green-500 text-black"
-                        : "bg-gray-600 text-white hover:bg-gray-500"
-                    }`}
-                  >
-                    Fecha {fecha}
-                  </button>
-                ))}
+              <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+                <div className="flex space-x-2 flex-nowrap">
+                  {matchesFavorito.map(({ fecha }) => (
+                    <button
+                      key={fecha}
+                      onClick={() => setSelectedFechaRanking(fecha)}
+                      className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
+                        selectedFechaRanking === fecha
+                          ? "bg-green-500 text-black"
+                          : "bg-gray-600 text-white hover:bg-gray-500"
+                      }`}
+                    >
+                      Fecha {fecha}
+                    </button>
+                  ))}
+                </div>
               </div>
               {currentFechaRanking && (
                 <>
@@ -716,14 +738,14 @@ const PronosticoEquipoFav = () => {
                             <img className="h-8" src={Logo} alt="Logo" />
                           </td>
                           <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                            {usuario.golesAcertados || 0}
+                            {usuario.golesTotales || 0}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                     <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
                       <p className="font-bold text-green-500">
-                        Tus puntos en la fecha {selectedFechaRanking} son{" "}
+                        Tus goles en la fecha {selectedFechaRanking} son{" "}
                         {golesFecha}
                       </p>
                     </div>

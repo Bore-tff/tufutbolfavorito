@@ -83,7 +83,7 @@ export default function ElegirEquipo() {
 
   return (
     <motion.div
-      className="space-y-10 p-4 max-h-[650px] overflow-y-auto"
+      className="space-y-10 p-4 "
       initial={{ y: -100, opacity: 0 }} // Empieza arriba y transparente
       animate={{ y: 0, opacity: 1 }} // Baja a su posición original y aparece
       transition={{ duration: 0.8, ease: "easeOut" }} // Suavidad

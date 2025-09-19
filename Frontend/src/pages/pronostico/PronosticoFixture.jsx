@@ -172,9 +172,9 @@ const PronosticoComponent = () => {
         ))}
 
         {/* Primer container horizontal */}
-        <div className="flex flex-row justify-start items-start space-x-6 ml-5 mr-5">
+        <div className="flex flex-row justify-start items-start ml-80 mr-80">
           {/* Tabla de partidos */}
-          <div className="w-1/4 bg-gray-800 rounded-lg pt-5 px-5">
+          <div className="w-full bg-gray-800 rounded-lg pt-5 px-5">
             <h1 className="text-white text-2xl font-bold mb-5">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 FIXTURE
@@ -182,20 +182,22 @@ const PronosticoComponent = () => {
             </h1>
 
             {/* Selector de Fechas */}
-            <div className="flex gap-2 mb-4">
-              {matches.map(({ fecha }) => (
-                <button
-                  key={fecha}
-                  onClick={() => setSelectedFecha(fecha)}
-                  className={`px-3 py-1 cursor-pointer rounded font-bold transition ${
-                    selectedFecha === fecha
-                      ? "bg-green-500 text-black"
-                      : "bg-gray-600 text-white hover:bg-gray-500"
-                  }`}
-                >
-                  Fecha {fecha}
-                </button>
-              ))}
+            <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+              <div className="flex gap-2 flex-nowrap mb-2">
+                {matches.map(({ fecha }) => (
+                  <button
+                    key={fecha}
+                    onClick={() => setSelectedFecha(fecha)}
+                    className={`flex-shrink-0 px-3 py-1 cursor-pointer rounded font-bold transition ${
+                      selectedFecha === fecha
+                        ? "bg-green-500 text-black"
+                        : "bg-gray-600 text-white hover:bg-gray-500"
+                    }`}
+                  >
+                    Fecha {fecha}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Mostrar solo la fecha actual */}
@@ -215,7 +217,7 @@ const PronosticoComponent = () => {
                   <tbody>
                     {currentFecha.partidos.map(({ id, home, away, date }) => (
                       <tr key={id}>
-                        <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold pt-1 pb-1 pl-1 pr-1">
+                        <td className="border-2 border-gray-900 w-54 bg-white text-gray-900 font-bold pt-1 pb-1 pl-1 pr-1">
                           {date}
                         </td>
                         <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
@@ -231,7 +233,7 @@ const PronosticoComponent = () => {
                         <td className="border-2 bg-sky-500 border-gray-900">
                           <input
                             type="number"
-                            className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                            className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                             placeholder="0"
                             value={predictions[id]?.home || ""}
                             onChange={(e) =>
@@ -243,7 +245,7 @@ const PronosticoComponent = () => {
                         <td className="border-2 bg-sky-500 border-gray-900">
                           <input
                             type="number"
-                            className="text-black w-full text-center py-1 border-none outline-none font-bold"
+                            className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                             placeholder="0"
                             value={predictions[id]?.away || ""}
                             onChange={(e) =>
@@ -278,31 +280,34 @@ const PronosticoComponent = () => {
               </>
             )}
           </div>
+        </div>
 
+        <div className="flex justify-center">
           {/* Ranking x Fecha */}
-          <div className="w-full md:w-1/4 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="w-2xl p-4 rounded-lg shadow-lg bg-gray-800">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 RANKING X FECHA
               </span>
             </h2>
 
-            <div className="flex gap-2 mb-4 overflow-x-auto px-2 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((fecha) => (
-                <button
-                  key={fecha}
-                  onClick={() => setSelectedFechaRanking(fecha)}
-                  className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
-                    selectedFechaRanking === fecha
-                      ? "bg-green-500 text-black"
-                      : "bg-gray-600 text-white hover:bg-gray-500"
-                  }`}
-                >
-                  Fecha {fecha}
-                </button>
-              ))}
+            <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+              <div className="flex space-x-2 flex-nowrap">
+                {matches.map(({ fecha }) => (
+                  <button
+                    key={fecha}
+                    onClick={() => setSelectedFechaRanking(fecha)}
+                    className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
+                      selectedFechaRanking === fecha
+                        ? "bg-green-500 text-black"
+                        : "bg-gray-600 text-white hover:bg-gray-500"
+                    }`}
+                  >
+                    Fecha {fecha}
+                  </button>
+                ))}
+              </div>
             </div>
-
             {currentFechaRanking && (
               <>
                 <input
@@ -377,27 +382,29 @@ const PronosticoComponent = () => {
           </div>
 
           {/* Ranking x Goles */}
-          <div className="w-full md:w-1/4 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="w-2xl ml-5 p-4 rounded-lg shadow-lg bg-gray-800">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 RANKING X FECHA
               </span>
             </h2>
 
-            <div className="flex gap-2 mb-4 overflow-x-auto max-w-full px-2 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((fecha) => (
-                <button
-                  key={fecha}
-                  onClick={() => setSelectedFechaRanking(fecha)}
-                  className={`flex-shrink-0 px-4 py-1 mb-4 rounded font-bold transition cursor-pointer ${
-                    selectedFechaRanking === fecha
-                      ? "bg-green-500 text-black"
-                      : "bg-gray-600 text-white hover:bg-gray-500"
-                  }`}
-                >
-                  Fecha {fecha}
-                </button>
-              ))}
+            <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
+              <div className="flex space-x-2 flex-nowrap">
+                {matches.map(({ fecha }) => (
+                  <button
+                    key={fecha}
+                    onClick={() => setSelectedFechaRanking(fecha)}
+                    className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
+                      selectedFechaRanking === fecha
+                        ? "bg-green-500 text-black"
+                        : "bg-gray-600 text-white hover:bg-gray-500"
+                    }`}
+                  >
+                    Fecha {fecha}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {currentFechaRanking && (

@@ -28,10 +28,15 @@ const PronosticoFavorito = sequelize.define("PronosticoFavorito", {
   type: DataTypes.INTEGER,
   allowNull: false
   },
+  fase: {
+      type: DataTypes.STRING, // 👈 eliminatorias: "Cuartos", "Semi", "Final"
+      allowNull: true,
+    },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  
   userId: {
     type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false,

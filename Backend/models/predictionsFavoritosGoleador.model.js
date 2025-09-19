@@ -16,6 +16,10 @@ const PronosticoFavoritoGoleador = sequelize.define("PronosticoFavoritoGoleador"
   type: DataTypes.INTEGER,
   allowNull: false
   },
+  fase: {
+      type: DataTypes.STRING, // 👈 eliminatorias: "Cuartos", "Semi", "Final"
+      allowNull: true,
+    },
   golesAcertados: {
   type: DataTypes.INTEGER,
   defaultValue: 0,
