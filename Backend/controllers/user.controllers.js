@@ -9,9 +9,9 @@ import Partido from '../models/partido.model.js';
 import { fn, col, literal } from 'sequelize';
 
 export const registro = async (req, res) => {
-  const { user, password, nombre, apellido, email } = req.body;
+  const { user, password, email } = req.body;
   try {
-    const nuevoUsuario = await User.create({ user, password, nombre, apellido, email });
+    const nuevoUsuario = await User.create({ user, password, email });
     return res.status(201).json({ message: "Usuario registrado", usuario: nuevoUsuario });
   } catch (error) {
     return res.status(500).json({ message: "Error al registrar usuario", error });

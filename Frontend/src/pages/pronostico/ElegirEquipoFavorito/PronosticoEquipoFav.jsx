@@ -39,6 +39,8 @@ const PronosticoEquipoFav = () => {
   const [currentPage2, setCurrentPage2] = useState(1);
   const rowsPerPage = 5;
 
+  console.log(user);
+
   // Filtrar partidos por equipo favorito
   const matchesFavorito = matches
     .map((fecha) => {
@@ -276,6 +278,19 @@ const PronosticoEquipoFav = () => {
 
   console.log("a veer", matchesFavorito);
 
+  console.log(equipoFavorito);
+
+  const partidoFavorito = currentFecha?.partidos.find(
+    (p) =>
+      p.home.name === user.equipoFavorito || p.away.name === user.equipoFavorito
+  );
+
+  const partidoFavoritoGoleador = currentFecha?.partidos.find(
+    (p) =>
+      p.home.name === user.equipoFavoritoGoleador ||
+      p.away.name === user.equipoFavoritoGoleador
+  );
+
   return (
     <>
       <motion.div
@@ -313,16 +328,26 @@ const PronosticoEquipoFav = () => {
           ))}
 
           {/* Primer container horizontal */}
-          <div className=" justify-start items-start ml-80 mr-80">
+          <div className="justify-start items-start w-full">
             {/* Tabla de partidos */}
             <div className="w-full bg-gray-800 rounded-lg pt-5 px-5">
-              <div className="text-white flex mb-2 bg-gray-800 pt-1 pb-1 w-120 rounded-xl">
-                <h2 className="text-2xl font-bold">
+              <div className="text-white flex flex-col sm:flex-row items-center mb-2 bg-gray-800 pt-2 pb-2 px-4 sm:w-120 rounded-xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
                   <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                     EQUIPO FAVORITO CAMPEON:
                   </span>
                 </h2>
-                <p className="text-xl mt-1 ml-2">{equipoFavorito}</p>
+                {partidoFavorito && (
+                  <img
+                    className="h-16 sm:h-20 mt-2 sm:mt-0 sm:ml-5"
+                    src={
+                      partidoFavorito.home.name === user.equipoFavorito
+                        ? partidoFavorito.home.logo
+                        : partidoFavorito.away.logo
+                    }
+                    alt={user.equipoFavorito}
+                  />
+                )}
               </div>
 
               {/* Selector de Fechas */}
@@ -347,37 +372,111 @@ const PronosticoEquipoFav = () => {
               {/* Mostrar solo la fecha actual */}
               {currentFecha && (
                 <>
-                  <table className="w-full text-center border-collapse mb-4">
-                    <thead>
-                      <tr className="bg-black text-green-500 border-2 border-black">
-                        <th className="px-2 py-1">Día</th>
-                        <th className="px-2 py-1">Local</th>
-                        <th className="px-2 py-1">GL</th>
-                        <th className="px-2 py-1">GV</th>
-                        <th className="px-2 py-1">Visitante</th>
-                      </tr>
-                    </thead>
+                  <div className="w-full">
+                    {/* Tabla solo visible en pantallas sm y mayores */}
+                    <table className="w-full text-center border-collapse mb-4 hidden sm:table">
+                      <thead>
+                        <tr className="bg-black text-green-500 border-2 border-black text-base">
+                          <th className="px-2 py-1">Día</th>
+                          <th className="px-2 py-1">Local</th>
+                          <th className="px-2 py-1">GL</th>
+                          <th className="px-2 py-1">GV</th>
+                          <th className="px-2 py-1">Visitante</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentFecha.partidos.map(
+                          ({ id, home, away, date }) => (
+                            <tr key={id}>
+                              <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold px-1 py-1">
+                                {date}
+                              </td>
+                              <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
+                                <div className="flex items-center justify-end gap-2 pr-1 pl-1">
+                                  <span>{home.name}</span>
+                                  <img
+                                    className="h-8"
+                                    src={home.logo}
+                                    alt="Logo local"
+                                  />
+                                </div>
+                              </td>
+                              <td className="border-2 bg-sky-500 border-gray-900">
+                                <input
+                                  type="number"
+                                  className="text-black w-10 text-center py-1 border-none outline-none font-bold"
+                                  placeholder="0"
+                                  value={predictions[id]?.home || ""}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      id,
+                                      "home",
+                                      e.target.value
+                                    )
+                                  }
+                                  onWheel={(e) => e.target.blur()}
+                                />
+                              </td>
+                              <td className="border-2 bg-sky-500 border-gray-900">
+                                <input
+                                  type="number"
+                                  className="text-black w-10 text-center py-1 border-none outline-none font-bold"
+                                  placeholder="0"
+                                  value={predictions[id]?.away || ""}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      id,
+                                      "away",
+                                      e.target.value
+                                    )
+                                  }
+                                  onWheel={(e) => e.target.blur()}
+                                />
+                              </td>
+                              <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
+                                <div className="flex items-center justify-start gap-2 pr-1 pl-1">
+                                  <img
+                                    className="h-8"
+                                    src={away.logo}
+                                    alt="Logo visitante"
+                                  />
+                                  <span>{away.name}</span>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
 
-                    <tbody>
+                    {/* Cards solo visibles en móviles */}
+                    <div className="flex flex-col gap-3 sm:hidden">
                       {currentFecha.partidos.map(({ id, home, away, date }) => (
-                        <tr key={id}>
-                          <td className="border-2 border-gray-900 w-54 bg-white text-gray-900 font-bold pt-1 pb-1 pl-1 pr-1">
+                        <div
+                          key={id}
+                          className="bg-white border-2 border-gray-900 rounded-lg p-3 shadow-md"
+                        >
+                          {/* Fecha arriba */}
+                          <div className="text-gray-900 font-bold mb-2 text-center">
                             {date}
-                          </td>
-                          <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
-                            <div className="flex items-center justify-end gap-2 pr-1 pl-1">
-                              <span>{home.name}</span>
+                          </div>
+
+                          {/* Fila principal: logos e inputs */}
+                          <div className="flex items-center justify-between gap-2">
+                            {/* Local */}
+                            <div className="flex items-center gap-2">
                               <img
                                 className="h-8"
                                 src={home.logo}
                                 alt="Logo local"
                               />
+                              <span className="font-bold">{home.name}</span>
                             </div>
-                          </td>
-                          <td className="border-2 bg-sky-500 border-gray-900">
+
+                            {/* Input local */}
                             <input
                               type="number"
-                              className="text-black w-10 text-center py-1 border-none outline-none font-bold"
+                              className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
                               placeholder="0"
                               value={predictions[id]?.home || ""}
                               onChange={(e) =>
@@ -385,11 +484,11 @@ const PronosticoEquipoFav = () => {
                               }
                               onWheel={(e) => e.target.blur()}
                             />
-                          </td>
-                          <td className="border-2 bg-sky-500 border-gray-900">
+
+                            {/* Input visitante */}
                             <input
                               type="number"
-                              className="text-black w-10 text-center py-1 border-none outline-none font-bold"
+                              className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
                               placeholder="0"
                               value={predictions[id]?.away || ""}
                               onChange={(e) =>
@@ -397,21 +496,21 @@ const PronosticoEquipoFav = () => {
                               }
                               onWheel={(e) => e.target.blur()}
                             />
-                          </td>
-                          <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
-                            <div className="flex items-center justify-start gap-2 pr-1 pl-1">
+
+                            {/* Visitante */}
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold">{away.name}</span>
                               <img
                                 className="h-8"
                                 src={away.logo}
                                 alt="Logo visitante"
                               />
-                              <span>{away.name}</span>
                             </div>
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+                  </div>
 
                   <div className="text-left py-2">
                     <button
@@ -434,9 +533,18 @@ const PronosticoEquipoFav = () => {
                         EQUIPO FAVORITO GOLEADOR:
                       </span>
                     </h2>
-                    <p className="text-xl mt-1 ml-2">
-                      {equipoFavoritoGoleador}
-                    </p>
+                    {partidoFavoritoGoleador && (
+                      <img
+                        className="h-20 ml-5"
+                        src={
+                          partidoFavoritoGoleador.home.name ===
+                          user.equipoFavoritoGoleador
+                            ? partidoFavoritoGoleador.home.logo
+                            : partidoFavoritoGoleador.away.logo
+                        }
+                        alt={user.equipoFavorito}
+                      />
+                    )}
                   </div>
                   <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
                     <div className="flex gap-2 flex-nowrap">

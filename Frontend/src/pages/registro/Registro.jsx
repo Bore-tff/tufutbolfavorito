@@ -5,8 +5,6 @@ import useUserStore from "../../store/usersStore";
 
 function Registro() {
   const [usuario, setUsuario] = useState("");
-  const [nombre, setNombre] = useState("");
-  const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmarPassword, setConfirmarPassword] = useState("");
@@ -16,14 +14,7 @@ function Registro() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !usuario ||
-      !nombre ||
-      !apellido ||
-      !email ||
-      !password ||
-      !confirmarPassword
-    ) {
+    if (!usuario || !email || !password || !confirmarPassword) {
       toast.error("Todos los campos son obligatorios");
       return;
     }
@@ -34,7 +25,7 @@ function Registro() {
     }
 
     try {
-      await register({ user: usuario, nombre, apellido, email, password });
+      await register({ user: usuario, email, password });
       toast.success("Usuario registrado correctamente");
       navigate("/login");
     } catch (error) {
@@ -64,22 +55,6 @@ function Registro() {
             placeholder="Usuario"
             value={usuario}
             onChange={(e) => setUsuario(e.target.value)}
-            className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Apellido"
-            value={apellido}
-            onChange={(e) => setApellido(e.target.value)}
             className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
             required
           />

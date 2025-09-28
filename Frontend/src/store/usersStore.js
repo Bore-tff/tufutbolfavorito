@@ -14,7 +14,7 @@ import {
 const useUserStore = create((set) => {
   const storedUser = localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user"))
-    : null;
+    : null; 
 
   return {
     user: storedUser,
@@ -58,10 +58,10 @@ const useUserStore = create((set) => {
       }
     },
 
-    register: async ({ user, password, nombre, apellido, email }) => {
+    register: async ({ user, password, email }) => {
         set({ loading: true, error: null });
         try {
-          const response = await registerRequest({ user, password, nombre, apellido, email });
+          const response = await registerRequest({ user, password, email });
           set({ user: response.data, loading: false });
         } catch (error) {
           console.error("Error en el registro:", error);
