@@ -42,10 +42,10 @@ function HomePage() {
         />
 
         <div className="flex flex-col text-center lg:text-left lg:flex-1">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2 font-bold text-green-600">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2 font-bold text-transparent bg-clip-text bg-gradient-to-b from-green-500 to-gray-100">
             VIVE EL JUEGO, SIENTE LA EMOCIÓN!!!
           </h1>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold italic text-green-600">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold italic text-transparent bg-clip-text bg-gradient-to-b from-green-500 to-gray-100">
             PONÉ A PRUEBA TU PASIÓN...
           </h1>
         </div>

@@ -137,11 +137,7 @@ const PronosticoComponent = () => {
   return (
     <>
       <ElegirEquipo />
-      <div className="text-center mt-56">
-        <h1 className="text-green-500 bg-gray-800 rounded-xl pt-1 pb-2 ml-150 mr-150 text-3xl mb-10">
-          Modo de juego: Normal
-        </h1>
-      </div>
+
       <div className="space-y-10 p-4 max-h-[650px] ">
         {mensaje && (
           <div className="text-center text-white font-bold bg-black p-2 rounded">
@@ -172,10 +168,10 @@ const PronosticoComponent = () => {
         ))}
 
         {/* Primer container horizontal */}
-        <div className="flex flex-row justify-start items-start ml-80 mr-80">
-          {/* Tabla de partidos */}
+        <div className="flex justify-center px-4 md:px-20">
+          {/* Contenedor principal */}
           <div className="w-full bg-gray-800 rounded-lg pt-5 px-5">
-            <h1 className="text-white text-2xl font-bold mb-5">
+            <h1 className="text-white text-2xl font-bold mb-5 text-center md:text-left">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 FIXTURE
               </span>
@@ -203,7 +199,8 @@ const PronosticoComponent = () => {
             {/* Mostrar solo la fecha actual */}
             {currentFecha && (
               <>
-                <table className="w-full text-center border-collapse mb-4">
+                {/* Tabla Desktop */}
+                <table className="hidden md:table w-full text-center border-collapse mb-4">
                   <thead>
                     <tr className="bg-black text-green-500 border-2 border-black">
                       <th className="px-2 py-1">Día</th>
@@ -213,7 +210,6 @@ const PronosticoComponent = () => {
                       <th className="px-2 py-1">Visitante</th>
                     </tr>
                   </thead>
-
                   <tbody>
                     {currentFecha.partidos.map(({ id, home, away, date }) => (
                       <tr key={id}>
@@ -269,6 +265,72 @@ const PronosticoComponent = () => {
                   </tbody>
                 </table>
 
+                {/* Cards Mobile */}
+                <div className="md:hidden flex flex-col gap-3 mb-4">
+                  {currentFecha.partidos.map(({ id, home, away, date }) => (
+                    <div
+                      key={id}
+                      className="bg-white border-2 border-gray-900 rounded-lg p-3 shadow-md"
+                    >
+                      {/* Fecha arriba */}
+                      <div className="text-gray-900 font-bold mb-2 text-center">
+                        {date}
+                      </div>
+
+                      {/* Local vs Visitante */}
+                      <div className="flex items-center justify-between gap-2">
+                        {/* Local */}
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{home.name}</span>
+                          <img
+                            className="h-8"
+                            src={home.logo}
+                            alt="Logo local"
+                          />
+                        </div>
+
+                        {/* Goles Local */}
+                        <input
+                          type="number"
+                          className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
+                          placeholder="0"
+                          value={predictions[id]?.home || ""}
+                          onChange={(e) =>
+                            handleInputChange(id, "home", e.target.value)
+                          }
+                          onWheel={(e) => e.target.blur()}
+                        />
+
+                        {/* VS */}
+                        <span className="font-bold text-gray-700">vs</span>
+
+                        {/* Goles Visitante */}
+                        <input
+                          type="number"
+                          className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
+                          placeholder="0"
+                          value={predictions[id]?.away || ""}
+                          onChange={(e) =>
+                            handleInputChange(id, "away", e.target.value)
+                          }
+                          onWheel={(e) => e.target.blur()}
+                        />
+
+                        {/* Visitante */}
+                        <div className="flex items-center gap-2">
+                          <img
+                            className="h-8"
+                            src={away.logo}
+                            alt="Logo visitante"
+                          />
+                          <span className="font-bold">{away.name}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Botón Enviar */}
                 <div className="text-left py-2">
                   <button
                     className="bg-green-500 text-black font-bold px-4 py-1 rounded shadow hover:bg-green-600 transition cursor-pointer"
@@ -282,15 +344,16 @@ const PronosticoComponent = () => {
           </div>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col md:flex-row justify-center gap-5 px-4">
           {/* Ranking x Fecha */}
-          <div className="w-2xl p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="lg:w-2xl md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 RANKING X FECHA
               </span>
             </h2>
 
+            {/* Selector de Fechas */}
             <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
               <div className="flex space-x-2 flex-nowrap">
                 {matches.map(({ fecha }) => (
@@ -308,6 +371,7 @@ const PronosticoComponent = () => {
                 ))}
               </div>
             </div>
+
             {currentFechaRanking && (
               <>
                 <input
@@ -316,7 +380,7 @@ const PronosticoComponent = () => {
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
-                    setCurrentPage(1); // 👈 resetear a página 1 al buscar
+                    setCurrentPage(1);
                   }}
                   className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
@@ -347,13 +411,13 @@ const PronosticoComponent = () => {
                       </tr>
                     ))}
                   </tbody>
-                  <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
-                    <p className="font-bold text-green-500">
-                      Tus puntos en la fecha {selectedFechaRanking} son{" "}
-                      {puntosFecha}
-                    </p>
-                  </div>
                 </table>
+                <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
+                  <p className="font-bold text-green-500">
+                    Tus puntos en la fecha {selectedFechaRanking} son{" "}
+                    {puntosFecha}
+                  </p>
+                </div>
                 <div className="flex justify-center gap-2 mt-4">
                   <button
                     onClick={() =>
@@ -382,13 +446,14 @@ const PronosticoComponent = () => {
           </div>
 
           {/* Ranking x Goles */}
-          <div className="w-2xl ml-5 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="lg:w-2xl md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
-                RANKING X FECHA
+                RANKING X GOLES
               </span>
             </h2>
 
+            {/* Selector de Fechas */}
             <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
               <div className="flex space-x-2 flex-nowrap">
                 {matches.map(({ fecha }) => (
@@ -415,7 +480,7 @@ const PronosticoComponent = () => {
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
-                    setCurrentPage(1); // 👈 resetear a página 1 al buscar
+                    setCurrentPage(1);
                   }}
                   className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
@@ -450,13 +515,13 @@ const PronosticoComponent = () => {
                         </tr>
                       ))}
                   </tbody>
-                  <div className="mt-4 border-2 border-green-500 rounded-lg py-2 px-1 text-xl text-center">
-                    <p className="font-bold text-green-500">
-                      Tus goles en la fecha {selectedFechaRanking} son{" "}
-                      {golesFecha}
-                    </p>
-                  </div>
                 </table>
+                <div className="mt-4 border-2 border-green-500 rounded-lg py-2 px-1 text-xl text-center">
+                  <p className="font-bold text-green-500">
+                    Tus goles en la fecha {selectedFechaRanking} son{" "}
+                    {golesFecha}
+                  </p>
+                </div>
                 <div className="flex justify-center gap-2 mt-4">
                   <button
                     onClick={() =>

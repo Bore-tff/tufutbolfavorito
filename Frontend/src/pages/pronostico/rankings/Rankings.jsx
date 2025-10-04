@@ -77,10 +77,9 @@ const Rankings = () => {
   );
 
   return (
-    <div className="flex flex-row justify-start items-start space-x-6 mr-5 mt-64">
+    <div className="flex flex-col md:flex-row flex-wrap justify-start items-start gap-6 mr-5 mt-10 md:mt-20">
       {/* Ranking Goleador */}
-      {/* Ranking Goleador */}
-      <div className="w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+      <div className="md:w-1/2 lg:w-xl p-4 rounded-lg shadow-lg bg-gray-800">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
             APAXIONADO GOLEADOR DE LA COPA
@@ -148,7 +147,7 @@ const Rankings = () => {
       </div>
 
       {/* Ranking General */}
-      <div className="w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+      <div className="w-full md:w-1/2 lg:w-xl p-4 rounded-lg shadow-lg bg-gray-800">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
             RANKING GENERAL
@@ -223,7 +222,7 @@ const Rankings = () => {
       </div>
 
       {/* Apaxionado Campeón */}
-      <div className="w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+      <div className="w-full md:w-1/2 lg:w-xl p-4 rounded-lg shadow-lg bg-gray-800">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
             APAXIONADO CAMPEÓN DE LA COPA
