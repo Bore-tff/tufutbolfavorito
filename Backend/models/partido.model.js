@@ -27,6 +27,14 @@ const Partido = sequelize.define(
       allowNull: true,
       field: "scoreAway",
     },
+    penalesHome: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    penalesAway: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     fecha: {
       type: DataTypes.INTEGER,
       allowNull: false,

@@ -9,11 +9,11 @@ export const guardarPronosticosFavoritos = async (req, res) => {
     const { pronosticos } = req.body;
     const userId = req.user.id;
 
-    // Verificar que el usuario tenga un equipo favorito
     const usuario = await Usuario.findByPk(userId);
     if (!usuario || !usuario.equipoFavorito) {
       return res.status(400).json({ message: "Debe seleccionar un equipo favorito antes de pronosticar." });
     }
+
     const equipoFavorito = usuario.equipoFavorito;
 
     if (!Array.isArray(pronosticos) || pronosticos.length === 0) {
@@ -23,7 +23,7 @@ export const guardarPronosticosFavoritos = async (req, res) => {
     const nuevosPronosticos = [];
 
     for (const p of pronosticos) {
-      const { matchId, homeScore, awayScore } = p;
+      const { matchId, homeScore, awayScore, penalesHome, penalesAway } = p;
       if (matchId === undefined || homeScore === undefined || awayScore === undefined) continue;
 
       const partido = await Partido.findByPk(matchId);
@@ -32,34 +32,80 @@ export const guardarPronosticosFavoritos = async (req, res) => {
       // Solo procesar si participa el equipo favorito
       if (partido.homeTeam !== equipoFavorito && partido.awayTeam !== equipoFavorito) continue;
 
-      // Guardar pronóstico sin calcular puntos si score aún no existe o no es número
-      const puntos =
-        typeof partido.homeScore === "number" && typeof partido.awayScore === "number"
-          ? (() => {
-              const resultadoReal =
-                partido.homeScore > partido.awayScore ? "LOCAL" :
-                partido.homeScore < partido.awayScore ? "VISITANTE" : "EMPATE";
+      let puntos = null;
 
-              const resultadoPronosticado =
-                homeScore > awayScore ? "LOCAL" :
-                homeScore < awayScore ? "VISITANTE" : "EMPATE";
+      if (
+        typeof partido.homeScore === "number" &&
+        typeof partido.awayScore === "number"
+      ) {
+        // Resultado real
+        const resultadoReal =
+          partido.homeScore > partido.awayScore
+            ? "LOCAL"
+            : partido.homeScore < partido.awayScore
+            ? "VISITANTE"
+            : "EMPATE";
 
-              if (resultadoReal === resultadoPronosticado) {
-                if (resultadoReal === "LOCAL" && partido.homeTeam === equipoFavorito) return 2;
-                if (resultadoReal === "VISITANTE" && partido.awayTeam === equipoFavorito) return 3;
-                if (resultadoReal === "EMPATE") return 1;
-              }
-              return 0;
-            })()
-          : null;
+        // Resultado pronosticado
+        const resultadoPronosticado =
+          homeScore > awayScore
+            ? "LOCAL"
+            : homeScore < awayScore
+            ? "VISITANTE"
+            : "EMPATE";
 
+        // Calcular puntos normales
+        if (resultadoReal === resultadoPronosticado) {
+          if (resultadoReal === "LOCAL" && partido.homeTeam === equipoFavorito)
+            puntos = 2;
+          else if (resultadoReal === "VISITANTE" && partido.awayTeam === equipoFavorito)
+            puntos = 3;
+          else if (resultadoReal === "EMPATE")
+            puntos = 1;
+        } else {
+          puntos = 0;
+        }
+
+        // ⚽ Lógica extra: fases con penales
+        const esFaseEliminatoria = ["Octavos", "Cuartos", "Semis", "Final"].includes(partido.fase);
+
+        if (esFaseEliminatoria && resultadoReal === "EMPATE" && resultadoPronosticado === "EMPATE") {
+          // Si existen resultados de penales reales
+          if (
+            typeof partido.penalesHome === "number" &&
+            typeof partido.penalesAway === "number"
+          ) {
+            const ganadorReal = partido.penalesHome > partido.penalesAway ? "LOCAL" : "VISITANTE";
+            const ganadorPronosticado = penalesHome > penalesAway ? "LOCAL" : "VISITANTE";
+
+            let penalesAcertados = 0;
+
+            // Sumar 1 punto base si acertó que era empate
+            puntos = 1;
+
+            // Sumar 4 puntos si acierta cantidad de penales exactos a favor de su equipo
+            if (
+              (ganadorReal === "LOCAL" && partido.homeTeam === equipoFavorito && penalesHome === partido.penalesHome) ||
+              (ganadorReal === "VISITANTE" && partido.awayTeam === equipoFavorito && penalesAway === partido.penalesAway)
+            ) {
+              penalesAcertados = ganadorReal === "LOCAL" ? partido.penalesHome : partido.penalesAway;
+              puntos += penalesAcertados;
+            }
+          }
+        }
+      }
+
+      // Crear o actualizar el pronóstico
       const nuevoPronostico = await PronosticoFavorito.create({
         userId,
         matchId,
         homeScore,
         awayScore,
-        puntos, // será null si no hay resultados
-        fecha: partido.fecha
+        penalesHome,
+        penalesAway,
+        puntos,
+        fecha: partido.fecha,
+        fase: partido.fase,
       });
 
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
@@ -71,6 +117,7 @@ export const guardarPronosticosFavoritos = async (req, res) => {
     res.status(500).json({ message: "Error interno del servidor", error: error.message });
   }
 };
+
 
 // Recalcular puntajes de pronósticos favoritos cuando haya resultados
 export const recalcularPuntajesFavoritos = async () => {

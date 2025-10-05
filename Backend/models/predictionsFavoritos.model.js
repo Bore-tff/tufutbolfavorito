@@ -20,6 +20,14 @@ const PronosticoFavorito = sequelize.define("PronosticoFavorito", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  penalesHome: {
+  type: DataTypes.INTEGER,
+  allowNull: true,
+},
+penalesAway: {
+  type: DataTypes.INTEGER,
+  allowNull: true,
+},
   puntos: {
     type: DataTypes.INTEGER,
     defaultValue: 0,

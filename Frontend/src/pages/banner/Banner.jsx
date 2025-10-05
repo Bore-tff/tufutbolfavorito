@@ -27,7 +27,7 @@ function Banner() {
           <img src={Logo} alt="Logo TFF" className="w-32 h-32 mx-4" />
 
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-blue-700 to-gray-100 font-bold text-3xl">
-            SUMA GOLES + PUNTOS Y SE EL CONQUISTADOR . . . BOTIN(TROFEOS
+            SUMÁ GOLES + PUNTOS Y SE EL CONQUISTADOR . . . BOTIN(TROFEOS
             ACORDATE BORE)
           </span>
         </div>

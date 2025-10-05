@@ -20,6 +20,10 @@ const Pronostico = sequelize.define("Pronostico", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  fase: {
+      type: DataTypes.STRING, // 👈 eliminatorias: "Cuartos", "Semi", "Final"
+      allowNull: true,
+    },
   puntos: {
     type: DataTypes.INTEGER,
     defaultValue: 0,

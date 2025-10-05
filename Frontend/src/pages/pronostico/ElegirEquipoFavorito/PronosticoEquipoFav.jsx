@@ -348,7 +348,7 @@ const PronosticoEquipoFav = () => {
           ))}
 
           {/* Primer container horizontal */}
-          <div className="justify-start items-start w-full">
+          <div className="mx-auto lg:w-7xl md:w-full">
             {/* Tabla de partidos */}
             <div className="w-full bg-gray-800 rounded-lg pt-5 px-5">
               <div className="text-white flex flex-col sm:flex-row items-center mb-2 bg-gray-800 pt-2 pb-2 px-4 sm:w-120 rounded-xl">
@@ -393,7 +393,7 @@ const PronosticoEquipoFav = () => {
               {currentFecha && (
                 <>
                   <div className="w-full">
-                    {/* Tabla solo visible en pantallas sm y mayores */}
+                    {/* Tabla de pronósticos */}
                     <table className="w-full text-center border-collapse mb-4 hidden sm:table">
                       <thead>
                         <tr className="bg-black text-green-500 border-2 border-black text-base">
@@ -469,58 +469,73 @@ const PronosticoEquipoFav = () => {
                       </tbody>
                     </table>
 
-                    {/* Sección de penales solo si la fase es Cuartos, Semis o Final */}
+                    {/* --- Sección de penales --- */}
                     {["Octavos", "Cuartos", "Semis", "Final"].includes(
                       currentFecha.fase
-                    ) && (
-                      <div className="mt-4 p-4 bg-gray-700 rounded-lg">
-                        <h3 className="text-lg font-bold mb-2 text-white">
-                          Penales
-                        </h3>
-                        <p className="text-white">
-                          Aquí se pueden ingresar los resultados de penales si
-                          es necesario.
-                        </p>
-                        {/* Ejemplo de inputs para penales */}
-                        {currentFecha.partidos.map(({ id, home, away }) => (
-                          <div
-                            key={id}
-                            className="flex gap-2 items-center mb-2"
-                          >
-                            <span className="text-white">
-                              {home.name} vs {away.name}:
-                            </span>
-                            <input
-                              type="number"
-                              className="border-2 pl-2 bg-sky-500 border-gray-900 text-black"
-                              placeholder="0"
-                              value={predictions[id]?.penalesHome || ""}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  id,
-                                  "penalesHome",
-                                  e.target.value
-                                )
-                              }
-                            />
-                            <span>-</span>
-                            <input
-                              type="number"
-                              className="border-2 pl-2 bg-sky-500 border-gray-900 text-black"
-                              placeholder="0"
-                              value={predictions[id]?.penalesAway || ""}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  id,
-                                  "penalesAway",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    ) &&
+                      currentFecha.partidos.some(
+                        ({ id }) =>
+                          predictions[id]?.home !== "" &&
+                          predictions[id]?.away !== "" &&
+                          predictions[id]?.home === predictions[id]?.away
+                      ) && (
+                        <div className="mt-4 p-4 bg-gray-700 rounded-lg">
+                          <h3 className="text-lg font-bold mb-2 text-white">
+                            Penales
+                          </h3>
+                          <p className="text-white mb-3">
+                            Ingresá los resultados de penales solo si el partido
+                            terminó empatado.
+                          </p>
+
+                          {currentFecha.partidos.map(({ id, home, away }) => {
+                            const isEmpate =
+                              predictions[id]?.home !== "" &&
+                              predictions[id]?.away !== "" &&
+                              predictions[id]?.home === predictions[id]?.away;
+
+                            return (
+                              isEmpate && (
+                                <div
+                                  key={id}
+                                  className="flex gap-2 items-center mb-2"
+                                >
+                                  <span className="text-white">
+                                    {home.name} vs {away.name}:
+                                  </span>
+                                  <input
+                                    type="number"
+                                    className="border-2 pl-2 bg-sky-500 border-gray-900 text-black w-12 text-center"
+                                    placeholder="0"
+                                    value={predictions[id]?.penalesHome || ""}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        id,
+                                        "penalesHome",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <span className="text-white">-</span>
+                                  <input
+                                    type="number"
+                                    className="border-2 pl-2 bg-sky-500 border-gray-900 text-black w-12 text-center"
+                                    placeholder="0"
+                                    value={predictions[id]?.penalesAway || ""}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        id,
+                                        "penalesAway",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                              )
+                            );
+                          })}
+                        </div>
+                      )}
 
                     {/* Cards solo visibles en móviles */}
                     <div className="flex flex-col gap-3 sm:hidden">
@@ -603,7 +618,7 @@ const PronosticoEquipoFav = () => {
                   <div className="text-white flex flex-col sm:flex-row items-center mb-2 bg-gray-800 pt-2 pb-2 px-4 sm:w-120 rounded-xl">
                     <h2 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
                       <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
-                        EQUIPO FAVORITO CAMPEON:
+                        EQUIPO FAVORITO GOLEADOR:
                       </span>
                     </h2>
                     {partidoFavoritoGoleador && (
@@ -621,9 +636,9 @@ const PronosticoEquipoFav = () => {
                   </div>
                   <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
                     <div className="flex gap-2 flex-nowrap">
-                      {matchesFavorito.map(({ fecha }) => (
+                      {matchesFavorito.map(({ fecha, label }) => (
                         <button
-                          key={fecha}
+                          key={fecha ?? label}
                           onClick={() => setSelectedFechaGoleador(fecha)}
                           className={`flex-shrink-0 px-3 py-1 cursor-pointer rounded font-bold transition mb-2 ${
                             selectedFechaGoleador === fecha
@@ -631,7 +646,7 @@ const PronosticoEquipoFav = () => {
                               : "bg-gray-600 text-white hover:bg-gray-500"
                           }`}
                         >
-                          Fecha {fecha}
+                          {label}
                         </button>
                       ))}
                     </div>
@@ -866,9 +881,9 @@ const PronosticoEquipoFav = () => {
 
               <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
                 <div className="flex space-x-2 flex-nowrap">
-                  {matchesFavorito.map(({ fecha }) => (
+                  {matchesFavorito.map(({ fecha, label }) => (
                     <button
-                      key={fecha}
+                      key={fecha ?? label}
                       onClick={() => setSelectedFechaRanking(fecha)}
                       className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
                         selectedFechaRanking === fecha
@@ -876,7 +891,7 @@ const PronosticoEquipoFav = () => {
                           : "bg-gray-600 text-white hover:bg-gray-500"
                       }`}
                     >
-                      Fecha {fecha}
+                      {label}
                     </button>
                   ))}
                 </div>
@@ -922,13 +937,13 @@ const PronosticoEquipoFav = () => {
                         </tr>
                       ))}
                     </tbody>
-                    <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
-                      <p className="font-bold text-green-500">
-                        Tus puntos en la fecha {selectedFechaRanking} son{" "}
-                        {puntosFecha}
-                      </p>
-                    </div>
                   </table>
+                  <div className=" mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
+                    <p className="font-bold text-green-500">
+                      Tus puntos en la fecha {selectedFechaRanking} son{" "}
+                      {puntosFecha}
+                    </p>
+                  </div>
                   <div className="flex justify-center gap-2 mt-4">
                     <button
                       onClick={() =>
@@ -966,9 +981,9 @@ const PronosticoEquipoFav = () => {
 
               <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
                 <div className="flex space-x-2 flex-nowrap">
-                  {matchesFavorito.map(({ fecha }) => (
+                  {matchesFavorito.map(({ fecha, label }) => (
                     <button
-                      key={fecha}
+                      key={fecha ?? label}
                       onClick={() => setSelectedFechaRanking(fecha)}
                       className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
                         selectedFechaRanking === fecha
@@ -976,7 +991,7 @@ const PronosticoEquipoFav = () => {
                           : "bg-gray-600 text-white hover:bg-gray-500"
                       }`}
                     >
-                      Fecha {fecha}
+                      {label}
                     </button>
                   ))}
                 </div>
@@ -1022,13 +1037,13 @@ const PronosticoEquipoFav = () => {
                         </tr>
                       ))}
                     </tbody>
-                    <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
-                      <p className="font-bold text-green-500">
-                        Tus goles en la fecha {selectedFechaRanking} son{" "}
-                        {golesFecha}
-                      </p>
-                    </div>
                   </table>
+                  <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
+                    <p className="font-bold text-green-500">
+                      Tus goles en la fecha {selectedFechaRanking} son{" "}
+                      {golesFecha}
+                    </p>
+                  </div>
                   <div className="flex justify-center gap-2 mt-4">
                     <button
                       onClick={() =>

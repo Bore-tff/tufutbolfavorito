@@ -127,6 +127,18 @@ const PronosticoComponent = () => {
     }
   };
 
+  const matchesFixture = matches
+    .map((fecha) => {
+      // Retornar fecha + fase + partidos filtrados
+      return {
+        ...fecha,
+        partidos: matches,
+        // si tu JSON tiene fecha como número o fase como texto
+        label: fecha.fase ? fecha.fase : `Fecha ${fecha.fecha}`,
+      };
+    })
+    .filter(Boolean);
+
   // Usar rankingFecha y rankingGeneral directamente
   const puntajesFechaActual = rankingFecha || [];
   const puntajesAcumulados = rankingGeneral || [];
@@ -168,9 +180,9 @@ const PronosticoComponent = () => {
         ))}
 
         {/* Primer container horizontal */}
-        <div className="flex justify-center px-4 md:px-20">
+        <div className=" px-4 md:px-20">
           {/* Contenedor principal */}
-          <div className="w-full bg-gray-800 rounded-lg pt-5 px-5">
+          <div className="mx-auto lg:w-7xl md:w-full bg-gray-800 rounded-lg pt-5 px-5">
             <h1 className="text-white text-2xl font-bold mb-5 text-center md:text-left">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 FIXTURE
@@ -180,9 +192,9 @@ const PronosticoComponent = () => {
             {/* Selector de Fechas */}
             <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
               <div className="flex gap-2 flex-nowrap mb-2">
-                {matches.map(({ fecha }) => (
+                {matchesFixture.map(({ fecha, label }) => (
                   <button
-                    key={fecha}
+                    key={fecha ?? label}
                     onClick={() => setSelectedFecha(fecha)}
                     className={`flex-shrink-0 px-3 py-1 cursor-pointer rounded font-bold transition ${
                       selectedFecha === fecha
@@ -190,7 +202,7 @@ const PronosticoComponent = () => {
                         : "bg-gray-600 text-white hover:bg-gray-500"
                     }`}
                   >
-                    Fecha {fecha}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -356,9 +368,9 @@ const PronosticoComponent = () => {
             {/* Selector de Fechas */}
             <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
               <div className="flex space-x-2 flex-nowrap">
-                {matches.map(({ fecha }) => (
+                {matchesFixture.map(({ fecha, label }) => (
                   <button
-                    key={fecha}
+                    key={fecha ?? label}
                     onClick={() => setSelectedFechaRanking(fecha)}
                     className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
                       selectedFechaRanking === fecha
@@ -366,7 +378,7 @@ const PronosticoComponent = () => {
                         : "bg-gray-600 text-white hover:bg-gray-500"
                     }`}
                   >
-                    Fecha {fecha}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -456,9 +468,9 @@ const PronosticoComponent = () => {
             {/* Selector de Fechas */}
             <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
               <div className="flex space-x-2 flex-nowrap">
-                {matches.map(({ fecha }) => (
+                {matchesFixture.map(({ fecha, label }) => (
                   <button
-                    key={fecha}
+                    key={fecha ?? label}
                     onClick={() => setSelectedFechaRanking(fecha)}
                     className={`flex-shrink-0 px-4 py-1 rounded font-bold transition cursor-pointer mb-4 ${
                       selectedFechaRanking === fecha
@@ -466,7 +478,7 @@ const PronosticoComponent = () => {
                         : "bg-gray-600 text-white hover:bg-gray-500"
                     }`}
                   >
-                    Fecha {fecha}
+                    {label}
                   </button>
                 ))}
               </div>
