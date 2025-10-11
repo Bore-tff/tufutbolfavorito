@@ -8,6 +8,8 @@ const usePronosticoStore = create((set) => ({
   loading: false,
   error: null,
   successMessage: null,
+  successMessageFavorito: null,
+  successMessageGoleador: null,
   puntosObtenidos: null,
 
   setUserId: (id) => set({ userId: id }),
@@ -87,7 +89,7 @@ fetchMatchesFavorito: async () => {
 
 
 guardarPronosticosFavorito: async (predictionData) => {
-  set({ loading: true, error: null, successMessage: null });
+  set({ loading: true, error: null, successMessageFavorito: null });
   try {
     const nuevosPronosticos = await guardarTodosLosPronosticosFavoritos(predictionData);
 
@@ -95,7 +97,7 @@ guardarPronosticosFavorito: async (predictionData) => {
       set((state) => ({
         pronosticos: [...state.pronosticos, ...nuevosPronosticos],
         loading: false,
-        successMessage: "Pronóstico guardado correctamente",
+        successMessageFavorito: "Pronóstico guardado correctamente",
       }));
       return true; // Indica éxito
     }
@@ -111,7 +113,7 @@ guardarPronosticosFavorito: async (predictionData) => {
 },
 
 guardarPronosticosFavoritoGoleador: async (predictionData) => {
-  set({ loading: true, error: null, successMessage: null });
+  set({ loading: true, error: null, successMessageGoleador: null });
   try {
     // Aquí guardás directamente los datos (array de pronósticos) que devuelve la API
     const nuevosPronosticos = await guardarTodosLosPronosticosFavoritosGoleador(predictionData);
@@ -120,7 +122,7 @@ guardarPronosticosFavoritoGoleador: async (predictionData) => {
       set((state) => ({
         pronosticos: [...state.pronosticos, ...nuevosPronosticos],
         loading: false,
-        successMessage: "Pronóstico guardado correctamente",
+        successMessageGoleador: "Pronóstico guardado correctamente",
       }));
       return true; // Indica éxito
     }
@@ -136,12 +138,12 @@ guardarPronosticosFavoritoGoleador: async (predictionData) => {
 },
 
 actualizarPronosticosFavorito: async () => {
-  set({ loading: true, error: null, successMessage: null });
+  set({ loading: true, error: null, successMessageFavorito: null });
   try {
     const response = await actualizarTodosLosPronosticosFavoritos(); // no necesita datos
     set({
       loading: false,
-      successMessage: response.message || "Puntajes actualizados correctamente",
+      successMessageFavorito: response.message || "Puntajes actualizados correctamente",
     });
   } catch (error) {
     set({
@@ -152,12 +154,12 @@ actualizarPronosticosFavorito: async () => {
 },
 
 actualizarPronosticosFavoritoGoleador: async () => {
-  set({ loading: true, error: null, successMessage: null });
+  set({ loading: true, error: null, successMessageGoleador: null });
   try {
     const response = await actualizarTodosLosPronosticosFavoritosGoleador(); // no necesita datos
     set({
       loading: false,
-      successMessage: response.message || "Puntajes actualizados correctamente",
+      successMessageGoleador: response.message || "Puntajes actualizados correctamente",
     });
   } catch (error) {
     set({

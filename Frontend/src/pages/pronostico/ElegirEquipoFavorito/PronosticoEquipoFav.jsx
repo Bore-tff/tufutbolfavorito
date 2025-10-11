@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import usePronosticoStore from "../../../store/pronosticosStore";
 import useUserStore from "../../../store/usersStore";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import Logo from "../../../assets/Botintff.png";
 
 const PronosticoEquipoFav = () => {
@@ -37,6 +38,12 @@ const PronosticoEquipoFav = () => {
   const [searchTerm2, setSearchTerm2] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
+  const successMessageFavorito = usePronosticoStore(
+    (state) => state.successMessageFavorito
+  );
+  const successMessageGoleador = usePronosticoStore(
+    (state) => state.successMessageGoleador
+  );
   const rowsPerPage = 5;
 
   console.log(user);
@@ -202,8 +209,8 @@ const PronosticoEquipoFav = () => {
     });
 
     if (faltantes.length > 0) {
-      setMensaje("⚠️ Faltan completar goles este pronóstico.");
-      setTimeout(() => setMensaje(""), 3000);
+      toast.warn("⚠️ Faltan completar goles este pronóstico.");
+      //setTimeout(() => setMensaje(""), 3000);
       return;
     }
 
@@ -219,18 +226,14 @@ const PronosticoEquipoFav = () => {
         : null,
     }));
 
-    setMensaje("⏳ Enviando pronóstico...");
+    //setMensaje("⏳ Enviando pronóstico...");
     try {
-      const success = await guardarPronosticosFavorito(predictionsArray);
-      if (success) {
-        await getRankingPorFechaFavoritos(selectedFecha);
-        setMensaje("✅ Pronóstico enviado correctamente");
-      } else {
-        setMensaje("❌ Error al enviar pronóstico");
-      }
+      await guardarPronosticosFavorito(predictionsArray);
+      await getRankingPorFechaFavoritos(selectedFecha);
+      toast.success("✅ Pronóstico enviado correctamente");
     } catch (error) {
       console.error(error);
-      setMensaje("❌ Error al enviar pronóstico");
+      toast.error("❌ Error al enviar pronóstico");
     } finally {
       setTimeout(() => setMensaje(""), 3000);
     }
@@ -254,8 +257,8 @@ const PronosticoEquipoFav = () => {
     );
 
     if (faltantesGoleador.length > 0) {
-      setMensaje("⚠️ Faltan completar goles para este pronóstico.");
-      setTimeout(() => setMensaje(""), 3000);
+      toast.warn("⚠️ Faltan completar goles para este pronóstico.");
+      //setTimeout(() => setMensaje(""), 3000);
       return;
     }
 
@@ -270,20 +273,14 @@ const PronosticoEquipoFav = () => {
         goles: Number(predictionsGoleador[id].goles),
       }));
 
-    setMensaje("⏳ Enviando pronóstico...");
+    //setMensaje("⏳ Enviando pronóstico...");
     try {
-      const success = await guardarPronosticosFavoritoGoleador(
-        predictionsArray2
-      );
-      if (success) {
-        await getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
-        setMensaje("✅ Pronóstico enviado correctamente");
-      } else {
-        setMensaje("❌ Error al enviar pronóstico");
-      }
+      await guardarPronosticosFavoritoGoleador(predictionsArray2);
+      await getRankingPorFechaFavoritosGoleador(selectedFechaGoleador);
+      toast.success("✅ Pronóstico enviado correctamente");
     } catch (error) {
       console.error(error);
-      setMensaje("❌ Error al enviar pronóstico");
+      toast.error("❌ Error al enviar pronóstico");
     } finally {
       setTimeout(() => setMensaje(""), 3000);
     }
@@ -320,10 +317,18 @@ const PronosticoEquipoFav = () => {
         transition={{ duration: 0.8, ease: "easeOut" }} // Suavidad
       >
         <div className="space-y-10 p-4 ">
+          <div className="bg-gray-800 rounded-xl font-bold text-xl sm:text-2xl md:text-3xl text-center w-auto max-w-md md:max-w-4xl px-4 sm:px-6 md:px-8 mx-auto">
+            <h1 className="text-green-500 py-2">Modo Favorito</h1>
+          </div>
           {mensaje && (
             <div className="text-center text-white font-bold bg-black p-2 rounded">
               {mensaje}
             </div>
+          )}
+          {successMessageFavorito && (
+            <p className="text-green-400 text-center">
+              {successMessageFavorito}
+            </p>
           )}
 
           {/* Resultados comparación */}
@@ -348,10 +353,10 @@ const PronosticoEquipoFav = () => {
           ))}
 
           {/* Primer container horizontal */}
-          <div className="mx-auto lg:w-7xl md:w-full">
+          <div className="mx-auto lg:w-4xl md:w-full">
             {/* Tabla de partidos */}
-            <div className="w-full bg-gray-800 rounded-lg pt-5 px-5">
-              <div className="text-white flex flex-col sm:flex-row items-center mb-2 bg-gray-800 pt-2 pb-2 px-4 sm:w-120 rounded-xl">
+            <div className="w-full bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
+              <div className="text-white flex flex-col sm:flex-row items-center mb-2 bg-black pt-2 pb-2 px-4 sm:w-120 rounded-xl">
                 <h2 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
                   <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                     EQUIPO FAVORITO CAMPEON:
@@ -600,7 +605,7 @@ const PronosticoEquipoFav = () => {
                     </div>
                   </div>
 
-                  <div className="text-left py-2">
+                  <div className="text-left py-2 mb-4">
                     <button
                       className="bg-green-500 text-black font-bold px-4 py-1 rounded shadow hover:bg-green-600 transition cursor-pointer"
                       onClick={handleSavePrediction}
@@ -609,6 +614,19 @@ const PronosticoEquipoFav = () => {
                     </button>
                   </div>
                 </>
+              )}
+            </div>
+
+            <div className="mt-10">
+              {mensaje && (
+                <div className="text-center text-white font-bold bg-black p-2 rounded">
+                  {mensaje}
+                </div>
+              )}
+              {successMessageGoleador && (
+                <p className="text-green-400 text-center">
+                  {successMessageGoleador}
+                </p>
               )}
             </div>
 
@@ -872,7 +890,7 @@ const PronosticoEquipoFav = () => {
 
           <div className="flex flex-col md:flex-row justify-center gap-5">
             {/* Ranking x Fecha */}
-            <div className="lg:w-2xl md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+            <div className="lg:w-md md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO CAMPEON
@@ -972,7 +990,7 @@ const PronosticoEquipoFav = () => {
             </div>
 
             {/* Ranking x Goles */}
-            <div className="lg:w-2xl md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+            <div className="lg:w-md md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO GOLEADOR

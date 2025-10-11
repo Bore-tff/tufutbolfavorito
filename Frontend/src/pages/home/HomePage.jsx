@@ -34,7 +34,7 @@ function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <div className="w-full flex flex-col lg:flex-row justify-evenly items-center border-b border-green-500 pb-4 px-5 gap-4 lg:gap-0">
+      <div className="w-full bg-black flex flex-col lg:flex-row justify-evenly items-center border-b border-green-500 pb-4 px-5 gap-4 lg:gap-0">
         <img
           className="h-40 sm:h-52 md:h-56 lg:h-58 object-contain"
           src={Logo}
@@ -42,34 +42,37 @@ function HomePage() {
         />
 
         <div className="flex flex-col text-center lg:text-left lg:flex-1">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2 font-bold text-transparent bg-clip-text bg-gradient-to-b from-green-500 to-gray-100">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-2xl mb-2 font-bold text-transparent bg-clip-text bg-gradient-to-b from-green-500 to-gray-100 drop-shadow-[0_0_10px_#22c55e]">
             VIVE EL JUEGO, SIENTE LA EMOCIÓN!!!
           </h1>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold italic text-transparent bg-clip-text bg-gradient-to-b from-green-500 to-gray-100">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-2xl font-bold italic text-transparent bg-clip-text bg-gradient-to-b from-green-500 to-gray-100 drop-shadow-[0_0_10px_#22c55e]">
             PONÉ A PRUEBA TU PASIÓN...
           </h1>
         </div>
 
         <div className="flex flex-col items-center lg:items-start mt-2 lg:mt-0">
-          <h1 className="font-bold text-lg sm:text-xl md:text-2xl">
-            <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
-              Bienvenido Apaxionado {usuario ? usuario.nombre : "Invitado"}
+          <h1 className="font-bold text-lg sm:text-xl md:text-2xl text-center lg:text-left leading-tight">
+            <span className="block neon-green">Bienvenido</span>
+            <span className="block neon-green">
+              {usuario ? usuario.nombre : "Invitado"}
             </span>
           </h1>
 
           {user ? (
             <button
               onClick={handleLogout}
-              className="mt-2 text-green-500 font-bold text-base sm:text-lg md:text-xl cursor-pointer rounded transition hover:underline"
+              className="relative mt-2 text-green-500 font-bold text-base sm:text-lg md:text-xl cursor-pointer rounded group"
             >
               Cerrar sesión
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-green-500 transition-all duration-500 group-hover:w-full"></span>
             </button>
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="mt-2 text-green-500 font-bold text-base sm:text-lg md:text-xl cursor-pointer rounded transition hover:underline"
+              className="relative mt-2 text-green-500 font-bold text-base sm:text-lg md:text-xl cursor-pointer rounded group"
             >
               Iniciar sesión para jugar
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-green-500 transition-all duration-500 group-hover:w-full"></span>
             </button>
           )}
         </div>

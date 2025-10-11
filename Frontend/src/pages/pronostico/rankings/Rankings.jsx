@@ -77,7 +77,7 @@ const Rankings = () => {
   );
 
   return (
-    <div className="flex flex-col md:flex-row flex-wrap justify-start items-start gap-6 mr-5 mt-10 md:mt-20">
+    <div className="flex flex-col md:flex-row flex-wrap justify-center items-start gap-6 mr-5 mt-10 md:mt-20">
       {/* Ranking Goleador */}
       <div className="md:w-1/2 lg:w-xl p-4 rounded-lg shadow-lg bg-gray-800">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">

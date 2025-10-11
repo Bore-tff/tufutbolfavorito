@@ -3,6 +3,7 @@ import usePronosticoStore from "../../store/pronosticosStore";
 import useUserStore from "../../store/usersStore";
 import Rankings from "./rankings/Rankings";
 import Logo from "../../assets/Botintff.png";
+import { toast } from "react-toastify";
 import ElegirEquipo from "./ElegirEquipoFavorito/ElegirEquipo";
 
 const PronosticoComponent = () => {
@@ -24,7 +25,6 @@ const PronosticoComponent = () => {
     rankingFecha,
   } = useUserStore();
   const [predictions, setPredictions] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
   const [localLoading, setLocalLoading] = useState(false);
   const [selectedFecha, setSelectedFecha] = useState(matches[0]?.fecha || 1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,6 +40,8 @@ const PronosticoComponent = () => {
   const currentFechaRanking = rankingFecha
     .filter((r) => r.fecha === selectedFechaRanking)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
+
+  const successMessage = usePronosticoStore((state) => state.successMessage);
 
   useEffect(() => {
     // Ejecuta la carga inicial
@@ -96,8 +98,8 @@ const PronosticoComponent = () => {
     });
 
     if (faltantes.length > 0) {
-      setMensaje("⚠️ Faltan completar goles para algunos partidos.");
-      setTimeout(() => setMensaje(""), 3000);
+      toast.warn("⚠️ Faltan completar goles para algunos partidos.");
+      //setTimeout(() => setMensaje(""), 3000);
       return;
     }
 
@@ -107,22 +109,17 @@ const PronosticoComponent = () => {
       awayScore: Number(predictions[id].away),
     }));
 
-    setLocalLoading(true);
-    setMensaje("⏳ Enviando pronóstico...");
+    //setLocalLoading(true);
+    //setMensaje("⏳ Enviando pronóstico...");
 
     try {
-      const success = await guardarPronosticos(predictionsArray, "general");
-      if (success) {
-        await getRankingPorFecha(selectedFecha);
-        setMensaje("✅ Pronóstico enviado correctamente");
-      } else {
-        setMensaje("❌ Error al enviar pronóstico");
-      }
+      await guardarPronosticos(predictionsArray);
+      await getRankingPorFecha(selectedFecha);
+      toast.success("✅ Pronóstico enviado correctamente");
     } catch (error) {
       console.error(error);
-      setMensaje("❌ Error al enviar pronóstico");
+      toast.error("❌ Error al enviar pronóstico");
     } finally {
-      setLocalLoading(false);
       setTimeout(() => setMensaje(""), 3000);
     }
   };
@@ -151,12 +148,17 @@ const PronosticoComponent = () => {
       <ElegirEquipo />
 
       <div className="space-y-10 p-4 max-h-[650px] ">
+        <div className="bg-gray-800 rounded-xl font-bold text-xl sm:text-2xl md:text-3xl text-center w-auto max-w-md md:max-w-4xl px-4 sm:px-6 md:px-8 mx-auto">
+          <h1 className="text-green-500 py-2">Modo Copa</h1>
+        </div>
         {mensaje && (
           <div className="text-center text-white font-bold bg-black p-2 rounded">
             {mensaje}
           </div>
         )}
-        {successMessage && <p className="text-green-400">{successMessage}</p>}
+        {successMessage && (
+          <p className="text-green-400 text-center">{successMessage}</p>
+        )}
 
         {/* Resultados comparación */}
         {resultadoComparacion?.map((resultado, index) => (
@@ -182,7 +184,7 @@ const PronosticoComponent = () => {
         {/* Primer container horizontal */}
         <div className=" px-4 md:px-20">
           {/* Contenedor principal */}
-          <div className="mx-auto lg:w-7xl md:w-full bg-gray-800 rounded-lg pt-5 px-5">
+          <div className="mx-auto lg:w-3xl md:w-full bg-gray-800 rounded-lg pt-5 px-5">
             <h1 className="text-white text-2xl font-bold mb-5 text-center md:text-left">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 FIXTURE
@@ -358,7 +360,7 @@ const PronosticoComponent = () => {
 
         <div className="flex flex-col md:flex-row justify-center gap-5 px-4">
           {/* Ranking x Fecha */}
-          <div className="lg:w-2xl md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="lg:w-md md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 RANKING X FECHA
@@ -405,7 +407,9 @@ const PronosticoComponent = () => {
                       <th className="text-green-500 bg-black px-4 py-2">
                         Premio
                       </th>
-                      <th className="text-green-500 bg-black px-4 py-2">Pts</th>
+                      <th className="text-green-500 bg-black px-4 py-2">
+                        Puntos
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -458,10 +462,10 @@ const PronosticoComponent = () => {
           </div>
 
           {/* Ranking x Goles */}
-          <div className="lg:w-2xl md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="lg:w-md md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
-                RANKING X GOLES
+                RANKING X FECHA
               </span>
             </h2>
 

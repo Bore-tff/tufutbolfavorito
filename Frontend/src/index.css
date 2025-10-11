@@ -6,6 +6,25 @@ body {
   background: #000;
 }
 
+.neon-green {
+  color: #22c55e; /* Verde Tailwind (green-500) */
+  text-shadow:
+    0 0 5px #22c55e,
+    0 0 10px #22c55e,
+    0 0 20px #16a34a,
+    0 0 40px #15803d;
+  animation: flicker-green 2s infinite alternate;
+}
+
+@keyframes flicker-green {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.4;
+  }
+}
+
 
 
 input[type="number"]::-webkit-outer-spin-button,
