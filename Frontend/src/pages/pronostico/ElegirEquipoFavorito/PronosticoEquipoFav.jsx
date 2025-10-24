@@ -12,6 +12,8 @@ const PronosticoEquipoFav = () => {
     guardarPronosticosFavorito,
     guardarPronosticosFavoritoGoleador,
     actualizarPronosticosFavoritoGoleador,
+    fetchPronosticosFavoritosByFecha,
+    fetchPronosticosFavoritosGoleadorByFecha,
     resultadoComparacion,
     actualizarPronosticos,
     error,
@@ -30,7 +32,10 @@ const PronosticoEquipoFav = () => {
     rankingsFavoritos,
     rankingsFavoritosGoleador,
   } = useUserStore();
-
+  const pronosticos = usePronosticoStore((state) => state.pronosticos);
+  const pronosticosGoleador = usePronosticoStore(
+    (state) => state.pronosticosGoleador
+  );
   const [predictions, setPredictions] = useState({});
   const [predictionsGoleador, setPredictionsGoleador] = useState({});
   const [mensaje, setMensaje] = useState("");
@@ -45,8 +50,6 @@ const PronosticoEquipoFav = () => {
     (state) => state.successMessageGoleador
   );
   const rowsPerPage = 5;
-
-  console.log(user);
 
   // Filtrar partidos por equipo favorito
   const matchesFavorito = matches
@@ -250,7 +253,10 @@ const PronosticoEquipoFav = () => {
 
         if (esLocal || esVisitante) {
           const p = predictionsGoleador[id];
-          return !p || p.goles === "" || p.goles === undefined;
+          // ✅ Usamos golesAcertados en lugar de goles
+          return (
+            !p || p.golesAcertados === "" || p.golesAcertados === undefined
+          );
         }
         return false;
       }
@@ -270,7 +276,7 @@ const PronosticoEquipoFav = () => {
       )
       .map(({ id }) => ({
         matchId: id,
-        goles: Number(predictionsGoleador[id].goles),
+        golesAcertados: Number(predictionsGoleador[id].golesAcertados), // ✅ coincide con el modelo
       }));
 
     //setMensaje("⏳ Enviando pronóstico...");
@@ -293,10 +299,6 @@ const PronosticoEquipoFav = () => {
   // Para mostrar los puntajes del usuario actual (primera tabla)
   const puntajesUsuarioActual = user; // Asumiendo que tienes esa estructura
 
-  console.log("a veer", matchesFavorito);
-
-  console.log(equipoFavorito);
-
   const partidoFavorito = currentFecha?.partidos.find(
     (p) =>
       p.home.name === user.equipoFavorito || p.away.name === user.equipoFavorito
@@ -307,6 +309,56 @@ const PronosticoEquipoFav = () => {
       p.home.name === user.equipoFavoritoGoleador ||
       p.away.name === user.equipoFavoritoGoleador
   );
+
+  const getLogoEquipoFavorito = (equipo, matches) => {
+    for (let fecha of matches) {
+      const partido = fecha.partidos.find(
+        (p) => p.home.name === equipo || p.away.name === equipo
+      );
+      if (partido) {
+        return partido.home.name === equipo
+          ? partido.home.logo
+          : partido.away.logo;
+      }
+    }
+    return ""; // si no se encuentra
+  };
+
+  const getLogoEquipoFavoritoGoleador = (equipo, matches) => {
+    for (let fecha of matches) {
+      const partido = fecha.partidos.find(
+        (p) => p.home.name === equipo || p.away.name === equipo
+      );
+      if (partido) {
+        return partido.home.name === equipo
+          ? partido.home.logo
+          : partido.away.logo;
+      }
+    }
+    return ""; // si no se encuentra
+  };
+
+  useEffect(() => {
+    if (!selectedFecha) return;
+    fetchPronosticosFavoritosByFecha(selectedFecha); // carga del backend
+  }, [selectedFecha]);
+
+  useEffect(() => {
+    if (!selectedFechaGoleador) return;
+    fetchPronosticosFavoritosGoleadorByFecha(selectedFechaGoleador); // carga del backend
+  }, [selectedFechaGoleador]);
+
+  useEffect(() => {
+    if (pronosticos && Object.keys(pronosticos).length > 0) {
+      setPredictions(pronosticos);
+    }
+  }, [pronosticos]);
+
+  useEffect(() => {
+    if (pronosticosGoleador && Object.keys(pronosticosGoleador).length > 0) {
+      setPredictionsGoleador(pronosticosGoleador);
+    }
+  }, [pronosticosGoleador]);
 
   return (
     <>
@@ -554,49 +606,56 @@ const PronosticoEquipoFav = () => {
                             {date}
                           </div>
 
-                          {/* Fila principal: logos e inputs */}
-                          <div className="flex items-center justify-between gap-2">
+                          {/* Contenedor principal horizontal */}
+                          <div className="flex items-start justify-between gap-6">
                             {/* Local */}
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col items-center flex-1">
                               <img
-                                className="h-8"
+                                className="h-10 mb-1"
                                 src={home.logo}
                                 alt="Logo local"
                               />
-                              <span className="font-bold">{home.name}</span>
+                              <span className="font-bold text-gray-900 mb-2 text-center">
+                                {home.name}
+                              </span>
+                              <input
+                                type="number"
+                                className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
+                                placeholder="0"
+                                value={predictions[id]?.home || ""}
+                                onChange={(e) =>
+                                  handleInputChange(id, "home", e.target.value)
+                                }
+                                onWheel={(e) => e.target.blur()}
+                              />
                             </div>
 
-                            {/* Input local */}
-                            <input
-                              type="number"
-                              className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
-                              placeholder="0"
-                              value={predictions[id]?.home || ""}
-                              onChange={(e) =>
-                                handleInputChange(id, "home", e.target.value)
-                              }
-                              onWheel={(e) => e.target.blur()}
-                            />
-
-                            {/* Input visitante */}
-                            <input
-                              type="number"
-                              className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
-                              placeholder="0"
-                              value={predictions[id]?.away || ""}
-                              onChange={(e) =>
-                                handleInputChange(id, "away", e.target.value)
-                              }
-                              onWheel={(e) => e.target.blur()}
-                            />
+                            {/* VS */}
+                            <div className="flex items-center justify-center">
+                              <span className="font-bold text-gray-800">
+                                VS
+                              </span>
+                            </div>
 
                             {/* Visitante */}
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold">{away.name}</span>
+                            <div className="flex flex-col items-center flex-1">
                               <img
-                                className="h-8"
+                                className="h-10 mb-1"
                                 src={away.logo}
                                 alt="Logo visitante"
+                              />
+                              <span className="font-bold text-gray-900 mb-2 text-center">
+                                {away.name}
+                              </span>
+                              <input
+                                type="number"
+                                className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
+                                placeholder="0"
+                                value={predictions[id]?.away || ""}
+                                onChange={(e) =>
+                                  handleInputChange(id, "away", e.target.value)
+                                }
+                                onWheel={(e) => e.target.blur()}
                               />
                             </div>
                           </div>
@@ -630,10 +689,10 @@ const PronosticoEquipoFav = () => {
               )}
             </div>
 
-            <div className="bg-gray-800 rounded-xl mt-10 px-5 pt-5">
+            <div className="w-full bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
               {currentFechaGoleador && (
                 <>
-                  <div className="text-white flex flex-col sm:flex-row items-center mb-2 bg-gray-800 pt-2 pb-2 px-4 sm:w-120 rounded-xl">
+                  <div className="text-white flex flex-col sm:flex-row items-center mb-2  pt-2 pb-2 px-4 sm:w-120 rounded-xl">
                     <h2 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
                       <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                         EQUIPO FAVORITO GOLEADOR:
@@ -712,11 +771,14 @@ const PronosticoEquipoFav = () => {
                                     type="number"
                                     className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                                     placeholder="0"
-                                    value={predictionsGoleador[id]?.goles || ""}
+                                    value={
+                                      predictionsGoleador[id]?.golesAcertados ||
+                                      ""
+                                    }
                                     onChange={(e) =>
                                       handleInputChangeGoleador(
                                         id,
-                                        "goles",
+                                        "golesAcertados",
                                         e.target.value
                                       )
                                     }
@@ -739,11 +801,14 @@ const PronosticoEquipoFav = () => {
                                     type="number"
                                     className="text-black w-10 text-center py-1 border-none outline-none font-bold"
                                     placeholder="0"
-                                    value={predictionsGoleador[id]?.goles || ""}
+                                    value={
+                                      predictionsGoleador[id]?.golesAcertados ||
+                                      ""
+                                    }
                                     onChange={(e) =>
                                       handleInputChangeGoleador(
                                         id,
-                                        "goles",
+                                        "golesAcertados",
                                         e.target.value
                                       )
                                     }
@@ -795,7 +860,7 @@ const PronosticoEquipoFav = () => {
                               {date}
                             </div>
 
-                            {/* Fila principal: logos e inputs */}
+                            {/* Fila principal: logos e input */}
                             <div className="flex items-center justify-between gap-2">
                               {/* Local */}
                               <div className="flex items-center gap-2">
@@ -807,17 +872,19 @@ const PronosticoEquipoFav = () => {
                                 <span className="font-bold">{home.name}</span>
                               </div>
 
-                              {/* Input local */}
-                              {esLocal ? (
+                              {/* Input goles */}
+                              {esLocal || esVisitante ? (
                                 <input
                                   type="number"
                                   className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
                                   placeholder="0"
-                                  value={predictionsGoleador[id]?.home || ""}
+                                  value={
+                                    predictionsGoleador[id]?.golesAcertados ||
+                                    ""
+                                  }
                                   onChange={(e) =>
                                     handleInputChangeGoleador(
                                       id,
-                                      "home",
                                       e.target.value
                                     )
                                   }
@@ -828,33 +895,7 @@ const PronosticoEquipoFav = () => {
                                   type="number"
                                   className="text-black w-12 text-center py-1 border-2 border-gray-300 rounded font-bold bg-gray-100"
                                   placeholder="-"
-                                  value={predictionsGoleador[id]?.home || ""}
-                                  disabled
-                                />
-                              )}
-
-                              {/* Input visitante */}
-                              {esVisitante ? (
-                                <input
-                                  type="number"
-                                  className="text-black w-12 text-center py-1 border-2 border-gray-900 rounded font-bold"
-                                  placeholder="0"
-                                  value={predictionsGoleador[id]?.away || ""}
-                                  onChange={(e) =>
-                                    handleInputChangeGoleador(
-                                      id,
-                                      "away",
-                                      e.target.value
-                                    )
-                                  }
-                                  onWheel={(e) => e.target.blur()}
-                                />
-                              ) : (
-                                <input
-                                  type="number"
-                                  className="text-black w-12 text-center py-1 border-2 border-gray-300 rounded font-bold bg-gray-100"
-                                  placeholder="-"
-                                  value={predictionsGoleador[id]?.away || ""}
+                                  value=""
                                   disabled
                                 />
                               )}
@@ -875,7 +916,7 @@ const PronosticoEquipoFav = () => {
                     )}
                   </div>
 
-                  <div className="text-left py-2">
+                  <div className="text-left py-2 mb-4">
                     <button
                       className="bg-green-500 text-black font-bold px-4 py-1 rounded shadow hover:bg-green-600 transition cursor-pointer"
                       onClick={handleSavePredictionGoleador}
@@ -888,9 +929,9 @@ const PronosticoEquipoFav = () => {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-center gap-5">
+          <div className="flex flex-col md:flex-row justify-center gap-5 ">
             {/* Ranking x Fecha */}
-            <div className="lg:w-md md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+            <div className="lg:w-md md:w-1/2 p-4 w-full bg-black rounded-xl border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO CAMPEON
@@ -924,39 +965,66 @@ const PronosticoEquipoFav = () => {
                       setSearchTerm(e.target.value);
                       setCurrentPage(1); // 👈 resetear a página 1 al buscar
                     }}
-                    className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full md:w-1/2 text-white font-semibold px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
                   />
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-black border-2">
-                        <th className="text-xl text-green-500 bg-black px-4 py-2">
-                          Apaxionado
-                        </th>
-                        <th className="text-green-500 bg-black px-4 py-2">
-                          Premio
-                        </th>
-                        <th className="text-green-500 bg-black px-4 py-2">
-                          Pts
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedRanking.map((usuario) => (
-                        <tr key={usuario.id} className="border-black border-2">
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            {usuario.user}
-                          </td>
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            <img className="h-8" src={Logo} alt="Logo" />
-                          </td>
-                          <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                            {usuario.puntajeTotal || 0}
-                          </td>
+
+                  <div className="overflow-x-auto max-w-full sm:overflow-visible">
+                    <table className="min-w-full border-collapse">
+                      <thead>
+                        <tr className="border-black border-2">
+                          <th className="text-xl text-green-500 bg-black px-4 py-2">
+                            Apaxionado
+                          </th>
+                          <th className="text-green-500 bg-black px-4 py-2">
+                            Premio
+                          </th>
+                          <th className="text-green-500 bg-black px-4 py-2">
+                            Puntos
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className=" mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
+                      </thead>
+                      <tbody>
+                        {paginatedRanking.map((usuario) => (
+                          <tr
+                            key={usuario.id}
+                            className="border-black border-2"
+                          >
+                            <td className="text-black px-4 py-2 bg-white">
+                              <div className="flex items-center gap-2 justify-center">
+                                <span className="font-bold">
+                                  {usuario.user}
+                                </span>
+                                {usuario.equipoFavorito && (
+                                  <img
+                                    src={getLogoEquipoFavorito(
+                                      usuario.equipoFavorito,
+                                      matches
+                                    )}
+                                    alt={usuario.equipoFavorito}
+                                    className="h-6 w-6 object-contain"
+                                  />
+                                )}
+                              </div>
+                            </td>
+
+                            <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                              <img
+                                className="h-8 mx-auto"
+                                src={Logo}
+                                alt="Logo"
+                              />
+                            </td>
+
+                            <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                              {usuario.puntajeTotal || 0}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className=" mt-4 border-2 bg-gray-900 border-green-500 rounded-lg py-2 text-xl text-center">
                     <p className="font-bold text-green-500">
                       Tus puntos en la fecha {selectedFechaRanking} son{" "}
                       {puntosFecha}
@@ -990,7 +1058,7 @@ const PronosticoEquipoFav = () => {
             </div>
 
             {/* Ranking x Goles */}
-            <div className="lg:w-md md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+            <div className="lg:w-md md:w-1/2 p-4 bg-black rounded-xl border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO GOLEADOR
@@ -1024,39 +1092,58 @@ const PronosticoEquipoFav = () => {
                       setSearchTerm2(e.target.value);
                       setCurrentPage(1); // 👈 resetear a página 1 al buscar
                     }}
-                    className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full md:w-1/2 text-white font-semibold px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
                   />
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-black border-2">
-                        <th className="text-xl text-green-500 bg-black px-4 py-2">
-                          Apaxionado
-                        </th>
-                        <th className="text-green-500 bg-black px-4 py-2">
-                          Premio
-                        </th>
-                        <th className="text-green-500 bg-black px-4 py-2">
-                          Goles
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedRanking2.map((usuario) => (
-                        <tr key={usuario.id} className="border-black border-2">
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            {usuario.user}
-                          </td>
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            <img className="h-8" src={Logo} alt="Logo" />
-                          </td>
-                          <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                            {usuario.golesTotales || 0}
-                          </td>
+                  <div className="overflow-x-auto max-w-full sm:overflow-visible">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-black border-2">
+                          <th className="text-xl text-green-500 bg-black px-4 py-2">
+                            Apaxionado
+                          </th>
+                          <th className="text-green-500 bg-black px-4 py-2">
+                            Premio
+                          </th>
+                          <th className="text-green-500 bg-black px-4 py-2">
+                            Goles
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
+                      </thead>
+                      <tbody>
+                        {paginatedRanking2.map((usuario) => (
+                          <tr
+                            key={usuario.id}
+                            className="border-black border-2"
+                          >
+                            <td className="text-black px-4 py-2 bg-white">
+                              <div className="flex items-center gap-2 justify-center">
+                                <span className="font-bold">
+                                  {usuario.user}
+                                </span>
+                                {usuario.equipoFavoritoGoleador && (
+                                  <img
+                                    src={getLogoEquipoFavoritoGoleador(
+                                      usuario.equipoFavoritoGoleador,
+                                      matches
+                                    )}
+                                    alt={usuario.equipoFavoritoGoleador}
+                                    className="h-6 w-6 object-contain"
+                                  />
+                                )}
+                              </div>
+                            </td>
+                            <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                              <img className="h-8" src={Logo} alt="Logo" />
+                            </td>
+                            <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                              {usuario.golesTotales || 0}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-4 border-2 border-green-500 bg-gray-900 rounded-lg py-2 text-xl text-center">
                     <p className="font-bold text-green-500">
                       Tus goles en la fecha {selectedFechaRanking} son{" "}
                       {golesFecha}

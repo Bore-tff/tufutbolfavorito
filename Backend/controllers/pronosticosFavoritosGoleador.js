@@ -36,7 +36,9 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
     );
 
     for (const p of pronosticos) {
-      const { matchId, goles } = p;
+      
+      const matchId = p.matchId;
+      const goles = p.goles ?? p.golesAcertados;
       if (matchId === undefined || goles === undefined) continue;
 
       const partido = partidos.find(m => m.id === matchId);
@@ -71,8 +73,7 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
         userId,
         matchId,
         fecha: partido.fecha,
-        golesPronosticados: goles,
-        golesAcertados
+        golesAcertados: Number(goles)
       });
 
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
@@ -81,6 +82,26 @@ export const guardarPronosticosFavoritosGoleador = async (req, res) => {
     res.status(201).json(nuevosPronosticos);
   } catch (error) {
     console.error("Error al guardar los pronósticos favoritos goleador:", error);
+    res.status(500).json({ message: "Error interno del servidor", error: error.message });
+  }
+};
+
+export const getPronosticosFavoritosGoleadorPorFecha = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const fecha = Number(req.query.fecha);
+
+    if (!fecha) return res.status(400).json({ message: "Se requiere la fecha" });
+
+    const pronosticos = await PronosticoFavoritoGoleador.findAll({
+      where: { userId, fecha },
+      attributes: ["matchId", "golesAcertados"],
+      raw: true,
+    });
+
+    res.status(200).json(pronosticos);
+  } catch (error) {
+    console.error("Error al obtener pronósticos goleador por fecha:", error);
     res.status(500).json({ message: "Error interno del servidor", error: error.message });
   }
 };

@@ -1,102 +1,105 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useUserStore from "../../store/usersStore";
 
 function Registro() {
-  const [usuario, setUsuario] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmarPassword, setConfirmarPassword] = useState("");
-  const { register, loading, error } = useUserStore();
+  const { register, error, loading } = useUserStore();
   const navigate = useNavigate();
+  const [form, setForm] = useState({
+    user: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const res = await register(form);
 
-    if (!usuario || !email || !password || !confirmarPassword) {
-      toast.error("Todos los campos son obligatorios");
-      return;
-    }
-
-    if (password !== confirmarPassword) {
-      toast.error("Las contraseñas no coinciden");
-      return;
-    }
-
-    try {
-      await register({ user: usuario, email, password });
-      toast.success("Usuario registrado correctamente");
+    if (res?.msg) {
+      // Si el backend devuelve un mensaje de éxito
+      alert(res.msg);
       navigate("/login");
-    } catch (error) {
-      // Este mensaje ya lo captura el store, pero podés mostrarlo igual
-      toast.error("Error al registrar usuario");
     }
   };
 
   return (
-    <div className="mt-24">
-      <h2 className="text-4xl text-white font-bold text-center mb-20">
-        TU FUTBOL FAVORITO
-      </h2>
-      <div className="max-w-sm bg-gray-900 text-green-600 shadow-md mx-auto p-4 rounded-lg">
-        <h2 className="text-xl text-white font-bold text-center mb-2">
-          REGISTRATE
-        </h2>
-        <h2 className="text-xl text-white font-bold text-center mb-4">
-          A TU FUTBOL FAVORITO
-        </h2>
-        {error && (
-          <p className="text-red-500 mb-2 mt-2 text-sm text-center">{error}</p>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Usuario"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
-            className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Confirmar Contraseña"
-            value={confirmarPassword}
-            onChange={(e) => setConfirmarPassword(e.target.value)}
-            className="w-full p-2 border text-white border-gray-200 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full mt-5 p-2 bg-green-500 font-bold text-gray-900 rounded hover:bg-green-400 cursor-pointer"
-          >
-            Registrar
-          </button>
-        </form>
-        {/* Link a la página de registro */}
-        <p className="text-sm text-center text-white mt-4">
-          ¿Ya tienes una cuenta?{" "}
-          <Link to="/login" className="text-green-500 hover:underline">
-            Inicia sesión
-          </Link>
-        </p>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="block w-96">
+        <h1 className=" font-bold text-5xl mb-5">Welcome To!</h1>
+        <h1 className="text-orange-500 font-bold text-5xl">Hunting Arg</h1>
       </div>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded-xl shadow-md w-96"
+      >
+        <h2 className="text-2xl font-bold mb-4 text-center">Sign Up</h2>
+
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium">Nombre</label>
+          <input
+            type="text"
+            name="user"
+            value={form.user}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-orange-500"
+            placeholder="Nombre"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-orange-500"
+            placeholder="tuemail@mail.com"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium">Contraseña</label>
+          <input
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-orange-500"
+            placeholder="********"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-orange-500 hover:bg-orange-600 font-bold cursor-pointer text-white py-2 rounded-lg transition"
+        >
+          {loading ? "Cargando..." : "Registrarse"}
+        </button>
+
+        <p className="text-sm text-center mt-4">
+          Ya tienes una cuenta?{" "}
+          <span
+            onClick={() => navigate("/login")}
+            className="text-orange-500 cursor-pointer hover:underline"
+          >
+            Iniciar Sesión
+          </span>
+        </p>
+      </form>
     </div>
   );
 }

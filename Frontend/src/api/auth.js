@@ -6,11 +6,22 @@ const API = axios.create({
 });
 
 // Registro y login
-export const registerRequest = async (user) =>
-  API.post('/registro', user);
+
+export const registerRequest = (datos) => API.post("/registro", datos);
+
+export const confirmarCuenta = (token) => API.get(`/confirm/${token}`);
 
 export const loginRequest = async (user) =>
   API.post('/login', user);
+
+// Olvidé password
+export const olvidePassword = (datos) => API.post("/forgot-password", datos);
+
+// Comprobar token de recuperación
+export const comprobarToken = (token) => API.get(`/forgot-password/${token}`);
+
+// Nuevo password
+export const nuevoPassword = (token, datos) => API.post(`/forgot-password/${token}`, datos);
 
 // Logout
 export const logoutRequest = async () =>

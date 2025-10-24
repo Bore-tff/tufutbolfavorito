@@ -14,6 +14,27 @@ export const getMatches = async (req, res) => {
   }
 };
 
+export const getPronosticosPorFecha = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const fecha = Number(req.query.fecha);
+
+    if (!fecha) return res.status(400).json({ message: "Se requiere la fecha" });
+
+    const pronosticos = await Pronostico.findAll({
+      where: { userId, fecha },
+      attributes: ["matchId", "homeScore", "awayScore"],
+      raw: true,
+    });
+
+    res.status(200).json(pronosticos);
+  } catch (error) {
+    console.error("Error al obtener pronósticos por fecha:", error);
+    res.status(500).json({ message: "Error interno del servidor", error: error.message });
+  }
+};
+
+
 // Guardar pronósticos sin calcular puntos si aún no hay resultados
 export const guardarPronosticos = async (req, res) => {
   try {

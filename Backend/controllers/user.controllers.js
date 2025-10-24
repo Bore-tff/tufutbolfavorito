@@ -6,15 +6,68 @@ import Pronostico from "../models/predictions.model.js";
 import PronosticoFavorito from "../models/predictionsFavoritos.model.js";
 import PronosticoFavoritoGoleador from "../models/predictionsFavoritosGoleador.model.js";
 import Partido from '../models/partido.model.js';
+import emailRegistro from "../helpers/emailRegistro.js";
+import emailOlvidePassword from "../helpers/emailOlvidePassword.js";
 import { fn, col, literal } from 'sequelize';
+import generarId from "../helpers/generarId.js";
 
 export const registro = async (req, res) => {
-  const { user, password, email } = req.body;
+  const { user, email, password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({ msg: "La contraseña es obligatoria" });
+  }
+
   try {
-    const nuevoUsuario = await User.create({ user, password, email });
-    return res.status(201).json({ message: "Usuario registrado", usuario: nuevoUsuario });
+    // Prevenir usuarios duplicados
+    const existeUsuario = await Usuario.findOne({ where: { email } });
+    if (existeUsuario) {
+      return res.status(400).json({ msg: "El usuario ya está registrado" });
+    }
+
+    // Crear nuevo usuario de forma controlada
+    const usuario = await Usuario.create({ user, email, password });
+
+    // Enviar mail
+    emailRegistro({
+      email,
+      user,
+      token: usuario.token,
+    });
+
+    res.status(201).json({
+      msg: "Usuario registrado exitosamente, verifica tu mail para confirmar tu cuenta",
+    });
   } catch (error) {
-    return res.status(500).json({ message: "Error al registrar usuario", error });
+    console.log("Error en registro:", error);
+    res.status(500).json({ msg: "Error del servidor" });
+  }
+};
+
+export const perfil = (req, res) => {
+  const { user } = req;
+  res.json({ user });
+};
+
+export const confirmar = async (req, res) => {
+  const { token } = req.params;
+
+  const usuarioConfirmar = await Usuario.findOne({ where: { token } }); // <- CORRECCIÓN
+
+  if (!usuarioConfirmar) {
+    const error = new Error("Token inválido");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  try {
+    usuarioConfirmar.token = null;
+    usuarioConfirmar.confirmado = true;
+    await usuarioConfirmar.save();
+
+    res.json({ msg: "Usuario confirmado correctamente!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Error al confirmar usuario" });
   }
 };
 
@@ -75,6 +128,65 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ message: "Error en el servidor", error });
+  }
+};
+
+export const olvidePassword = async (req, res) => {
+  const { email } = req.body;
+
+  const existeUsuario = await Usuario.findOne({ where: {email} });
+  if (!existeUsuario) {
+    const error = new Error("Usuario no existe!");
+    return res.status(400).json({ msg: error.message });
+  }
+
+  try {
+    existeUsuario.token = generarId();
+    await existeUsuario.save();
+
+    // Enviar email con las instrucciones
+    emailOlvidePassword({
+      email,
+      user: existeUsuario.user,
+      token: existeUsuario.token,
+    });
+
+    res.json({ msg: "Te hemos enviado las instrucciones a tu correo" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const comprobarToken = async (req, res) => {
+  const { token } = req.params;
+
+  const tokenValido = await Usuario.findOne({ token });
+
+  if (tokenValido) {
+    res.json({ msg: "Token valido y el usuario existe!" });
+  } else {
+    const error = new Error("Token Invalido");
+    return res.status(400).json({ msg: error.message });
+  }
+};
+
+export const nuevoPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const usuario = await Usuario.findOne({ where: {token} });
+  if (!usuario) {
+    const error = new Error("Hubo un error");
+    return res.status(400).json({ msg: error.message });
+  }
+
+  try {
+    usuario.token = null;
+    usuario.password = password;
+    await usuario.save();
+    res.json({ msg: "La contraseña se modifico correctamente!" });
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -423,33 +535,31 @@ export const obtenerRankingPorFechaFavoritos = async (numeroFecha) => {
   try {
     const usuarios = await Usuario.findAll({
       attributes: [
-        'id',
-        'user',
-        // ✅ Puntos SOLO de la fecha seleccionada
+        "id",
+        "user",
+        "equipoFavorito", // ✅ se trae correctamente desde el modelo Usuario
         [
           fn(
-            'SUM',
+            "SUM",
             literal(`CASE 
-              WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` = ${numeroFecha} 
-              THEN \`PronosticoFavoritos\`.\`puntos\` 
+              WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` = ${numeroFecha}
+              THEN \`PronosticoFavoritos\`.\`puntos\`
               ELSE 0 
             END`)
           ),
-          'puntosFecha'
+          "puntosFecha",
         ],
-
-        // ✅ Puntos acumulados hasta la fecha seleccionada
         [
           fn(
-            'SUM',
+            "SUM",
             literal(`CASE 
-              WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` <= ${numeroFecha} 
-              THEN \`PronosticoFavoritos\`.\`puntos\` 
+              WHEN \`PronosticoFavoritos->Partido\`.\`fecha\` <= ${numeroFecha}
+              THEN \`PronosticoFavoritos\`.\`puntos\`
               ELSE 0 
             END`)
           ),
-          'puntajeTotal'
-        ]
+          "puntajeTotal",
+        ],
       ],
       include: [
         {
@@ -459,25 +569,26 @@ export const obtenerRankingPorFechaFavoritos = async (numeroFecha) => {
           include: [
             {
               model: Partido,
-              attributes: []
-            }
-          ]
-        }
+              attributes: [],
+            },
+          ],
+        },
       ],
-      group: ['Usuario.id'],
+      group: ["Usuario.id"],
       raw: true,
     });
 
-    return usuarios.map(usuario => ({
+    return usuarios.map((usuario) => ({
       id: usuario.id,
       user: usuario.user,
+      equipoFavorito: usuario.equipoFavorito, // ✅ agregado aquí
       fecha: numeroFecha,
-      puntos: Number(usuario.puntosFecha) || 0,     // puntos de esta fecha
-      puntajeTotal: Number(usuario.puntajeTotal) || 0 // acumulado hasta la fecha
+      puntos: Number(usuario.puntosFecha) || 0, // puntos de esta fecha
+      puntajeTotal: Number(usuario.puntajeTotal) || 0, // acumulado hasta la fecha
     }));
   } catch (error) {
-    console.error('Error al obtener ranking de favoritos por fecha:', error);
-    throw new Error('No se pudo obtener el ranking de favoritos por fecha');
+    console.error("Error al obtener ranking de favoritos por fecha:", error);
+    throw new Error("No se pudo obtener el ranking de favoritos por fecha");
   }
 };
 
@@ -487,7 +598,7 @@ export const obtenerRankingPorFechaFavoritosGoleador = async (numeroFecha) => {
       attributes: [
         "id",
         "user",
-
+        "equipoFavoritoGoleador",
         // Goles SOLO de la fecha actual
         [
           fn(
@@ -535,6 +646,7 @@ export const obtenerRankingPorFechaFavoritosGoleador = async (numeroFecha) => {
       id: usuario.id,
       user: usuario.user,
       fecha: numeroFecha,
+      equipoFavoritoGoleador: usuario.equipoFavoritoGoleador,
       golesAcertados: Number(usuario.golesAcertados) || 0, // 👈 mismo nombre que espera tu front
       golesTotales: Number(usuario.golesTotales) || 0,
     }));

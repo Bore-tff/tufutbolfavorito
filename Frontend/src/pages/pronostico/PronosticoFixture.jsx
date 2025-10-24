@@ -3,6 +3,7 @@ import usePronosticoStore from "../../store/pronosticosStore";
 import useUserStore from "../../store/usersStore";
 import Rankings from "./rankings/Rankings";
 import Logo from "../../assets/Botintff.png";
+
 import { toast } from "react-toastify";
 import ElegirEquipo from "./ElegirEquipoFavorito/ElegirEquipo";
 
@@ -13,6 +14,7 @@ const PronosticoComponent = () => {
     guardarPronosticos,
     resultadoComparacion,
     actualizarPronosticos,
+    fetchPronosticosByFecha,
     error,
     loading,
   } = usePronosticoStore();
@@ -24,6 +26,7 @@ const PronosticoComponent = () => {
     rankingGeneral,
     rankingFecha,
   } = useUserStore();
+  const pronosticos = usePronosticoStore((state) => state.pronosticos);
   const [predictions, setPredictions] = useState({});
   const [localLoading, setLocalLoading] = useState(false);
   const [selectedFecha, setSelectedFecha] = useState(matches[0]?.fecha || 1);
@@ -142,12 +145,22 @@ const PronosticoComponent = () => {
 
   // Para mostrar los puntajes del usuario actual (primera tabla)
   const puntajesUsuarioActual = user; // Asumiendo que tienes esa estructura
+  useEffect(() => {
+    if (!selectedFecha) return;
+    fetchPronosticosByFecha(selectedFecha); // carga del backend
+  }, [selectedFecha]);
+
+  useEffect(() => {
+    if (pronosticos && Object.keys(pronosticos).length > 0) {
+      setPredictions(pronosticos);
+    }
+  }, [pronosticos]);
 
   return (
     <>
       <ElegirEquipo />
 
-      <div className="space-y-10 p-4 max-h-[650px] ">
+      <div className="space-y-10 p-4  ">
         <div className="bg-gray-800 rounded-xl font-bold text-xl sm:text-2xl md:text-3xl text-center w-auto max-w-md md:max-w-4xl px-4 sm:px-6 md:px-8 mx-auto">
           <h1 className="text-green-500 py-2">Modo Copa</h1>
         </div>
@@ -184,7 +197,7 @@ const PronosticoComponent = () => {
         {/* Primer container horizontal */}
         <div className=" px-4 md:px-20">
           {/* Contenedor principal */}
-          <div className="mx-auto lg:w-3xl md:w-full bg-gray-800 rounded-lg pt-5 px-5">
+          <div className="mx-auto lg:w-3xl md:w-full w-full bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
             <h1 className="text-white text-2xl font-bold mb-5 text-center md:text-left">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 FIXTURE
@@ -294,7 +307,7 @@ const PronosticoComponent = () => {
                       {/* Local vs Visitante */}
                       <div className="flex items-center justify-between gap-2">
                         {/* Local */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col items-center gap-2">
                           <span className="font-bold">{home.name}</span>
                           <img
                             className="h-8"
@@ -331,7 +344,7 @@ const PronosticoComponent = () => {
                         />
 
                         {/* Visitante */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col items-center gap-2">
                           <img
                             className="h-8"
                             src={away.logo}
@@ -345,7 +358,7 @@ const PronosticoComponent = () => {
                 </div>
 
                 {/* Botón Enviar */}
-                <div className="text-left py-2">
+                <div className="text-left py-2 mb-4">
                   <button
                     className="bg-green-500 text-black font-bold px-4 py-1 rounded shadow hover:bg-green-600 transition cursor-pointer"
                     onClick={handleSavePrediction}
@@ -360,7 +373,7 @@ const PronosticoComponent = () => {
 
         <div className="flex flex-col md:flex-row justify-center gap-5 px-4">
           {/* Ranking x Fecha */}
-          <div className="lg:w-md md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="lg:w-md md:w-1/2 p-4 w-full bg-black rounded-xl border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 RANKING X FECHA
@@ -396,39 +409,45 @@ const PronosticoComponent = () => {
                     setSearchTerm(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full md:w-1/2 text-white px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-black border-2">
-                      <th className="text-xl text-green-500 bg-black px-4 py-2">
-                        Apaxionado
-                      </th>
-                      <th className="text-green-500 bg-black px-4 py-2">
-                        Premio
-                      </th>
-                      <th className="text-green-500 bg-black px-4 py-2">
-                        Puntos
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedRanking.map((usuario) => (
-                      <tr key={usuario.id} className="border-black border-2">
-                        <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                          {usuario.user}
-                        </td>
-                        <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                          <img className="h-8" src={Logo} alt="Logo" />
-                        </td>
-                        <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                          {usuario.puntos || 0}
-                        </td>
+                <div className="overflow-x-auto max-w-full sm:overflow-visible">
+                  <table className="min-w-full border-collapse">
+                    <thead>
+                      <tr className="border-black border-2">
+                        <th className="text-xl text-green-500 bg-black px-4 py-2">
+                          Apaxionado
+                        </th>
+                        <th className="text-green-500 bg-black px-4 py-2">
+                          Premio
+                        </th>
+                        <th className="text-green-500 bg-black px-4 py-2">
+                          Puntos
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="mt-4 border-2 border-green-500 rounded-lg py-2 text-xl text-center">
+                    </thead>
+                    <tbody>
+                      {paginatedRanking.map((usuario) => (
+                        <tr key={usuario.id} className="border-black border-2">
+                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                            {usuario.user}
+                          </td>
+                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                            <img
+                              className="h-8 mx-auto"
+                              src={Logo}
+                              alt="Logo"
+                            />
+                          </td>
+                          <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                            {usuario.puntos || 0}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-4 border-2 bg-gray-900 border-green-500 rounded-lg py-2 text-xl text-center">
                   <p className="font-bold text-green-500">
                     Tus puntos en la fecha {selectedFechaRanking} son{" "}
                     {puntosFecha}
@@ -462,7 +481,7 @@ const PronosticoComponent = () => {
           </div>
 
           {/* Ranking x Goles */}
-          <div className="lg:w-md md:w-1/2 p-4 rounded-lg shadow-lg bg-gray-800">
+          <div className="lg:w-md md:w-1/2 p-4 w-full bg-black rounded-xl  border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
             <h2 className="text-white text-2xl font-bold mb-2 text-center">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 RANKING X FECHA
@@ -498,41 +517,48 @@ const PronosticoComponent = () => {
                     setSearchTerm(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full md:w-1/2 text-white px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-black border-2">
-                      <th className="text-xl text-green-500 bg-black px-4 py-2">
-                        Apaxionado
-                      </th>
-                      <th className="text-green-500 bg-black px-4 py-2">
-                        Premio
-                      </th>
-                      <th className="text-green-500 bg-black px-4 py-2">
-                        Goles
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...paginatedRanking]
-                      .sort((a, b) => (b.golesFecha || 0) - (a.golesFecha || 0))
-                      .map((usuario) => (
-                        <tr key={usuario.id} className="border-black border-2">
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            {usuario.user}
-                          </td>
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            <img className="h-8" src={Logo} alt="Logo" />
-                          </td>
-                          <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                            {usuario.golesFecha || 0}
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-                <div className="mt-4 border-2 border-green-500 rounded-lg py-2 px-1 text-xl text-center">
+                <div className="overflow-x-auto max-w-full sm:overflow-visible">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-black border-2">
+                        <th className="text-xl text-green-500 bg-black px-4 py-2">
+                          Apaxionado
+                        </th>
+                        <th className="text-green-500 bg-black px-4 py-2">
+                          Premio
+                        </th>
+                        <th className="text-green-500 bg-black px-4 py-2">
+                          Goles
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...paginatedRanking]
+                        .sort(
+                          (a, b) => (b.golesFecha || 0) - (a.golesFecha || 0)
+                        )
+                        .map((usuario) => (
+                          <tr
+                            key={usuario.id}
+                            className="border-black border-2"
+                          >
+                            <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                              {usuario.user}
+                            </td>
+                            <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                              <img className="h-8" src={Logo} alt="Logo" />
+                            </td>
+                            <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                              {usuario.golesFecha || 0}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-4 border-2 bg-gray-900 border-green-500 rounded-lg py-2 px-1 text-xl text-center">
                   <p className="font-bold text-green-500">
                     Tus goles en la fecha {selectedFechaRanking} son{" "}
                     {golesFecha}

@@ -29,6 +29,17 @@ const useUserStore = create((set) => {
     loading: false,
     error: null,
 
+    register: async (datos) => {
+    try {
+      set({ loading: true, error: null });
+      const { data } = await registerRequest(datos);
+      return data; // normalmente backend devuelve msg tipo "Usuario creado"
+    } catch (err) {
+      set({ error: err.response?.data?.msg || "Error en registro" });
+    } finally {
+      set({ loading: false });
+    }
+  },  
     
 
     login: async (usuario, password) => {
@@ -57,20 +68,6 @@ const useUserStore = create((set) => {
         return false;
       }
     },
-
-    register: async ({ user, password, email }) => {
-        set({ loading: true, error: null });
-        try {
-          const response = await registerRequest({ user, password, email });
-          set({ user: response.data, loading: false });
-        } catch (error) {
-          console.error("Error en el registro:", error);
-          const mensaje =
-            error.response?.data?.message || "Error en el registro";
-            set({ error: mensaje, loading: false });
-          throw error; // opcional, si querés seguir manejándolo en el componente
-        }
-      },
 
 
     logout: () => {

@@ -79,7 +79,7 @@ const Rankings = () => {
   return (
     <div className="flex flex-col md:flex-row flex-wrap justify-center items-start gap-6 mr-5 mt-10 md:mt-20">
       {/* Ranking Goleador */}
-      <div className="md:w-1/2 lg:w-xl p-4 rounded-lg shadow-lg bg-gray-800">
+      <div className="md:w-1/2 lg:w-xl p-4 w-full bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
             APAXIONADO GOLEADOR DE LA COPA
@@ -93,12 +93,14 @@ const Rankings = () => {
             setSearchTerm2(e.target.value);
             setCurrentPage(1); // 👈 resetear página cuando se busca
           }}
-          className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+          className="w-full md:w-1/2 text-white px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
         />
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">
-              <th className="text-xl text-green-500 bg-black px-4 py-2"></th>
+              <th className="text-xl text-green-500 bg-black px-4 py-2">
+                Apaxionado
+              </th>
               <th className="text-green-500 bg-black px-4 py-2">Goles</th>
             </tr>
           </thead>
@@ -147,7 +149,7 @@ const Rankings = () => {
       </div>
 
       {/* Ranking General */}
-      <div className="w-full md:w-1/2 lg:w-xl p-4 rounded-lg shadow-lg bg-gray-800">
+      <div className="w-full md:w-1/2 lg:w-xl p-4 bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
             RANKING GENERAL
@@ -161,7 +163,7 @@ const Rankings = () => {
             setSearchTerm(e.target.value);
             setCurrentPage(1); // 👈 resetear página cuando se busca
           }}
-          className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+          className="w-full md:w-1/2 text-white px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
         />
         <table className="w-full border-collapse">
           <thead>
@@ -170,7 +172,7 @@ const Rankings = () => {
                 Apaxionado
               </th>
               <th className="  text-green-500 bg-black px-4 py-2">
-                Goles + Pts
+                Goles + Puntos
               </th>
             </tr>
           </thead>
@@ -222,7 +224,7 @@ const Rankings = () => {
       </div>
 
       {/* Apaxionado Campeón */}
-      <div className="w-full md:w-1/2 lg:w-xl p-4 rounded-lg shadow-lg bg-gray-800">
+      <div className=" md:w-1/2 lg:w-xl p-4 w-full bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
             APAXIONADO CAMPEÓN DE LA COPA
@@ -236,13 +238,15 @@ const Rankings = () => {
             setSearchTerm3(e.target.value);
             setCurrentPage(1); // 👈 resetear página cuando se busca
           }}
-          className="w-full md:w-1/2 text-green-500 px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+          className="w-full md:w-1/2 text-white px-3 py-2 mb-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
         />
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-black border-2">
-              <th className="text-xl text-green-500 bg-black px-4 py-2"></th>
-              <th className="text-green-500 bg-black px-4 py-2">Pts</th>
+              <th className="text-xl text-green-500 bg-black px-4 py-2">
+                Apaxionado
+              </th>
+              <th className="text-green-500 bg-black px-4 py-2">Puntos</th>
             </tr>
           </thead>
           <tbody>

@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import { getMatches, guardarTodosLosPronosticos, actualizarTodosLosPronosticos, actualizarTodosLosPronosticosFavoritos, guardarTodosLosPronosticosFavoritos, guardarTodosLosPronosticosFavoritosGoleador, actualizarTodosLosPronosticosFavoritosGoleador } from '../api/pronosticos';
+import { getMatches, guardarTodosLosPronosticos, actualizarTodosLosPronosticos, getPronosticosByFecha, actualizarTodosLosPronosticosFavoritos, guardarTodosLosPronosticosFavoritos, guardarTodosLosPronosticosFavoritosGoleador, actualizarTodosLosPronosticosFavoritosGoleador, getPronosticosFavoritosByFecha, getPronosticosFavoritosGoleadorByFecha } from '../api/pronosticos';
 
 const usePronosticoStore = create((set) => ({
   matches: [],
@@ -30,6 +30,19 @@ const usePronosticoStore = create((set) => ({
   }
 },
 
+fetchPronosticosByFecha: async (fecha) => {
+  set({ loading: true, error: null });
+  try {
+    const res = await getPronosticosByFecha(fecha);
+    const pronos = {};
+    res.data.forEach(({ matchId, homeScore, awayScore }) => {
+      pronos[matchId] = { home: homeScore, away: awayScore };
+    });
+    set({ pronosticos: pronos, loading: false });
+  } catch (error) {
+    set({ error: error.message || "Error al cargar pronósticos", loading: false });
+  }
+},
 
 guardarPronosticos: async (predictionData) => {
   set({ loading: true, error: null, successMessage: null });
@@ -87,6 +100,39 @@ fetchMatchesFavorito: async () => {
   }
 },
 
+fetchPronosticosFavoritosByFecha: async (fecha) => {
+  set({ loading: true, error: null });
+  try {
+    const res = await getPronosticosFavoritosByFecha(fecha);
+    const pronos = {};
+    res.data.forEach(({ matchId, homeScore, awayScore }) => {
+      pronos[matchId] = { home: homeScore, away: awayScore };
+    });
+    set({ pronosticos: pronos, loading: false });
+  } catch (error) {
+    set({ error: error.message || "Error al cargar pronósticos", loading: false });
+  }
+},
+
+fetchPronosticosFavoritosGoleadorByFecha: async (fecha) => {
+  set({ loading: true, error: null });
+  try {
+    const res = await getPronosticosFavoritosGoleadorByFecha(fecha);
+    const pronos = {};
+
+    // cada partido tiene un golesAcertados asociado
+    res.data.forEach(({ matchId, golesAcertados }) => {
+      pronos[matchId] = { golesAcertados };
+    });
+
+    set({ pronosticosGoleador: pronos, loading: false });
+  } catch (error) {
+    set({
+      error: error.message || "Error al cargar pronósticos goleadores",
+      loading: false,
+    });
+  }
+},
 
 guardarPronosticosFavorito: async (predictionData) => {
   set({ loading: true, error: null, successMessageFavorito: null });

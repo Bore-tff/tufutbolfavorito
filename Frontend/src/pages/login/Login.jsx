@@ -76,7 +76,10 @@ function Login() {
         </p>
         <p className="text-sm text-center text-white mt-3">
           ¿Olvidaste la contraseña?{" "}
-          <Link to="/registro" className="text-green-500 hover:underline">
+          <Link
+            to="/forgot-password"
+            className="text-green-500 hover:underline"
+          >
             Recuperala
           </Link>
         </p>

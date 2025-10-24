@@ -43,6 +43,15 @@ const Usuario = sequelize.define("Usuario",
       type: DataTypes.STRING,
       allowNull: false
     },
+    token: {
+      type: DataTypes.STRING,
+      defaultValue: generarId(),
+    },
+    confirmado: {
+  type: DataTypes.BOOLEAN,
+  defaultValue: false,
+}
+
   },
   {
     tableName: "usuarios",

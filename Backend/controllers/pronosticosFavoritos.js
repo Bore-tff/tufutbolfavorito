@@ -3,6 +3,26 @@ import Partido from "../models/partido.model.js";
 import Usuario from "../models/user.model.js";
 import axios from "axios";
 
+export const getPronosticosFavoritosPorFecha = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const fecha = Number(req.query.fecha);
+
+    if (!fecha) return res.status(400).json({ message: "Se requiere la fecha" });
+
+    const pronosticos = await PronosticoFavorito.findAll({
+      where: { userId, fecha },
+      attributes: ["matchId", "homeScore", "awayScore"],
+      raw: true,
+    });
+
+    res.status(200).json(pronosticos);
+  } catch (error) {
+    console.error("Error al obtener pronósticos por fecha:", error);
+    res.status(500).json({ message: "Error interno del servidor", error: error.message });
+  }
+};
+
 // Guardar pronósticos favoritos sin calcular puntos si aún no hay resultados
 export const guardarPronosticosFavoritos = async (req, res) => {
   try {

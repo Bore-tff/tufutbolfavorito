@@ -2,6 +2,8 @@ import { Router } from "express";
 import {
   login,
   registro,
+  confirmar,
+  perfil,
   logout,
   getUsers,
   obtenerUsuariosConPuntaje,
@@ -17,7 +19,10 @@ import {
   obtenerUsuariosConPuntajeFavoritosGoleador,
   obtenerRankingPorFechaFavoritosGoleador,
   obtenerPuntajeDeUsuarioPorFechaFavoritosGoleador,
-  obtenerResumenDeUsuarioFavoritosGoleador
+  obtenerResumenDeUsuarioFavoritosGoleador,
+  olvidePassword,
+  comprobarToken,
+  nuevoPassword
 } from "../controllers/user.controllers.js";
 import verificarAuth from "../middlewares/verificarAuth.js";
 
@@ -26,9 +31,13 @@ const router = Router();
 // Autenticación
 router.post("/registro", registro);
 router.post("/login", login);
+router.get("/confirm/:token", confirmar);
 router.post("/logout", logout);
+router.post("/forgot-password", olvidePassword);
+router.route("/forgot-password/:token").get(comprobarToken).post(nuevoPassword);
 router.post("/usuarios/equipo-favorito", verificarAuth, seleccionarEquipoFavorito);
 router.post("/usuarios/equipo-favorito-goleador", verificarAuth, seleccionarEquipoFavoritoGoleador);
+router.get("/perfil", verificarAuth, perfil);
 
 // Usuarios
 router.get("/", getUsers);
