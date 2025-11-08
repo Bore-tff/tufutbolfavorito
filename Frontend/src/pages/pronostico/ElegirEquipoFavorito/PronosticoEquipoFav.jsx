@@ -4,6 +4,9 @@ import useUserStore from "../../../store/usersStore";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import Logo from "../../../assets/Botintff.png";
+import Logo2 from "../../../assets/botinoro.png";
+import Logo3 from "../../../assets/botinbronce.png";
+import Logo4 from "../../../assets/botinplatino.jpg";
 
 const PronosticoEquipoFav = () => {
   const {
@@ -41,6 +44,7 @@ const PronosticoEquipoFav = () => {
   const [mensaje, setMensaje] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTerm2, setSearchTerm2] = useState("");
+  const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
   const successMessageFavorito = usePronosticoStore(
@@ -49,7 +53,7 @@ const PronosticoEquipoFav = () => {
   const successMessageGoleador = usePronosticoStore(
     (state) => state.successMessageGoleador
   );
-  const rowsPerPage = 5;
+  const rowsPerPage = 11;
 
   // Filtrar partidos por equipo favorito
   const matchesFavorito = matches
@@ -184,13 +188,19 @@ const PronosticoEquipoFav = () => {
       usuario.user.toLowerCase().includes(searchTerm2.toLowerCase())
     ) || [];
 
-  const paginatedRanking = filteredRanking.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
+  // 🏆 ORDENAR ANTES DE PAGINAR
+  const sortedRanking = [...filteredRanking].sort(
+    (a, b) => (b.puntajeTotal || 0) - (a.puntajeTotal || 0)
   );
 
-  const sortedRanking2 = filteredRanking2.sort(
-    (a, b) => (b.golesAcertados || 0) - (a.golesAcertados || 0)
+  const sortedRanking2 = [...filteredRanking2].sort(
+    (a, b) => (b.golesTotales || 0) - (a.golesTotales || 0)
+  );
+
+  // 📄 PAGINAR DESPUÉS DE ORDENAR
+  const paginatedRanking = sortedRanking.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
   );
 
   const paginatedRanking2 = sortedRanking2.slice(
@@ -198,9 +208,9 @@ const PronosticoEquipoFav = () => {
     currentPage2 * rowsPerPage
   );
 
-  const totalPages = Math.ceil(filteredRanking.length / rowsPerPage) || 1;
-
-  const totalPages2 = Math.ceil(filteredRanking2.length / rowsPerPage) || 1;
+  // 🔢 Total de páginas
+  const totalPages = Math.ceil(sortedRanking.length / rowsPerPage) || 1;
+  const totalPages2 = Math.ceil(sortedRanking2.length / rowsPerPage) || 1;
 
   // 🔹 Guardar pronóstico equipo favorito
   const handleSavePrediction = async () => {
@@ -360,6 +370,32 @@ const PronosticoEquipoFav = () => {
     }
   }, [pronosticosGoleador]);
 
+  const fechaFinal = matches.find((fecha) =>
+    fecha.partidos.some((p) => p.penales)
+  );
+  const partidosFechaFinal = fechaFinal?.partidos || [];
+
+  const getEquipoCampeon = (partidos = []) => {
+    const final = partidos.find((p) => p.penales);
+    if (!final) return null;
+    const { home, away, penales } = final;
+    if (penales.home > penales.away) return home.name;
+    if (penales.away > penales.home) return away.name;
+    return null;
+  };
+
+  const equipoCampeon = getEquipoCampeon(partidosFechaFinal);
+
+  const usuariosConEquipoCampeon = currentFechaRanking
+    .filter((u) => u.equipoFavorito === equipoCampeon)
+    .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
+
+  const usuariosConEquipoGoleador = currentFechaRanking
+    .filter((u) => u.equipoFavoritoGoleador === equipoCampeon)
+    .sort((a, b) => (b.golesAcertados || 0) - (a.golesAcertados || 0));
+
+  console.log(paginatedRanking2);
+
   return (
     <>
       <motion.div
@@ -426,6 +462,47 @@ const PronosticoEquipoFav = () => {
                   />
                 )}
               </div>
+              <div>
+                <button
+                  className="bg-green-500 mb-5 ml-2  font-bold cursor-pointer py-1 px-2 rounded-md"
+                  onClick={() => setOpen(true)}
+                >
+                  Reglamento
+                </button>
+              </div>
+
+              {open && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                  {/* Contenido del modal */}
+                  <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
+                    <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                      Reglamento del Juego
+                    </h2>
+                    <p className="text-gray-200 text-justify">
+                      Aquí podés incluir el reglamento del torneo o tus reglas
+                      personalizadas. Por ejemplo:
+                      <br />
+                      <br />• 3 puntos por acierto exacto.
+                      <br />• 1 punto por acertar ganador o empate.
+                      <br />• 0 puntos si no acierta.
+                      <br />
+                      <br />
+                      Recordá que los pronósticos deben hacerse antes del inicio
+                      del partido.
+                    </p>
+
+                    {/* Botón para cerrar */}
+                    <div className="flex justify-center mt-6">
+                      <button
+                        className="bg-green-500 cursor-pointer hover:bg-green-600 text-black font-bold py-2 px-4 rounded-lg transition"
+                        onClick={() => setOpen(false)}
+                      >
+                        Cerrar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Selector de Fechas */}
               <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
@@ -975,8 +1052,8 @@ const PronosticoEquipoFav = () => {
                           <th className="text-xl text-green-500 bg-black px-4 py-2">
                             Apaxionado
                           </th>
-                          <th className="text-green-500 bg-black px-4 py-2">
-                            Premio
+                          <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                            Escudo
                           </th>
                           <th className="text-green-500 bg-black px-4 py-2">
                             Puntos
@@ -984,42 +1061,119 @@ const PronosticoEquipoFav = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {paginatedRanking.map((usuario) => (
-                          <tr
-                            key={usuario.id}
-                            className="border-black border-2"
-                          >
-                            <td className="text-black px-4 py-2 bg-white">
-                              <div className="flex items-center gap-2 justify-center">
-                                <span className="font-bold">
-                                  {usuario.user}
-                                </span>
-                                {usuario.equipoFavorito && (
+                        {paginatedRanking.map((usuario) => {
+                          let premio;
+
+                          // Solo mostrar premios en la FECHA 18
+                          if (paginatedRanking[0]?.fecha === 18) {
+                            if (
+                              equipoCampeon &&
+                              usuario.equipoFavorito === equipoCampeon
+                            ) {
+                              // Obtenemos todos los puntajes ordenados de mayor a menor (sin duplicados)
+                              const puntajesUnicos = [
+                                ...new Set(
+                                  filteredRanking
+                                    .map((u) => u.puntajeTotal || 0)
+                                    .sort((a, b) => b - a)
+                                ),
+                              ];
+
+                              // Buscamos el "rango" del puntaje del usuario
+                              const rankIndex = puntajesUnicos.indexOf(
+                                usuario.puntajeTotal || 0
+                              );
+
+                              // Asignamos premios según el rango de puntaje
+                              if (rankIndex === 0) {
+                                // 🥇 Máximo puntaje (pueden ser varios usuarios)
+                                premio = (
                                   <img
-                                    src={getLogoEquipoFavorito(
-                                      usuario.equipoFavorito,
-                                      matches
-                                    )}
-                                    alt={usuario.equipoFavorito}
-                                    className="h-6 w-6 object-contain"
+                                    className="h-8 mx-auto"
+                                    src={Logo4}
+                                    alt="Botín Platino"
                                   />
-                                )}
-                              </div>
-                            </td>
+                                );
+                              } else if (rankIndex >= 1 && rankIndex <= 5) {
+                                // 🥈 Segundo al sexto mejor puntaje
+                                premio = (
+                                  <img
+                                    className="h-8 mx-auto"
+                                    src={Logo2}
+                                    alt="Botín Oro"
+                                  />
+                                );
+                              } else if (rankIndex >= 6 && rankIndex <= 8) {
+                                // 🥉 Séptimo al noveno mejor puntaje
+                                premio = (
+                                  <img
+                                    className="h-8 mx-auto"
+                                    src={Logo}
+                                    alt="Botín TFF"
+                                  />
+                                );
+                              } else if (rankIndex >= 9 && rankIndex <= 10) {
+                                // 🎖️ Décimo al undécimo mejor puntaje
+                                premio = (
+                                  <img
+                                    className="h-8 mx-auto"
+                                    src={Logo3}
+                                    alt="Botín Bronce"
+                                  />
+                                );
+                              } else {
+                                // Otros jugadores del equipo campeón
+                                premio = (
+                                  <span className="font-bold text-green-500">
+                                    CAMPEÓN
+                                  </span>
+                                );
+                              }
+                            } else {
+                              // 🚫 Usuario sin equipo campeón
+                              premio = <span className="text-gray-400">-</span>;
+                            }
+                          } else {
+                            // ❌ No es la fecha 18 → no mostrar premio
+                            premio = <span className="text-gray-400">-</span>;
+                          }
 
-                            <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                              <img
-                                className="h-8 mx-auto"
-                                src={Logo}
-                                alt="Logo"
-                              />
-                            </td>
+                          return (
+                            <tr
+                              key={usuario.id}
+                              className="border-black border-2"
+                            >
+                              {/* Nombre y logo del equipo favorito */}
+                              <td className="text-black px-4 py-2 bg-white">
+                                <div className="flex items-center gap-2 justify-center">
+                                  <span className="font-bold">
+                                    {usuario.user}
+                                  </span>
+                                  {usuario.equipoFavorito && (
+                                    <img
+                                      src={getLogoEquipoFavorito(
+                                        usuario.equipoFavorito,
+                                        matches
+                                      )}
+                                      alt={usuario.equipoFavorito}
+                                      className="h-6 w-6 object-contain"
+                                    />
+                                  )}
+                                </div>
+                              </td>
 
-                            <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                              {usuario.puntajeTotal || 0}
-                            </td>
-                          </tr>
-                        ))}
+                              {/* Premio */}
+                              <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                                {premio}
+                              </td>
+
+                              {/* Puntos */}
+                              <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                                {usuario.puntajeTotal || 0}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -1110,36 +1264,120 @@ const PronosticoEquipoFav = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {paginatedRanking2.map((usuario) => (
-                          <tr
-                            key={usuario.id}
-                            className="border-black border-2"
-                          >
-                            <td className="text-black px-4 py-2 bg-white">
-                              <div className="flex items-center gap-2 justify-center">
-                                <span className="font-bold">
-                                  {usuario.user}
-                                </span>
-                                {usuario.equipoFavoritoGoleador && (
+                        {paginatedRanking2.map((usuario) => {
+                          let premio;
+
+                          // ✅ Mostrar premios solo en la FECHA 18
+                          if (paginatedRanking2[0]?.fecha === 18) {
+                            // Verificamos si hay equipo campeón y si el usuario pertenece a ese equipo
+                            if (
+                              equipoCampeon &&
+                              usuario.equipoFavoritoGoleador === equipoCampeon
+                            ) {
+                              // 🔢 Obtenemos todos los puntajes únicos (goles totales) de mayor a menor
+                              const puntajesUnicos = [
+                                ...new Set(
+                                  filteredRanking2
+                                    .map((u) => u.golesTotales || 0)
+                                    .sort((a, b) => b - a)
+                                ),
+                              ];
+
+                              // 📊 Buscamos el "rango" del puntaje del usuario
+                              const rankIndex = puntajesUnicos.indexOf(
+                                usuario.golesTotales || 0
+                              );
+
+                              // 🏆 Asignamos premios según el rango del puntaje
+                              if (rankIndex === 0) {
+                                // 🥇 Mejor puntaje → Botín Platino
+                                premio = (
                                   <img
-                                    src={getLogoEquipoFavoritoGoleador(
-                                      usuario.equipoFavoritoGoleador,
-                                      matches
-                                    )}
-                                    alt={usuario.equipoFavoritoGoleador}
-                                    className="h-6 w-6 object-contain"
+                                    className="h-8 mx-auto"
+                                    src={Logo4}
+                                    alt="Botín Platino"
                                   />
-                                )}
-                              </div>
-                            </td>
-                            <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                              <img className="h-8" src={Logo} alt="Logo" />
-                            </td>
-                            <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                              {usuario.golesTotales || 0}
-                            </td>
-                          </tr>
-                        ))}
+                                );
+                              } else if (rankIndex >= 1 && rankIndex <= 5) {
+                                // 🥈 Segundo al sexto mejor puntaje → Botín Oro
+                                premio = (
+                                  <img
+                                    className="h-8 mx-auto"
+                                    src={Logo2}
+                                    alt="Botín Oro"
+                                  />
+                                );
+                              } else if (rankIndex >= 6 && rankIndex <= 8) {
+                                // 🥉 Séptimo al noveno → Botín TFF
+                                premio = (
+                                  <img
+                                    className="h-8 mx-auto"
+                                    src={Logo}
+                                    alt="Botín TFF"
+                                  />
+                                );
+                              } else if (rankIndex >= 9 && rankIndex <= 10) {
+                                // 🎖️ Décimo al undécimo → Botín Bronce
+                                premio = (
+                                  <img
+                                    className="h-8 mx-auto"
+                                    src={Logo3}
+                                    alt="Botín Bronce"
+                                  />
+                                );
+                              } else {
+                                // 🟢 Otros del equipo campeón → texto “GOLEADOR”
+                                premio = (
+                                  <span className="font-bold text-green-500">
+                                    GOLEADOR
+                                  </span>
+                                );
+                              }
+                            } else {
+                              // 🚫 Usuario sin equipo campeón
+                              premio = <span className="text-gray-400">-</span>;
+                            }
+                          } else {
+                            // ❌ No es la fecha 18 → sin premio
+                            premio = <span className="text-gray-400">-</span>;
+                          }
+
+                          return (
+                            <tr
+                              key={usuario.id}
+                              className="border-black border-2"
+                            >
+                              {/* Nombre y logo del equipo favorito */}
+                              <td className="text-black px-4 py-2 bg-white">
+                                <div className="flex items-center gap-2 justify-center">
+                                  <span className="font-bold">
+                                    {usuario.user}
+                                  </span>
+                                  {usuario.equipoFavoritoGoleador && (
+                                    <img
+                                      src={getLogoEquipoFavorito(
+                                        usuario.equipoFavoritoGoleador,
+                                        matches
+                                      )}
+                                      alt={usuario.equipoFavoritoGoleador}
+                                      className="h-6 w-6 object-contain"
+                                    />
+                                  )}
+                                </div>
+                              </td>
+
+                              {/* Premio */}
+                              <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                                {premio}
+                              </td>
+
+                              {/* Goles Totales */}
+                              <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                                {usuario.golesTotales || 0}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

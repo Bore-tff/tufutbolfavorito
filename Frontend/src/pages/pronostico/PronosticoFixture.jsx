@@ -37,7 +37,7 @@ const PronosticoComponent = () => {
   const [mensaje, setMensaje] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 8;
 
   const currentFecha = matches.find((m) => m.fecha === selectedFecha);
   const currentFechaRanking = rankingFecha
