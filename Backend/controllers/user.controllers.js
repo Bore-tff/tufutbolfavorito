@@ -746,21 +746,32 @@ export const obtenerResumenDeUsuarioFavoritos = async (req, res) => {
   }
 
   try {
-    const [puntajeTotal, puntajeFecha, rankingFecha] = await Promise.all([
+    const [usuariosConPuntaje, puntajeFecha, rankingFecha] = await Promise.all([
       obtenerUsuariosConPuntajeFavoritos(),
       obtenerPuntajeDeUsuarioPorFechaFavoritos(userId, numeroFecha),
       obtenerRankingPorFechaFavoritos(numeroFecha),
     ]);
 
-    const usuarioTotal = puntajeTotal.find(u => u.id === userId);
+    const usuarioTotal = usuariosConPuntaje.find(u => u.id === userId);
+
+    // 🔹 Calcular puntos acumulados HASTA la fecha actual
+    const puntosAcumuladosHastaFecha =
+      usuarioTotal?.historial
+        ?.filter(h => h.fecha <= numeroFecha)
+        ?.reduce((acc, h) => acc + h.puntosEnFecha, 0) || 0;
+
+    // 🔹 Calcular goles acumulados hasta la fecha (si también querés eso)
+    // (Suponiendo que tu función `obtenerUsuariosConPuntajeFavoritos` también los tuviera)
+    // Por ahora dejamos goles totales en 0
+    const golesAcumuladosHastaFecha = usuarioTotal?.golesTotales || 0;
 
     return res.json({
       usuario: {
         id: userId,
         user: usuarioTotal?.user || puntajeFecha.user,
-        puntajeTotal: usuarioTotal?.puntos || 0,
+        puntajeTotal: puntosAcumuladosHastaFecha, // 🔹 acumulativo hasta la fecha
         puntajeFecha: puntajeFecha.puntos || 0,
-        golesTotales: usuarioTotal?.goles || 0,
+        golesTotales: golesAcumuladosHastaFecha,
         golesFecha: puntajeFecha.goles || 0,
       },
       rankingFecha,
