@@ -23,10 +23,6 @@ export default function ElegirEquipo() {
   const [equipoGoleador, setEquipoGoleador] = useState("");
 
   useEffect(() => {
-    getAllUsers();
-  }, [getAllUsers]);
-
-  useEffect(() => {
     const fetchEquipos = async () => {
       try {
         const res = await getMatches();

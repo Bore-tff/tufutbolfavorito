@@ -7,6 +7,7 @@ import Logo from "../../../assets/Botintff.png";
 import Logo2 from "../../../assets/botinoro.png";
 import Logo3 from "../../../assets/botinbronce.png";
 import Logo4 from "../../../assets/botinplatino.jpg";
+import Logo5 from "../../../assets/3.png";
 
 const PronosticoEquipoFav = () => {
   const {
@@ -45,6 +46,9 @@ const PronosticoEquipoFav = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTerm2, setSearchTerm2] = useState("");
   const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [open3, setOpen3] = useState(false);
+  const [open4, setOpen4] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPage2, setCurrentPage2] = useState(1);
   const successMessageFavorito = usePronosticoStore(
@@ -334,6 +338,8 @@ const PronosticoEquipoFav = () => {
     return ""; // si no se encuentra
   };
 
+  console.log(paginatedRanking2);
+
   const getLogoEquipoFavoritoGoleador = (equipo, matches) => {
     for (let fecha of matches) {
       const partido = fecha.partidos.find(
@@ -393,8 +399,6 @@ const PronosticoEquipoFav = () => {
   const usuariosConEquipoGoleador = currentFechaRanking
     .filter((u) => u.equipoFavoritoGoleador === equipoCampeon)
     .sort((a, b) => (b.golesAcertados || 0) - (a.golesAcertados || 0));
-
-  console.log(paginatedRanking2);
 
   return (
     <>
@@ -462,9 +466,10 @@ const PronosticoEquipoFav = () => {
                   />
                 )}
               </div>
-              <div>
+              <div className="flex mb-5">
+                <img className="h-15 object-contain" src={Logo5} alt="Logo" />
                 <button
-                  className="bg-green-500 mb-5 ml-2  font-bold cursor-pointer py-1 px-2 rounded-md"
+                  className="bg-green-500 mb-5 mt-4  font-bold cursor-pointer py-1 px-2 rounded-md"
                   onClick={() => setOpen(true)}
                 >
                   Reglamento
@@ -472,23 +477,30 @@ const PronosticoEquipoFav = () => {
               </div>
 
               {open && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
                   {/* Contenido del modal */}
                   <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
                     <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
                       Reglamento del Juego
                     </h2>
                     <p className="text-gray-200 text-justify">
-                      Aquí podés incluir el reglamento del torneo o tus reglas
-                      personalizadas. Por ejemplo:
+                      El apaxionado pronostica el resultado de su equipo
+                      favorito HASTA 30 MINUTOS ANTES de cada partido
                       <br />
-                      <br />• 3 puntos por acierto exacto.
-                      <br />• 1 punto por acertar ganador o empate.
-                      <br />• 0 puntos si no acierta.
+                      <br />• Si acierta ganador su equipo favorito de visitante
+                      obtiene 3 puntos
+                      <br />• Si acierta ganador su equipo favorito de local
+                      obtiene 2 puntos.
+                      <br />• Si acierta empate de su equipo favorito obtine 1
+                      punto.
                       <br />
                       <br />
-                      Recordá que los pronósticos deben hacerse antes del inicio
-                      del partido.
+                      Recordá que los pronósticos deben hacerse HASTA 30 MINUTOS
+                      ANTES de cada partido. Se toma el tiempo de 90 minutos +
+                      tiempo adicionado + tiempo extra en caso que haya. Son
+                      validos los goles desde el punto de penal para definir una
+                      fase, se debe acertar los goles exactos para sumarlos como
+                      puntos.
                     </p>
 
                     {/* Botón para cerrar */}
@@ -775,6 +787,7 @@ const PronosticoEquipoFav = () => {
                         EQUIPO FAVORITO GOLEADOR:
                       </span>
                     </h2>
+
                     {partidoFavoritoGoleador && (
                       <img
                         className="h-16 sm:h-20 mt-2 sm:mt-0 sm:ml-5"
@@ -788,6 +801,56 @@ const PronosticoEquipoFav = () => {
                       />
                     )}
                   </div>
+                  <div className="flex mb-5">
+                    <img
+                      className="h-15 object-contain"
+                      src={Logo5}
+                      alt="Logo"
+                    />
+                    <button
+                      className="bg-green-500 mb-5 mt-4  font-bold cursor-pointer py-1 px-2 rounded-md"
+                      onClick={() => setOpen3(true)}
+                    >
+                      Reglamento
+                    </button>
+                  </div>
+
+                  {open3 && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+                      {/* Contenido del modal */}
+                      <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
+                        <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                          Reglamento del Juego
+                        </h2>
+                        <p className="text-gray-200 text-justify">
+                          El apaxionado pronostica los goles de su equipo
+                          favorito HASTA 30 MINUTOS ANTES de cada partido de su
+                          equipo favorito.
+                          <br />
+                          <br />• Suma goles a favor cuando el pronostico de su
+                          equipo favorito sea inferior o igual al real.
+                          <br />
+                          <br />
+                          Recordá que los pronósticos deben hacerse HASTA 30
+                          MINUTOS ANTES de cada partido. Se toma el tiempo de 90
+                          minutos + tiempo adicionado + tiempo extra en caso que
+                          haya. Son validos los goles desde el punto de penal
+                          para definir una fase, se debe acertar los goles
+                          exactos para sumarlos.
+                        </p>
+
+                        {/* Botón para cerrar */}
+                        <div className="flex justify-center mt-6">
+                          <button
+                            className="bg-green-500 cursor-pointer hover:bg-green-600 text-black font-bold py-2 px-4 rounded-lg transition"
+                            onClick={() => setOpen3(false)}
+                          >
+                            Cerrar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
                     <div className="flex gap-2 flex-nowrap">
                       {matchesFavorito.map(({ fecha, label }) => (
@@ -1015,6 +1078,53 @@ const PronosticoEquipoFav = () => {
                 </span>
               </h2>
 
+              <div className="flex mb-5">
+                <img className="h-15 object-contain" src={Logo5} alt="Logo" />
+                <button
+                  className="bg-green-500 mb-5 mt-4  font-bold cursor-pointer py-1 px-2 rounded-md"
+                  onClick={() => setOpen2(true)}
+                >
+                  Reglamento
+                </button>
+              </div>
+
+              {open2 && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+                  {/* Contenido del modal */}
+                  <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
+                    <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                      Reglamento del Juego
+                    </h2>
+                    <p className="text-gray-200 text-justify">
+                      Los APAXIONADOS que esten entre las primeras 11 posiciones
+                      conquistaran los escudos de campeón con su equipo favorito
+                      por definición de puntos.
+                      <br />
+                      <br />• ESCUDO DE PLATINO lo conquistara el/los
+                      APAXIONADO/S campeón en la 1era posición
+                      <br />• ESCUDO DE ORO lo conquistara el/los APAXIONADO/S
+                      campeón desde la 2da a la 6ta posición inclusive
+                      <br />• ESCUDO DE PLATA lo conquistara el/los APAXIONADO/S
+                      campeón desde la 7ma a la 9na posición inclusive
+                      <br />• ESCUDO DE BRONCE lo conquistara el/los
+                      APAXIONADO/S campeón de la 10ma a la 11era posición
+                      inclusive
+                      <br />
+                    </p>
+
+                    {/* Botón para cerrar */}
+                    <div className="flex justify-center mt-6">
+                      <button
+                        className="bg-green-500 cursor-pointer hover:bg-green-600 text-black font-bold py-2 px-4 rounded-lg transition"
+                        onClick={() => setOpen2(false)}
+                      >
+                        Cerrar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
                 <div className="flex space-x-2 flex-nowrap">
                   {matchesFavorito.map(({ fecha, label }) => (
@@ -1218,6 +1328,52 @@ const PronosticoEquipoFav = () => {
                   APAXIONADO GOLEADOR
                 </span>
               </h2>
+              <div className="flex mb-5">
+                <img className="h-15 object-contain" src={Logo5} alt="Logo" />
+                <button
+                  className="bg-green-500 mb-5 mt-4  font-bold cursor-pointer py-1 px-2 rounded-md"
+                  onClick={() => setOpen4(true)}
+                >
+                  Reglamento
+                </button>
+              </div>
+
+              {open4 && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+                  {/* Contenido del modal */}
+                  <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
+                    <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                      Reglamento del Juego
+                    </h2>
+                    <p className="text-gray-200 text-justify">
+                      Los APAXIONADOS que esten entre las primeras 11 posiciones
+                      conquistaran los EQUIPOS de goleador por definición de
+                      goles a favor
+                      <br />
+                      <br />• EQUIPO DE PLATINO lo conquistara el/los
+                      APAXIONADO/S goleador en la 1era posición
+                      <br />• EQUIPO DE ORO lo conquistara el/los APAXIONADO/S
+                      goleador desde la 2da a la 6ta posición inclusive
+                      <br />• EQUIPO DE PLATA lo conquistara el/los APAXIONADO/S
+                      goleador desde la 7ma a la 9na posición inclusive
+                      <br />• EQUIPO DE BRONCE lo conquistara el/los
+                      APAXIONADO/S goleador de la 10ma a la 11era posición
+                      inclusive
+                      <br />
+                    </p>
+
+                    {/* Botón para cerrar */}
+                    <div className="flex justify-center mt-6">
+                      <button
+                        className="bg-green-500 cursor-pointer hover:bg-green-600 text-black font-bold py-2 px-4 rounded-lg transition"
+                        onClick={() => setOpen4(false)}
+                      >
+                        Cerrar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
                 <div className="flex space-x-2 flex-nowrap">

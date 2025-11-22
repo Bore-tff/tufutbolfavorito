@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { olvidePassword } from "../../api/auth"; // tu llamada al backend
+import { olvidePassword } from "../../api/auth";
+import { Link } from "react-router-dom";
+import Footer from "../footer/Footer";
 
 const OlvidePassword = () => {
   const [email, setEmail] = useState("");
@@ -24,55 +26,60 @@ const OlvidePassword = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <div className="block w-96">
-        <h1 className="text-orange-500 font-bold text-5xl mb-5">
-          Cambia tu contraseña
-        </h1>
-      </div>
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          Cambia tu contraseña
+    <>
+      <div className="flex flex-col justify-center items-center h-150 bg-black">
+        {/* TITULO EXTERNO */}
+        <h1 className="text-green-500 font-bold text-4xl mb-6">
+          TU FUTBOL FAVORITO
         </h1>
 
-        {mensaje && (
-          <p
-            className={`mb-4 text-center font-medium ${
-              error ? "text-red-600" : "text-green-600"
-            }`}
-          >
-            {mensaje}
-          </p>
-        )}
+        {/* FORMULARIO */}
+        <div className="max-w-sm bg-black border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff] text-green-600 mx-auto p-4  rounded-lg">
+          {/* TITULO INTERNO */}
+          <h2 className="text-2xl font-bold text-center mb-6 text-white">
+            Ingresa tu email para continuar
+          </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-md font-semibold text-gray-700"
+          {mensaje && (
+            <p
+              className={`mb-4 text-center font-medium ${
+                error ? "text-red-600" : "text-green-600"
+              }`}
             >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="Ingresa tu mail"
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+              {mensaje}
+            </p>
+          )}
 
-          <button
-            type="submit"
-            className="w-full bg-orange-500 cursor-pointer font-bold text-white py-2 rounded-lg hover:bg-orange-600 transition"
-          >
-            Enviar Instrucciones
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <input
+                id="email"
+                type="email"
+                placeholder="Ingresa tu mail"
+                className="mt-1 w-full px-4 text-white bg-black border-green-500 focus:border-green-600 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-green-500 cursor-pointer font-bold text-black py-2 rounded-lg hover:bg-green-600 transition"
+            >
+              Enviar Instrucciones
+            </button>
+          </form>
+          <p className="text-sm text-center text-white mt-4">
+            Volver{" "}
+            <Link to="/login" className="text-green-500 hover:underline">
+              Inicia Sesión
+            </Link>
+          </p>
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 

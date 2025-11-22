@@ -240,6 +240,8 @@ export const obtenerUsuariosConPuntaje = async () => {
   raw: true,
 });
 
+console.log(usuarios);
+
 return usuarios.map(usuario => ({
   id: usuario.id,
   user: usuario.user,
@@ -250,7 +252,10 @@ return usuarios.map(usuario => ({
   goles: Number(usuario.golesAcertados) || 0,
   
   sumaTotal: Number(usuario.sumaTotal) || 0,
+
+  
 }));
+
   } catch (error) {
     console.error('Error al obtener los usuarios con puntaje:', error);
     throw new Error('No se pudieron obtener los usuarios con puntaje');

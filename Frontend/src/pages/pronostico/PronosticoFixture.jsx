@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import usePronosticoStore from "../../store/pronosticosStore";
 import useUserStore from "../../store/usersStore";
-import Rankings from "./rankings/Rankings";
+
 import Logo from "../../assets/Botintff.png";
+import Logo2 from "../../assets/botinoro.png";
+import Logo3 from "../../assets/botinbronce.png";
+import Logo4 from "../../assets/botinplatino.jpg";
+import Logo5 from "../../assets/3.png";
 
 import { toast } from "react-toastify";
 import ElegirEquipo from "./ElegirEquipoFavorito/ElegirEquipo";
@@ -24,10 +28,15 @@ const PronosticoComponent = () => {
     getRankingPorFecha,
     getUsersWithPuntaje,
     rankingGeneral,
+    rankingsFavoritos,
+    rankingsFavoritosGoleador,
     rankingFecha,
   } = useUserStore();
   const pronosticos = usePronosticoStore((state) => state.pronosticos);
   const [predictions, setPredictions] = useState({});
+  const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [open3, setOpen3] = useState(false);
   const [localLoading, setLocalLoading] = useState(false);
   const [selectedFecha, setSelectedFecha] = useState(matches[0]?.fecha || 1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,7 +49,12 @@ const PronosticoComponent = () => {
   const rowsPerPage = 8;
 
   const currentFecha = matches.find((m) => m.fecha === selectedFecha);
-  const currentFechaRanking = rankingFecha
+
+  const currentFechaRanking = [
+    ...rankingsFavoritos,
+    ...rankingFecha,
+    ...rankingsFavoritosGoleador,
+  ]
     .filter((r) => r.fecha === selectedFechaRanking)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
@@ -156,6 +170,20 @@ const PronosticoComponent = () => {
     }
   }, [pronosticos]);
 
+  const getLogoEquipoFavorito = (equipo, matches) => {
+    for (let fecha of matches) {
+      const partido = fecha.partidos.find(
+        (p) => p.home.name === equipo || p.away.name === equipo
+      );
+      if (partido) {
+        return partido.home.name === equipo
+          ? partido.home.logo
+          : partido.away.logo;
+      }
+    }
+    return ""; // si no se encuentra
+  };
+
   return (
     <>
       <ElegirEquipo />
@@ -197,12 +225,62 @@ const PronosticoComponent = () => {
         {/* Primer container horizontal */}
         <div className=" px-4 md:px-20">
           {/* Contenedor principal */}
-          <div className="mx-auto lg:w-3xl md:w-full w-full bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
+          <div className="mx-auto lg:w-4xl md:w-full w-full bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
             <h1 className="text-white text-2xl font-bold mb-5 text-center md:text-left">
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                 FIXTURE
               </span>
             </h1>
+
+            <div className="flex mb-5">
+              <img className="h-15 object-contain" src={Logo5} alt="Logo" />
+              <button
+                className="bg-green-500 mb-5 mt-4  font-bold cursor-pointer py-1 px-2 rounded-md"
+                onClick={() => setOpen(true)}
+              >
+                Reglamento
+              </button>
+            </div>
+
+            {open && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+                {/* Contenido del modal */}
+                <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
+                  <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                    Reglamento del Juego
+                  </h2>
+                  <p className="text-gray-200 text-justify">
+                    Los APAXIONADOS pronostican los partidos HASTA 30 MINUTOS
+                    ANTES del comienzo de cada fecha para sumar goles y puntos.
+                    <br />
+                    <br />• Si acierta ganador su equipo favorito de visitante
+                    obtiene 3 puntos
+                    <br />• Si acierta ganador su equipo favorito de local
+                    obtiene 2 puntos.
+                    <br />• Si acierta empate de su equipo favorito obtine 1
+                    punto.
+                    <br />
+                    <br />
+                    Recordá que los pronósticos deben hacerse HASTA 30 MINUTOS
+                    ANTES de cada fecha. Se toma el tiempo de 90 minutos +
+                    tiempo adicionado + tiempo extra en caso que haya. Son
+                    validos los goles desde el punto de penal para definir una
+                    fase, se debe acertar los goles exactos para sumarlos como
+                    puntos.
+                  </p>
+
+                  {/* Botón para cerrar */}
+                  <div className="flex justify-center mt-6">
+                    <button
+                      className="bg-green-500 cursor-pointer hover:bg-green-600 text-black font-bold py-2 px-4 rounded-lg transition"
+                      onClick={() => setOpen(false)}
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Selector de Fechas */}
             <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
@@ -380,6 +458,50 @@ const PronosticoComponent = () => {
               </span>
             </h2>
 
+            <div className="flex mb-5">
+              <img className="h-15 object-contain" src={Logo5} alt="Logo" />
+              <button
+                className="bg-green-500 mb-5 mt-4  font-bold cursor-pointer py-1 px-2 rounded-md"
+                onClick={() => setOpen2(true)}
+              >
+                Reglamento
+              </button>
+            </div>
+
+            {open2 && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+                {/* Contenido del modal */}
+                <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
+                  <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                    Reglamento del Juego
+                  </h2>
+                  <p className="text-gray-200 text-justify">
+                    BRAZALETE TFF lo conquistara el/los APAXIONADO/S entre las
+                    primeras 8 posiciones por definición de puntos por fecha
+                    <br />
+                    <br />• Si acierta ganador su equipo favorito de visitante
+                    obtiene 3 puntos
+                    <br />• Si acierta ganador su equipo favorito de local
+                    obtiene 2 puntos.
+                    <br />• Si acierta empate de su equipo favorito obtine 1
+                    punto.
+                    <br />
+                    <br />
+                  </p>
+
+                  {/* Botón para cerrar */}
+                  <div className="flex justify-center mt-6">
+                    <button
+                      className="bg-green-500 cursor-pointer hover:bg-green-600 text-black font-bold py-2 px-4 rounded-lg transition"
+                      onClick={() => setOpen2(false)}
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Selector de Fechas */}
             <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
               <div className="flex space-x-2 flex-nowrap">
@@ -427,23 +549,54 @@ const PronosticoComponent = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {paginatedRanking.map((usuario) => (
-                        <tr key={usuario.id} className="border-black border-2">
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            {usuario.user}
-                          </td>
-                          <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                            <img
-                              className="h-8 mx-auto"
-                              src={Logo}
-                              alt="Logo"
-                            />
-                          </td>
-                          <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
-                            {usuario.puntos || 0}
-                          </td>
-                        </tr>
-                      ))}
+                      {paginatedRanking.map((usuario, index) => {
+                        // Posición real dentro del ranking filtrado+ordenado
+                        const pos = (currentPage - 1) * rowsPerPage + index + 1;
+
+                        // Solo los primeros 8 tienen bota de oro
+                        const premio = pos <= 8 ? Logo2 : null;
+
+                        return (
+                          <tr
+                            key={usuario.id}
+                            className="border-black border-2"
+                          >
+                            <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                              <div className="flex items-center gap-2 justify-center">
+                                <span className="font-bold">
+                                  {usuario.user}
+                                </span>
+                                {usuario.equipoFavorito && (
+                                  <img
+                                    src={getLogoEquipoFavorito(
+                                      usuario.equipoFavorito,
+                                      matches
+                                    )}
+                                    alt={usuario.equipoFavorito}
+                                    className="h-6 w-6 object-contain"
+                                  />
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Premio */}
+                            <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                              {premio && (
+                                <img
+                                  className="h-8 mx-auto"
+                                  src={premio}
+                                  alt="Bota de Oro"
+                                />
+                              )}
+                            </td>
+
+                            {/* Puntos */}
+                            <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
+                              {usuario.puntos || 0}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -487,6 +640,52 @@ const PronosticoComponent = () => {
                 RANKING X FECHA
               </span>
             </h2>
+
+            <div className="flex mb-5">
+              <img className="h-15 object-contain" src={Logo5} alt="Logo" />
+              <button
+                className="bg-green-500 mb-5 mt-4  font-bold cursor-pointer py-1 px-2 rounded-md"
+                onClick={() => setOpen3(true)}
+              >
+                Reglamento
+              </button>
+            </div>
+
+            {open3 && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+                {/* Contenido del modal */}
+                <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
+                  <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                    Reglamento del Juego
+                  </h2>
+                  <p className="text-gray-200 text-justify">
+                    BRAZALETE TFF lo conquistara el/los APAXIONADO/S entre las
+                    primeras 8 posiciones por definición de goles a favor por
+                    fecha. El APAXIONADO suma goles a favor cuando acierta los
+                    goles exactos de cada equipo
+                    <br />
+                    <br />
+                    <br />
+                    Recordá que los pronósticos deben hacerse HASTA 30 MINUTOS
+                    ANTES de cada fecha. Se toma el tiempo de 90 minutos +
+                    tiempo adicionado + tiempo extra en caso que haya. Son
+                    validos los goles desde el punto de penal para definir una
+                    fase, se debe acertar los goles exactos para sumarlos como
+                    puntos.
+                  </p>
+
+                  {/* Botón para cerrar */}
+                  <div className="flex justify-center mt-6">
+                    <button
+                      className="bg-green-500 cursor-pointer hover:bg-green-600 text-black font-bold py-2 px-4 rounded-lg transition"
+                      onClick={() => setOpen3(false)}
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Selector de Fechas */}
             <div className="w-full overflow-x-auto px-2 mb-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-200">
@@ -535,26 +734,54 @@ const PronosticoComponent = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {[...paginatedRanking]
-                        .sort(
-                          (a, b) => (b.golesFecha || 0) - (a.golesFecha || 0)
-                        )
-                        .map((usuario) => (
+                      {paginatedRanking.map((usuario, index) => {
+                        // Posición real dentro del ranking filtrado+ordenado
+                        const pos = (currentPage - 1) * rowsPerPage + index + 1;
+
+                        // Solo los primeros 8 tienen bota de oro
+                        const premio = pos <= 8 ? Logo2 : null;
+
+                        return (
                           <tr
                             key={usuario.id}
                             className="border-black border-2"
                           >
                             <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                              {usuario.user}
+                              <div className="flex items-center gap-2 justify-center">
+                                <span className="font-bold">
+                                  {usuario.user}
+                                </span>
+                                {usuario.equipoFavoritoGoleador && (
+                                  <img
+                                    src={getLogoEquipoFavorito(
+                                      usuario.equipoFavoritoGoleador,
+                                      matches
+                                    )}
+                                    alt={usuario.equipoFavoritoGoleador}
+                                    className="h-6 w-6 object-contain"
+                                  />
+                                )}
+                              </div>
                             </td>
+
+                            {/* Premio */}
                             <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                              <img className="h-8" src={Logo} alt="Logo" />
+                              {premio && (
+                                <img
+                                  className="h-8 mx-auto"
+                                  src={premio}
+                                  alt="Bota de Oro"
+                                />
+                              )}
                             </td>
+
+                            {/* Puntos */}
                             <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
                               {usuario.golesFecha || 0}
                             </td>
                           </tr>
-                        ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -593,7 +820,6 @@ const PronosticoComponent = () => {
         </div>
 
         {/* Segundo container horizontal */}
-        <Rankings />
       </div>
     </>
   );

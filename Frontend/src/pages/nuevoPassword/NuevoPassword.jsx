@@ -46,9 +46,12 @@ const NuevoPassword = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
+    <div className="flex flex-col justify-center items-center h-screen bg-black">
+      <h1 className="text-green-500 font-bold text-4xl mb-6">
+        TU FUTBOL FAVORITO
+      </h1>
+      <div className="bg-black border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff] text-green-600 p-8 rounded-2xl w-full max-w-md">
+        <h1 className="text-2xl font-bold text-center mb-6 text-green-500">
           Cambiar contraseña
         </h1>
 
@@ -65,17 +68,11 @@ const NuevoPassword = () => {
         {tokenValido && !passwordModificado && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label
-                htmlFor="password"
-                className="block text-md font-semibold text-gray-700"
-              >
-                Nueva contraseña
-              </label>
               <input
                 id="password"
                 type="password"
                 placeholder="Nueva contraseña"
-                className="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="mt-1 w-full px-4 py-2 border text-white bg-black border-green-500 focus:border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -84,7 +81,7 @@ const NuevoPassword = () => {
 
             <button
               type="submit"
-              className="w-full bg-orange-500 cursor-pointer font-bold text-white py-2 rounded-lg hover:bg-orange-600 transition"
+              className="w-full bg-green-500 cursor-pointer font-bold text-black py-2 rounded-lg hover:bg-green-600 transition"
             >
               Guardar contraseña
             </button>
@@ -92,11 +89,11 @@ const NuevoPassword = () => {
         )}
 
         {passwordModificado && (
-          <p className="mt-4 text-center font-semibold text-gray-700">
+          <p className="mt-4 text-center font-semibold text-white">
             Tu contraseña fue cambiada{" "}
             <Link
               to="/login"
-              className="text-orange-500 font-semibold hover:underline"
+              className="text-green-500 font-semibold hover:underline"
             >
               Inicia sesión
             </Link>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Logo2 from "../src/assets/sfd.png";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/login/Login";
@@ -26,18 +26,6 @@ function App() {
           </Routes>
         </main>
       </BrowserRouter>
-      <footer className="bg-gray-800 text-white mt-10">
-        <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center">
-          {/* Título de la página */}
-          <img src={Logo2} alt="Logo TFF" className="" />
-
-          {/* Mensaje o copyright */}
-          <p className="text-gray-300 text-center">
-            © {new Date().getFullYear()} TuFutbolFavorito. Todos los derechos
-            reservados.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

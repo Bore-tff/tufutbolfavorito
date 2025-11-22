@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import PronosticoFixture from "../pronostico/PronosticoFixture";
+import Rankings from "../pronostico/rankings/Rankings";
 import useUserStore from "../../store/usersStore";
 import { useNavigate } from "react-router-dom";
 import usePronosticoStore from "../../store/pronosticosStore";
 import Banner from "../banner/Banner";
 import Logo from "../../assets/3.png";
+import Footer from "../footer/Footer";
 
 function HomePage() {
   const { user, logout, getAllUsers, getUsersWithPuntaje } = useUserStore();
@@ -105,6 +107,8 @@ function HomePage() {
       <div className="flex flex-col lg:flex-row gap-2 p-2">
         <div className="flex-1">
           <PronosticoFixture />
+          <Rankings />
+          <Footer />
         </div>
       </div>
     </div>
