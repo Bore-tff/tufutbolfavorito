@@ -50,11 +50,7 @@ const PronosticoComponent = () => {
 
   const currentFecha = matches.find((m) => m.fecha === selectedFecha);
 
-  const currentFechaRanking = [
-    ...rankingsFavoritos,
-    ...rankingFecha,
-    ...rankingsFavoritosGoleador,
-  ]
+  const currentFechaRanking = [...rankingFecha]
     .filter((r) => r.fecha === selectedFechaRanking)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
@@ -124,6 +120,12 @@ const PronosticoComponent = () => {
       matchId: id,
       homeScore: Number(predictions[id].home),
       awayScore: Number(predictions[id].away),
+      penalesHome: predictions[id].penalesHome
+        ? Number(predictions[id].penalesHome)
+        : null,
+      penalesAway: predictions[id].penalesAway
+        ? Number(predictions[id].penalesAway)
+        : null,
     }));
 
     //setLocalLoading(true);
@@ -184,6 +186,24 @@ const PronosticoComponent = () => {
     return ""; // si no se encuentra
   };
 
+  const fechaFinal = matches.find((fecha) =>
+    fecha.partidos.some((p) => p.penales)
+  );
+
+  const partidosFechaFinal = fechaFinal?.partidos || [];
+
+  const getEquipoCampeon = (partidos = []) => {
+    const final = partidos.find((p) => p.penales);
+    if (!final) return null;
+    const { home, away, penales } = final;
+    if (penales.home > penales.away) return home.name;
+    if (penales.away > penales.home) return away.name;
+    return null;
+  };
+
+  const equipoCampeon = getEquipoCampeon(partidosFechaFinal);
+
+  console.log(paginatedRanking);
   return (
     <>
       <ElegirEquipo />
@@ -247,11 +267,11 @@ const PronosticoComponent = () => {
                 {/* Contenido del modal */}
                 <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
                   <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                    Reglamento del Juego
+                    Fixture
                   </h2>
                   <p className="text-gray-200 text-justify">
                     Los APAXIONADOS pronostican los partidos HASTA 30 MINUTOS
-                    ANTES del comienzo de cada fecha para sumar goles y puntos.
+                    ANTES del comienzo de cada fecha para sumar puntos y goles.
                     <br />
                     <br />• Si acierta ganador su equipo favorito de visitante
                     obtiene 3 puntos
@@ -265,8 +285,8 @@ const PronosticoComponent = () => {
                     ANTES de cada fecha. Se toma el tiempo de 90 minutos +
                     tiempo adicionado + tiempo extra en caso que haya. Son
                     validos los goles desde el punto de penal para definir una
-                    fase, se debe acertar los goles exactos para sumarlos como
-                    puntos.
+                    fase, se deben acertar los goles exactos de los equipos para
+                    sumarlos como puntos.
                   </p>
 
                   {/* Botón para cerrar */}
@@ -369,6 +389,74 @@ const PronosticoComponent = () => {
                     ))}
                   </tbody>
                 </table>
+
+                {/* --- Sección de penales --- */}
+                {["Octavos", "Cuartos", "Semis", "Final"].includes(
+                  currentFecha.fase
+                ) &&
+                  currentFecha.partidos.some(
+                    ({ id }) =>
+                      predictions[id]?.home !== "" &&
+                      predictions[id]?.away !== "" &&
+                      predictions[id]?.home === predictions[id]?.away
+                  ) && (
+                    <div className="mt-4 p-4 bg-gray-700 rounded-lg">
+                      <h3 className="text-lg font-bold mb-2 text-white">
+                        Penales
+                      </h3>
+                      <p className="text-white mb-3">
+                        Ingresá los resultados de penales solo si el partido
+                        terminó empatado.
+                      </p>
+
+                      {currentFecha.partidos.map(({ id, home, away }) => {
+                        const isEmpate =
+                          predictions[id]?.home !== "" &&
+                          predictions[id]?.away !== "" &&
+                          predictions[id]?.home === predictions[id]?.away;
+
+                        return (
+                          isEmpate && (
+                            <div
+                              key={id}
+                              className="flex gap-2 items-center mb-2"
+                            >
+                              <span className="text-white">
+                                {home.name} vs {away.name}:
+                              </span>
+                              <input
+                                type="number"
+                                className="border-2 pl-2 bg-sky-500 border-gray-900 text-black w-12 text-center"
+                                placeholder="0"
+                                value={predictions[id]?.penalesHome || ""}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    id,
+                                    "penalesHome",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              <span className="text-white">-</span>
+                              <input
+                                type="number"
+                                className="border-2 pl-2 bg-sky-500 border-gray-900 text-black w-12 text-center"
+                                placeholder="0"
+                                value={predictions[id]?.penalesAway || ""}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    id,
+                                    "penalesAway",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </div>
+                          )
+                        );
+                      })}
+                    </div>
+                  )}
 
                 {/* Cards Mobile */}
                 <div className="md:hidden flex flex-col gap-3 mb-4">
@@ -473,18 +561,15 @@ const PronosticoComponent = () => {
                 {/* Contenido del modal */}
                 <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
                   <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                    Reglamento del Juego
+                    Puntos
                   </h2>
                   <p className="text-gray-200 text-justify">
                     BRAZALETE TFF lo conquistara el/los APAXIONADO/S entre las
                     primeras 8 posiciones por definición de puntos por fecha
                     <br />
-                    <br />• Si acierta ganador su equipo favorito de visitante
-                    obtiene 3 puntos
-                    <br />• Si acierta ganador su equipo favorito de local
-                    obtiene 2 puntos.
-                    <br />• Si acierta empate de su equipo favorito obtine 1
-                    punto.
+                    <br />• Si aciertas ganador de visitante sumas 3 puntos
+                    <br />• Si acierta ganador de local sumas 2 puntos.
+                    <br />• Si acierta empate entre ambos equipos sumas 1 punto.
                     <br />
                     <br />
                   </p>
@@ -540,8 +625,8 @@ const PronosticoComponent = () => {
                         <th className="text-xl text-green-500 bg-black px-4 py-2">
                           Apaxionado
                         </th>
-                        <th className="text-green-500 bg-black px-4 py-2">
-                          Premio
+                        <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                          Brazalete
                         </th>
                         <th className="text-green-500 bg-black px-4 py-2">
                           Puntos
@@ -566,13 +651,13 @@ const PronosticoComponent = () => {
                                 <span className="font-bold">
                                   {usuario.user}
                                 </span>
-                                {usuario.equipoFavorito && (
+                                {usuario.equipoFavoritoGoleador && (
                                   <img
                                     src={getLogoEquipoFavorito(
-                                      usuario.equipoFavorito,
+                                      usuario.equipoFavoritoGoleador,
                                       matches
                                     )}
-                                    alt={usuario.equipoFavorito}
+                                    alt={usuario.equipoFavoritoGoleador}
                                     className="h-6 w-6 object-contain"
                                   />
                                 )}
@@ -656,7 +741,7 @@ const PronosticoComponent = () => {
                 {/* Contenido del modal */}
                 <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
                   <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                    Reglamento del Juego
+                    Goles
                   </h2>
                   <p className="text-gray-200 text-justify">
                     BRAZALETE TFF lo conquistara el/los APAXIONADO/S entre las
@@ -666,12 +751,6 @@ const PronosticoComponent = () => {
                     <br />
                     <br />
                     <br />
-                    Recordá que los pronósticos deben hacerse HASTA 30 MINUTOS
-                    ANTES de cada fecha. Se toma el tiempo de 90 minutos +
-                    tiempo adicionado + tiempo extra en caso que haya. Son
-                    validos los goles desde el punto de penal para definir una
-                    fase, se debe acertar los goles exactos para sumarlos como
-                    puntos.
                   </p>
 
                   {/* Botón para cerrar */}
@@ -725,8 +804,8 @@ const PronosticoComponent = () => {
                         <th className="text-xl text-green-500 bg-black px-4 py-2">
                           Apaxionado
                         </th>
-                        <th className="text-green-500 bg-black px-4 py-2">
-                          Premio
+                        <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                          Brazalete
                         </th>
                         <th className="text-green-500 bg-black px-4 py-2">
                           Goles

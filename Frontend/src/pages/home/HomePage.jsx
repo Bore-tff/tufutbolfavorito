@@ -42,7 +42,6 @@ function HomePage() {
           src={Logo}
           alt="Logo"
         />
-
         <div className="flex flex-col text-center lg:text-left lg:flex-1">
           <h1
             className="text-3xl sm:text-4xl md:text-5xl lg:text-3xl mb-2 
@@ -71,12 +70,11 @@ function HomePage() {
             PONÉ A PRUEBA TU PASIÓN...
           </h1>
         </div>
-
         <div className="flex flex-col items-center lg:items-start mt-2 lg:mt-0">
           <h1 className="font-bold text-lg sm:text-xl md:text-2xl text-center lg:text-left leading-tight">
             <span className="block neon-green">Bienvenido</span>
             <span className="block neon-green">
-              {usuario ? usuario.nombre : "Invitado"}
+              {usuario ? usuario.nombre : "Apaxionado"}
             </span>
           </h1>
 
@@ -93,7 +91,7 @@ function HomePage() {
               onClick={() => navigate("/login")}
               className="relative mt-2 text-green-500 font-bold text-base sm:text-lg md:text-xl cursor-pointer rounded group"
             >
-              Iniciar sesión para jugar
+              Inicia sesión para jugar
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-green-500 transition-all duration-500 group-hover:w-full"></span>
             </button>
           )}

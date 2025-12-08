@@ -10,8 +10,8 @@ function Registro() {
     user: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
-
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -21,10 +21,15 @@ function Registro() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (form.password !== form.confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
     const res = await register(form);
 
     if (res?.msg) {
-      // Si el backend devuelve un mensaje de éxito
       alert(res.msg);
       navigate("/login");
     }
@@ -33,15 +38,12 @@ function Registro() {
   return (
     <>
       <div className="mt-24 ">
-        <h2 className="text-4xl text-white font-bold text-center mb-20">
-          TU FUTBOL FAVORITO
+        <h2 className="text-4xl text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100 font-bold text-center mb-20">
+          Bienvenido a TFF
         </h2>
         <div className="max-w-sm bg-black border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff] text-green-600 mx-auto p-4  rounded-lg">
-          <h2 className="text-xl text-white font-bold text-center mb-2">
+          <h2 className="text-xl text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100 font-bold text-center mb-2">
             REGISTRATE
-          </h2>
-          <h2 className="text-xl text-white font-bold text-center mb-4">
-            A TU FUTBOL FAVORITO
           </h2>
           {error && (
             <p className="text-red-500 mb-2 mt-2 text-sm text-center">
@@ -70,8 +72,17 @@ function Registro() {
             <input
               type="password"
               name="password"
-              placeholder="password"
+              placeholder="Contraseña"
               value={form.password}
+              onChange={handleChange}
+              className="w-full p-2 border text-white border-green-500 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+              required
+            />
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirmar contraseña"
+              value={form.confirmPassword}
               onChange={handleChange}
               className="w-full p-2 border text-white border-green-500 rounded outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
               required
@@ -81,7 +92,7 @@ function Registro() {
               className="w-full mt-5 p-2 bg-green-500 font-bold text-black rounded hover:bg-green-400 cursor-pointer"
               disabled={loading}
             >
-              {loading ? "Cargando..." : "Registrarse"}
+              {loading ? "Cargando..." : "Registrate"}
             </button>
           </form>
           {/* Link a la página de login */}

@@ -23,7 +23,7 @@ export const getPronosticosPorFecha = async (req, res) => {
 
     const pronosticos = await Pronostico.findAll({
       where: { userId, fecha },
-      attributes: ["matchId", "homeScore", "awayScore"],
+      attributes: ["matchId", "homeScore", "awayScore", "penalesHome", "penalesAway"],
       raw: true,
     });
 
@@ -45,10 +45,11 @@ export const guardarPronosticos = async (req, res) => {
       return res.status(400).json({ message: "Se requiere al menos un pronóstico" });
     }
 
-    // Traer partidos desde la API
+    // Traer partidos desde API externa
     const response = await axios.get(
       "https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions"
     );
+
     const partidos = response.data.flatMap(f =>
       f.partidos.map(p => ({ ...p, fecha: f.fecha }))
     );
@@ -56,22 +57,86 @@ export const guardarPronosticos = async (req, res) => {
     const nuevosPronosticos = [];
 
     for (const p of pronosticos) {
-      const { matchId, homeScore, awayScore } = p;
+      const { matchId, homeScore, awayScore, penalesHome, penalesAway } = p;
       if (matchId === undefined || homeScore === undefined || awayScore === undefined) continue;
 
       const partido = partidos.find(m => m.id === matchId);
       if (!partido || partido.fecha == null) continue;
 
-      // Guardar pronóstico sin calcular puntos si score aún no existe o no es número
-      const nuevoPronostico = await Pronostico.create({
-        userId,
-        matchId,
-        homeScore,
-        awayScore,
-        puntos: null,
-        golesAcertados: null,
-        fecha: partido.fecha
-      });
+      let puntos = null;
+      let golesAcertados = null;
+
+      // Tiene resultado real?
+      const tieneResultado =
+        typeof partido.homeScore === "number" &&
+        typeof partido.awayScore === "number";
+
+      if (tieneResultado) {
+        // Resultado real
+        const resultadoReal =
+          partido.homeScore > partido.awayScore
+            ? "LOCAL"
+            : partido.homeScore < partido.awayScore
+            ? "VISITANTE"
+            : "EMPATE";
+
+        // Resultado pronosticado
+        const resultadoPronosticado =
+          homeScore > awayScore
+            ? "LOCAL"
+            : homeScore < awayScore
+            ? "VISITANTE"
+            : "EMPATE";
+
+        // ⭐ Lógica base de puntos (tu regla general)
+        puntos = resultadoReal === resultadoPronosticado ? 1 : 0;
+
+        // ⭐ Goles acertados
+        let countGolesAcertados = 0;
+        if (homeScore === partido.homeScore) countGolesAcertados++;
+        if (awayScore === partido.awayScore) countGolesAcertados++;
+        golesAcertados = countGolesAcertados;
+
+        puntos += golesAcertados;
+
+        // ⚽ Lógica extra: fases eliminatorias con penales
+        const esFaseEliminatoria =
+          ["Octavos", "Cuartos", "Semis", "Final"].includes(partido.fase);
+
+        if (esFaseEliminatoria && resultadoReal === "EMPATE" && resultadoPronosticado === "EMPATE") {
+          // Si el real tiene penales cargados
+          if (
+            typeof partido.penalesHome === "number" &&
+            typeof partido.penalesAway === "number"
+          ) {
+            const ganadorReal = partido.penalesHome > partido.penalesAway ? "LOCAL" : "VISITANTE";
+            const ganadorPronosticado =
+              penalesHome > penalesAway ? "LOCAL" : "VISITANTE";
+
+            // 1 punto base por acertar empate (se suma)
+            puntos += 1;
+
+            // 4 puntos si acierta penales exactos
+            if (penalesHome === partido.penalesHome && penalesAway === partido.penalesAway) {
+              puntos += 4;
+            }
+          }
+        }
+      }
+
+      // Crear pronóstico
+      const nuevoPronostico = await Pronostico.upsert({
+  userId,
+  matchId,
+  homeScore,
+  awayScore,
+  penalesHome: penalesHome ?? null,
+  penalesAway: penalesAway ?? null,
+  puntos,
+  golesAcertados,
+  fecha: partido.fecha,
+  fase: partido.fase,
+});
 
       nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
     }
@@ -82,6 +147,7 @@ export const guardarPronosticos = async (req, res) => {
     res.status(500).json({ message: "Error interno del servidor", error: error.message });
   }
 };
+
 
 // Recalcular puntajes pendientes cuando ya hay resultados
 export const recalcularPuntajes = async () => {

@@ -84,21 +84,21 @@ export default function ElegirEquipo() {
       animate={{ y: 0, opacity: 1 }} // Baja a su posición original y aparece
       transition={{ duration: 0.8, ease: "easeOut" }} // Suavidad
     >
-      <div className="max-w-md mx-auto mt-10 bg-gray-800 rounded-2xl shadow-lg p-6">
+      <div className="max-w-md mx-auto mt-10 bg-black border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff] rounded-2xl p-6">
         <h2 className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100 text-2xl font-bold mb-4 text-center">
           ELEGÍ TU EQUIPO FAVORITO
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="text-green-500 block mb-1" htmlFor="equipo">
-              Equipo Favorito Campeón
+              Equipo Campeón
             </label>
             <select
               id="equipo"
               value={equipo}
               onChange={(e) => setEquipo(e.target.value)}
               disabled={loading}
-              className="w-full p-2 rounded-lg cursor-pointer bg-gray-700 text-white focus:outline-none"
+              className="w-full p-2 rounded-lg cursor-pointer bg-black border-2 border-green-500  text-white focus:outline-none"
             >
               <option value="">-- Seleccioná un equipo --</option>
               {equipos.map((eq) => (
@@ -125,7 +125,7 @@ export default function ElegirEquipo() {
               value={equipoGoleador}
               onChange={(e) => setEquipoGoleador(e.target.value)}
               disabled={loading}
-              className="w-full p-2 rounded-lg cursor-pointer bg-gray-700 text-white focus:outline-none"
+              className="w-full p-2 rounded-lg cursor-pointer bg-black border-2 border-green-500 text-white focus:outline-none"
             >
               <option value="">-- Seleccioná un equipo --</option>
               {equiposGoleador.map((eq) => (

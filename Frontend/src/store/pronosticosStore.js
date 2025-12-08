@@ -35,9 +35,16 @@ fetchPronosticosByFecha: async (fecha) => {
   try {
     const res = await getPronosticosByFecha(fecha);
     const pronos = {};
-    res.data.forEach(({ matchId, homeScore, awayScore }) => {
-      pronos[matchId] = { home: homeScore, away: awayScore };
-    });
+    res.data.forEach(
+  ({ matchId, homeScore, awayScore, penalesHome, penalesAway }) => {
+    pronos[matchId] = {
+      home: homeScore ?? "",
+      away: awayScore ?? "",
+      penalesHome: penalesHome ?? "",
+      penalesAway: penalesAway ?? "",
+    };
+  }
+);
     set({ pronosticos: pronos, loading: false });
   } catch (error) {
     set({ error: error.message || "Error al cargar pronósticos", loading: false });
@@ -105,9 +112,17 @@ fetchPronosticosFavoritosByFecha: async (fecha) => {
   try {
     const res = await getPronosticosFavoritosByFecha(fecha);
     const pronos = {};
-    res.data.forEach(({ matchId, homeScore, awayScore }) => {
-      pronos[matchId] = { home: homeScore, away: awayScore };
-    });
+    res.data.forEach(
+  ({ matchId, homeScore, awayScore, penalesHome, penalesAway }) => {
+    pronos[matchId] = {
+      home: homeScore ?? "",
+      away: awayScore ?? "",
+      penalesHome: penalesHome ?? "",
+      penalesAway: penalesAway ?? "",
+    };
+  }
+);
+
     set({ pronosticos: pronos, loading: false });
   } catch (error) {
     set({ error: error.message || "Error al cargar pronósticos", loading: false });

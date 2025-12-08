@@ -55,7 +55,7 @@ const OlvidePassword = () => {
               <input
                 id="email"
                 type="email"
-                placeholder="Ingresa tu mail"
+                placeholder="Ingresa tu email"
                 className="mt-1 w-full px-4 text-white bg-black border-green-500 focus:border-green-600 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -71,7 +71,7 @@ const OlvidePassword = () => {
             </button>
           </form>
           <p className="text-sm text-center text-white mt-4">
-            Volver{" "}
+            Volve a{" "}
             <Link to="/login" className="text-green-500 hover:underline">
               Inicia Sesión
             </Link>

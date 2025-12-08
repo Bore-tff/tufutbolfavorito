@@ -189,21 +189,21 @@ const Rankings = () => {
             {/* Contenido del modal */}
             <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
               <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                Reglamento del Juego
+                Apaxionado Goleadro de la Copa
               </h2>
               <p className="text-gray-200 text-justify">
-                Es la suma obtenida de GOLES A FAVOR por el APAXIONADO en la
-                copa. Los APAXIONADOS entre las primeras 11 posiciones
-                conquistaran los ARCOS a favor por definición de goles a favor
+                Es la suma obtenida de GOLES A FAVOR fecha a fecha por el
+                APAXIONADO en la copa. Los APAXIONADOS goleadores entre las
+                primeras 11 posiciones conquistaran los ARCOS.
                 <br />
                 <br />• ARCO DE PLATINO lo conquistara el/los APAXIONADO/S
-                goleador en la 1era posición
-                <br />• ARCO DE ORO lo conquistara el/los APAXIONADO/S goleador
-                desde la 2da a la 6ta posición inclusive
+                goleador/es en la 1era posición
+                <br />• ARCO DE ORO lo conquistara el/los APAXIONADO/S
+                goleador/es desde la 2da a la 6ta posición inclusive
                 <br />• ARCO DE PLATA lo conquistara el/los APAXIONADO/S
-                goleador desde la 7ma a la 9na posición inclusive
+                goleador/es desde la 7ma a la 9na posición inclusive
                 <br />• ARCO DE BRONCE lo conquistara el/los APAXIONADO/S
-                goleador de la 10ma a la 11era posición inclusive
+                goleador/es desde la 10ma a la 11era posición inclusive
                 <br />
               </p>
 
@@ -235,7 +235,9 @@ const Rankings = () => {
               <th className="text-xl text-green-500 bg-black px-4 py-2">
                 Apaxionado
               </th>
-              <th className="text-green-500 bg-black px-4 py-2">Premio</th>
+              <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                Arco
+              </th>
               <th className="text-green-500 bg-black px-4 py-2">Goles</th>
             </tr>
           </thead>
@@ -311,12 +313,12 @@ const Rankings = () => {
             {/* Contenido del modal */}
             <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
               <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                Reglamento del Juego
+                Ranking General
               </h2>
               <p className="text-gray-200 text-justify">
-                Es la suma obtenida de PUNTOS + GOLES A FAVOR por el APAXIONADO
-                en la copa. Los APAXIONADOS entre las primeras 4 posiciones
-                conquistaran los brazalete por definición de (PTS + G.F)
+                Es la suma obtenida de PUNTOS + GOLES A FAVOR fecha a fecha por
+                el APAXIONADO en la copa. Los APAXIONADOS entre las primeras 4
+                posiciones conquistaran los brazalete.
                 <br />
                 <br />• BRAZALETE DE PLATINO lo conquistara el/los APAXIONADO/S
                 en la 1era posición
@@ -357,7 +359,9 @@ const Rankings = () => {
               <th className="text-xl  text-green-500 bg-black px-4 py-2">
                 Apaxionado
               </th>
-              <th className="  text-green-500 bg-black px-4 py-2">Premio</th>
+              <th className="  text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                Brazalete
+              </th>
               <th className="  text-green-500 bg-black px-4 py-2">
                 Goles + Puntos
               </th>
@@ -439,21 +443,21 @@ const Rankings = () => {
             {/* Contenido del modal */}
             <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
               <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                Reglamento del Juego
+                Apaxionado Campeón de la Copa
               </h2>
               <p className="text-gray-200 text-justify">
-                Es la suma obtenida de PUNTOS por el APAXIONADO en la copa. Los
-                APAXIONADOS entre las primeras 11 posiciones conquistaran los
-                COPA por definición de puntos a favor
+                Es la suma obtenida de PUNTOS fecha a fecha por el APAXIONADO en
+                la copa. Los APAXIONADOS entre las primeras 11 posiciones
+                conquistaran las COPAS
                 <br />
                 <br />• COPA DE PLATINO lo conquistara el/los APAXIONADO/S
-                campeón en la 1era posición
-                <br />• COPA DE ORO lo conquistara el/los APAXIONADO/S campeón
-                desde la 2era a la 6ta posición inclusive
-                <br />• COPA DE PLATA lo conquistara el/los APAXIONADO/S campeón
-                desde la 7ma a la 9na posición inclusive
+                campeón/es en la 1era posición
+                <br />• COPA DE ORO lo conquistara el/los APAXIONADO/S
+                campeón/es desde la 2era a la 6ta posición inclusive
+                <br />• COPA DE PLATA lo conquistara el/los APAXIONADO/S
+                campeón/es desde la 7ma a la 9na posición inclusive
                 <br />• COPA DE BRONCE lo conquistara el/los APAXIONADO/S
-                campeón desde la 10ma a la 11era posición inclusive
+                campeón/es desde la 10ma a la 11era posición inclusive
                 <br />
               </p>
 
@@ -485,7 +489,9 @@ const Rankings = () => {
               <th className="text-xl text-green-500 bg-black px-4 py-2">
                 Apaxionado
               </th>
-              <th className="text-green-500 bg-black px-4 py-2">Premio</th>
+              <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                Copa
+              </th>
               <th className="text-green-500 bg-black px-4 py-2">Puntos</th>
             </tr>
           </thead>

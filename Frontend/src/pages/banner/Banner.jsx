@@ -1,5 +1,9 @@
 import React from "react";
 import Logo from "../../assets/ahorasi.png";
+import arcopro4 from "../../assets/arcopro4.png";
+import copapro3 from "../../assets/copapro3.png";
+import equipopro1 from "../../assets/equipopro1.png";
+import escudopro2 from "../../assets/escudopro2.png";
 import { motion } from "framer-motion";
 
 function Banner() {
@@ -33,23 +37,17 @@ function Banner() {
         <div className="flex items-center flex-wrap text-lg md:text-xl font-semibold">
           <span
             className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-blue-500 
-      font-extrabold text-3xl mr-4 
-      drop-shadow-[0_0_15px_rgba(100,200,255,0.9)] 
-      font-['Inter']"
+  font-extrabold text-3xl 
+  
+  font-['Inter'] flex items-center gap-3"
           >
-            ELEGÍ
-          </span>
-
-          <img src={Logo} alt="Logo TFF" className="w-32 h-32 mx-4" />
-
-          <span
-            className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-blue-500 
-      font-extrabold text-3xl 
-      drop-shadow-[0_0_12px_rgba(100,200,255,0.8)] 
-      font-['Inter']"
-          >
-            SUMÁ GOLES + PUNTOS Y SE EL CONQUISTADOR . . . BOTIN (TROFEOS
-            ACORDATE BORE)
+            SUMÁ GOLES + PUNTOS Y SE EL CONQUISTADOR . . .
+            <div className="flex items-center gap-2 ml-3">
+              <img src={escudopro2} alt="Escudo" className="w-20 h-20" />
+              <img src={equipopro1} alt="Equipo" className="w-20 h-20" />
+              <img src={arcopro4} alt="Arco" className="w-20 h-20" />
+              <img src={copapro3} alt="Copa" className="w-20 h-20" />
+            </div>
           </span>
         </div>
       </div>

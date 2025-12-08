@@ -12,7 +12,7 @@ export const getPronosticosFavoritosPorFecha = async (req, res) => {
 
     const pronosticos = await PronosticoFavorito.findAll({
       where: { userId, fecha },
-      attributes: ["matchId", "homeScore", "awayScore"],
+      attributes: ["matchId", "homeScore", "awayScore", "penalesHome", "penalesAway"],
       raw: true,
     });
 

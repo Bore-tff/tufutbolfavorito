@@ -57,9 +57,11 @@ const PronosticoEquipoFav = () => {
   const successMessageGoleador = usePronosticoStore(
     (state) => state.successMessageGoleador
   );
+
+  /*---------------------paginacion-------------------------*/
   const rowsPerPage = 11;
 
-  // Filtrar partidos por equipo favorito
+  /*----------------Filtrar partidos por equipo favorito-------------------*/
   const matchesFavorito = matches
     .map((fecha) => {
       // Filtrar solo los partidos donde participa el equipo favorito
@@ -81,6 +83,7 @@ const PronosticoEquipoFav = () => {
     })
     .filter(Boolean);
 
+  /*-----------------------matches favoritos goleador---------------------*/
   const matchesFavoritoGoleador = matches
     .map((fecha) => {
       const partidosFiltrados = fecha.partidos.filter(
@@ -94,6 +97,7 @@ const PronosticoEquipoFav = () => {
     })
     .filter(Boolean);
 
+  /*------------------selected-------------------*/
   const [selectedFecha, setSelectedFecha] = useState(
     matchesFavorito[0]?.fecha || 1
   );
@@ -104,6 +108,7 @@ const PronosticoEquipoFav = () => {
     matchesFavoritoGoleador[0]?.fecha || 1
   );
 
+  /*-----------------------currentFecha----------------------*/
   const currentFecha = matchesFavorito.find((m) => m.fecha === selectedFecha);
   useEffect(() => {
     if (currentFecha && Object.keys(predictions).length === 0) {
@@ -119,18 +124,23 @@ const PronosticoEquipoFav = () => {
       setPredictions(initialPredictions);
     }
   }, [currentFecha]);
+
+  /*-------------------------currentFechaRanking--------------------------*/
   const currentFechaRanking = rankingsFavoritos
     .filter((r) => r.fecha === selectedFechaRanking)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
+  /*-------------------------currenteFechaRankingGoleador-----------------------*/
   const currentFechaRankingGoleador = rankingsFavoritosGoleador
     .filter((r) => r.fecha === selectedFechaRanking)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
+  /*-----------------------currenteFechaGoleador-----------------------------*/
   const currentFechaGoleador = matchesFavoritoGoleador.find(
     (m) => m.fecha === selectedFechaGoleador
   );
 
+  /*--------------------useEffect-------------------*/
   // 🔹 Carga inicial al montar
   useEffect(() => {
     fetchMatchesFavorito();
@@ -139,6 +149,7 @@ const PronosticoEquipoFav = () => {
     actualizarPronosticosFavoritoGoleador();
   }, []);
 
+  /*------------------actualizacion---------------------*/
   // 🔹 Actualización ranking al cambiar fecha
   useEffect(() => {
     getRankingPorFechaFavoritos(selectedFechaRanking);
@@ -146,12 +157,14 @@ const PronosticoEquipoFav = () => {
     setCurrentPage(1);
   }, [selectedFechaRanking]);
 
+  /*------------------actualizacion---------------------*/
   useEffect(() => {
     getRankingPorFechaFavoritosGoleador(selectedFechaRanking);
     setPredictionsGoleador({}); // Limpiar inputs al cambiar de fecha
     setCurrentPage2(1);
   }, [selectedFechaRanking]);
 
+  /*--------------------------------HANDLE-INPUT-CHANGE----------------------------------*/
   const handleInputChange = (matchId, team, value) => {
     setPredictions((prev) => ({
       ...prev,
@@ -159,6 +172,7 @@ const PronosticoEquipoFav = () => {
     }));
   };
 
+  /*--------------------------------HANDLE-INPUT-CHANGE-GOLEADOR----------------------------------*/
   const handleInputChangeGoleador = (matchId, team, value) => {
     setPredictionsGoleador((prev) => ({
       ...prev,
@@ -166,56 +180,69 @@ const PronosticoEquipoFav = () => {
     }));
   };
 
+  /*--------------------------------sorted ranking goleador----------------------------------*/
   const sortedRankingGoleador = [...(rankingsFavoritosGoleador || [])].sort(
     (a, b) => (b.golesAcertados || 0) - (a.golesAcertados || 0)
   );
 
+  /*--------------------------------usuario en ranking----------------------------------*/
   const usuarioEnRanking = currentFechaRanking.find((u) => u.id === user?.id);
 
+  /*--------------------------------puntos fecha----------------------------------*/
   // Si lo encuentra, mostrar sus puntos, si no 0
   const puntosFecha = usuarioEnRanking?.puntos || 0;
 
+  /*--------------------------------usuario ranking goleador----------------------------------*/
   const usuarioEnRankingGoleador = currentFechaRankingGoleador.find(
     (u) => u.id === user?.id
   );
 
+  /*--------------------------------Goles fecha----------------------------------*/
   // Si lo encuentra, mostrar sus puntos, si no 0
   const golesFecha = usuarioEnRankingGoleador?.golesAcertados || 0;
 
+  /*--------------------------------FILTRO RANKING----------------------------------*/
   const filteredRanking =
     currentFechaRanking?.filter((usuario) =>
       usuario.user.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
+  /*--------------------------------FILTRO RANKING 2----------------------------------*/
   const filteredRanking2 =
     currentFechaRankingGoleador?.filter((usuario) =>
       usuario.user.toLowerCase().includes(searchTerm2.toLowerCase())
     ) || [];
 
+  /*--------------------------------ORDENAR----------------------------------*/
   // 🏆 ORDENAR ANTES DE PAGINAR
   const sortedRanking = [...filteredRanking].sort(
     (a, b) => (b.puntajeTotal || 0) - (a.puntajeTotal || 0)
   );
 
+  /*--------------------------------ORDENAR2----------------------------------*/
   const sortedRanking2 = [...filteredRanking2].sort(
     (a, b) => (b.golesTotales || 0) - (a.golesTotales || 0)
   );
 
+  /*--------------------------------RANKING----------------------------------*/
   // 📄 PAGINAR DESPUÉS DE ORDENAR
   const paginatedRanking = sortedRanking.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
+  /*--------------------------------RANKING2----------------------------------*/
   const paginatedRanking2 = sortedRanking2.slice(
     (currentPage2 - 1) * rowsPerPage,
     currentPage2 * rowsPerPage
   );
 
+  /*--------------------------------TOTAL DE PAGINAS----------------------------------*/
   // 🔢 Total de páginas
   const totalPages = Math.ceil(sortedRanking.length / rowsPerPage) || 1;
   const totalPages2 = Math.ceil(sortedRanking2.length / rowsPerPage) || 1;
 
+  /*--------------------------------METODO DE PREDICCION----------------------------------*/
   // 🔹 Guardar pronóstico equipo favorito
   const handleSavePrediction = async () => {
     const partidosFecha = currentFecha?.partidos || [];
@@ -256,6 +283,7 @@ const PronosticoEquipoFav = () => {
     }
   };
 
+  /*--------------------------------METODO DE PREDICCION GOLEADOR----------------------------------*/
   // 🔹 Guardar pronóstico equipo goleador
   const handleSavePredictionGoleador = async () => {
     const partidosFechaGoleador = currentFechaGoleador?.partidos || [];
@@ -313,17 +341,20 @@ const PronosticoEquipoFav = () => {
   // Para mostrar los puntajes del usuario actual (primera tabla)
   const puntajesUsuarioActual = user; // Asumiendo que tienes esa estructura
 
+  /*--------------------------------PARTIDO FAVORITO----------------------------------*/
   const partidoFavorito = currentFecha?.partidos.find(
     (p) =>
       p.home.name === user.equipoFavorito || p.away.name === user.equipoFavorito
   );
 
+  /*--------------------------------PARTIDO FAVORITO GOLEADOR----------------------------------*/
   const partidoFavoritoGoleador = currentFecha?.partidos.find(
     (p) =>
       p.home.name === user.equipoFavoritoGoleador ||
       p.away.name === user.equipoFavoritoGoleador
   );
 
+  /*--------------------------------LOGO PARA EQUIPO FAVORITO----------------------------------*/
   const getLogoEquipoFavorito = (equipo, matches) => {
     for (let fecha of matches) {
       const partido = fecha.partidos.find(
@@ -340,6 +371,7 @@ const PronosticoEquipoFav = () => {
 
   console.log(paginatedRanking2);
 
+  /*--------------------------------LOGO EQUIPO FAVORITO----------------------------------*/
   const getLogoEquipoFavoritoGoleador = (equipo, matches) => {
     for (let fecha of matches) {
       const partido = fecha.partidos.find(
@@ -354,6 +386,7 @@ const PronosticoEquipoFav = () => {
     return ""; // si no se encuentra
   };
 
+  /*--------------------------------EFFECT CARGA BACKEND----------------------------------*/
   useEffect(() => {
     if (!selectedFecha) return;
     fetchPronosticosFavoritosByFecha(selectedFecha); // carga del backend
@@ -364,6 +397,7 @@ const PronosticoEquipoFav = () => {
     fetchPronosticosFavoritosGoleadorByFecha(selectedFechaGoleador); // carga del backend
   }, [selectedFechaGoleador]);
 
+  /*--------------------------------EFFECT CARGA PREDICTIONS BACKEND----------------------------------*/
   useEffect(() => {
     if (pronosticos && Object.keys(pronosticos).length > 0) {
       setPredictions(pronosticos);
@@ -381,6 +415,7 @@ const PronosticoEquipoFav = () => {
   );
   const partidosFechaFinal = fechaFinal?.partidos || [];
 
+  /*--------------------------------GET EQUIPO----------------------------------*/
   const getEquipoCampeon = (partidos = []) => {
     const final = partidos.find((p) => p.penales);
     if (!final) return null;
@@ -392,6 +427,7 @@ const PronosticoEquipoFav = () => {
 
   const equipoCampeon = getEquipoCampeon(partidosFechaFinal);
 
+  /*--------------------------------USUARIOS CON EQUIPOS----------------------------------*/
   const usuariosConEquipoCampeon = currentFechaRanking
     .filter((u) => u.equipoFavorito === equipoCampeon)
     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
@@ -481,26 +517,26 @@ const PronosticoEquipoFav = () => {
                   {/* Contenido del modal */}
                   <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
                     <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                      Reglamento del Juego
+                      Equipo Favorito Campeón
                     </h2>
                     <p className="text-gray-200 text-justify">
-                      El apaxionado pronostica el resultado de su equipo
+                      El APAXIONADO pronostica el resultado de su equipo
                       favorito HASTA 30 MINUTOS ANTES de cada partido
                       <br />
-                      <br />• Si acierta ganador su equipo favorito de visitante
-                      obtiene 3 puntos
-                      <br />• Si acierta ganador su equipo favorito de local
-                      obtiene 2 puntos.
-                      <br />• Si acierta empate de su equipo favorito obtine 1
+                      <br />• Si aciertas ganador tu equipo favorito de
+                      visitante sumas 3 puntos
+                      <br />• Si aciertas ganador tu equipo favorito de local
+                      sumas 2 puntos.
+                      <br />• Si aciertas empate tu equipo favorito sumas 1
                       punto.
                       <br />
                       <br />
-                      Recordá que los pronósticos deben hacerse HASTA 30 MINUTOS
-                      ANTES de cada partido. Se toma el tiempo de 90 minutos +
-                      tiempo adicionado + tiempo extra en caso que haya. Son
-                      validos los goles desde el punto de penal para definir una
-                      fase, se debe acertar los goles exactos para sumarlos como
-                      puntos.
+                      RECORDA que los pronósticos deben enviarse HASTA 30
+                      MINUTOS ANTES de cada partido. Se toma el tiempo de 90
+                      minutos + tiempo adicionado + tiempo extra en caso que
+                      haya. Son validos los goles desde el punto de penal para
+                      definir una fase, se debe acertar los goles exactos de tu
+                      equipo favorito para sumarlos como puntos.
                     </p>
 
                     {/* Botón para cerrar */}
@@ -619,12 +655,18 @@ const PronosticoEquipoFav = () => {
                     {["Octavos", "Cuartos", "Semis", "Final"].includes(
                       currentFecha.fase
                     ) &&
-                      currentFecha.partidos.some(
-                        ({ id }) =>
+                      currentFecha.partidos.some(({ id, home, away }) => {
+                        const isEmpate =
                           predictions[id]?.home !== "" &&
                           predictions[id]?.away !== "" &&
-                          predictions[id]?.home === predictions[id]?.away
-                      ) && (
+                          predictions[id]?.home === predictions[id]?.away;
+
+                        const involucraFavorito =
+                          home.name === equipoFavorito ||
+                          away.name === equipoFavorito;
+
+                        return isEmpate && involucraFavorito;
+                      }) && (
                         <div className="mt-4 p-4 bg-gray-700 rounded-lg">
                           <h3 className="text-lg font-bold mb-2 text-white">
                             Penales
@@ -640,44 +682,55 @@ const PronosticoEquipoFav = () => {
                               predictions[id]?.away !== "" &&
                               predictions[id]?.home === predictions[id]?.away;
 
+                            const juegaFavorito =
+                              home.name === equipoFavorito ||
+                              away.name === equipoFavorito;
+
+                            if (!isEmpate || !juegaFavorito) return null; // No mostrar nada
+
+                            const favoritoEsLocal =
+                              home.name === equipoFavorito;
+                            const nombreFavorito = favoritoEsLocal
+                              ? home.name
+                              : away.name;
+
                             return (
-                              isEmpate && (
-                                <div
-                                  key={id}
-                                  className="flex gap-2 items-center mb-2"
-                                >
-                                  <span className="text-white">
-                                    {home.name} vs {away.name}:
-                                  </span>
-                                  <input
-                                    type="number"
-                                    className="border-2 pl-2 bg-sky-500 border-gray-900 text-black w-12 text-center"
-                                    placeholder="0"
-                                    value={predictions[id]?.penalesHome || ""}
-                                    onChange={(e) =>
-                                      handleInputChange(
-                                        id,
-                                        "penalesHome",
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                  <span className="text-white">-</span>
-                                  <input
-                                    type="number"
-                                    className="border-2 pl-2 bg-sky-500 border-gray-900 text-black w-12 text-center"
-                                    placeholder="0"
-                                    value={predictions[id]?.penalesAway || ""}
-                                    onChange={(e) =>
-                                      handleInputChange(
-                                        id,
-                                        "penalesAway",
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                </div>
-                              )
+                              <div
+                                key={id}
+                                className="flex gap-2 items-center mb-2"
+                              >
+                                <span className="text-white">
+                                  {home.name} vs {away.name}:
+                                </span>
+
+                                {/* Input SOLO para el equipo favorito */}
+                                <input
+                                  type="number"
+                                  className="border-2 pl-2 bg-sky-500 border-gray-900 text-black w-12 text-center"
+                                  placeholder="0"
+                                  value={
+                                    favoritoEsLocal
+                                      ? predictions[id]?.penalesHome || ""
+                                      : predictions[id]?.penalesAway || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      id,
+                                      favoritoEsLocal
+                                        ? "penalesHome"
+                                        : "penalesAway",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+
+                                {/* El rival NO tiene input, solo un guion */}
+                                <span className="text-white">-</span>
+
+                                <span className="text-white opacity-50">
+                                  rival
+                                </span>
+                              </div>
                             );
                           })}
                         </div>
@@ -820,23 +873,22 @@ const PronosticoEquipoFav = () => {
                       {/* Contenido del modal */}
                       <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
                         <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                          Reglamento del Juego
+                          Equipo Favorito Goleador
                         </h2>
                         <p className="text-gray-200 text-justify">
-                          El apaxionado pronostica los goles de su equipo
-                          favorito HASTA 30 MINUTOS ANTES de cada partido de su
-                          equipo favorito.
+                          El APAXIONADO pronostica los goles de su equipo
+                          favorito HASTA 30 MINUTOS ANTES de cada partido.
                           <br />
-                          <br />• Suma goles a favor cuando el pronostico de su
+                          <br />• Sumas goles a favor cuando el pronostico de tu
                           equipo favorito sea inferior o igual al real.
                           <br />
                           <br />
-                          Recordá que los pronósticos deben hacerse HASTA 30
+                          RECORDA que los pronósticos deben hacerse HASTA 30
                           MINUTOS ANTES de cada partido. Se toma el tiempo de 90
                           minutos + tiempo adicionado + tiempo extra en caso que
                           haya. Son validos los goles desde el punto de penal
                           para definir una fase, se debe acertar los goles
-                          exactos para sumarlos.
+                          exactos de tu equipo favoritos para sumarlos.
                         </p>
 
                         {/* Botón para cerrar */}
@@ -1093,21 +1145,21 @@ const PronosticoEquipoFav = () => {
                   {/* Contenido del modal */}
                   <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
                     <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                      Reglamento del Juego
+                      Apaxionado Campeón con su Equipo Favorito
                     </h2>
                     <p className="text-gray-200 text-justify">
                       Los APAXIONADOS que esten entre las primeras 11 posiciones
-                      conquistaran los escudos de campeón con su equipo favorito
-                      por definición de puntos.
+                      conquistaran los ESCUDOS por definición de puntos con su
+                      equipo favorito.
                       <br />
                       <br />• ESCUDO DE PLATINO lo conquistara el/los
-                      APAXIONADO/S campeón en la 1era posición
+                      APAXIONADO/S campeón/es en la 1era posición
                       <br />• ESCUDO DE ORO lo conquistara el/los APAXIONADO/S
-                      campeón desde la 2da a la 6ta posición inclusive
+                      campeón/es desde la 2da a la 6ta posición inclusive
                       <br />• ESCUDO DE PLATA lo conquistara el/los APAXIONADO/S
-                      campeón desde la 7ma a la 9na posición inclusive
+                      campeón/es desde la 7ma a la 9na posición inclusive
                       <br />• ESCUDO DE BRONCE lo conquistara el/los
-                      APAXIONADO/S campeón de la 10ma a la 11era posición
+                      APAXIONADO/S campeón/es desde la 10ma a la 11era posición
                       inclusive
                       <br />
                     </p>
@@ -1343,21 +1395,21 @@ const PronosticoEquipoFav = () => {
                   {/* Contenido del modal */}
                   <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
                     <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                      Reglamento del Juego
+                      Apaxionado Goleador con su Equipo Favorito
                     </h2>
                     <p className="text-gray-200 text-justify">
                       Los APAXIONADOS que esten entre las primeras 11 posiciones
-                      conquistaran los EQUIPOS de goleador por definición de
-                      goles a favor
+                      conquistaran los EQUIPOS por definición de goles a favor
+                      con su equipo favorito
                       <br />
                       <br />• EQUIPO DE PLATINO lo conquistara el/los
-                      APAXIONADO/S goleador en la 1era posición
+                      APAXIONADO/S goleador/es en la 1era posición
                       <br />• EQUIPO DE ORO lo conquistara el/los APAXIONADO/S
-                      goleador desde la 2da a la 6ta posición inclusive
+                      goleador/es desde la 2da a la 6ta posición inclusive
                       <br />• EQUIPO DE PLATA lo conquistara el/los APAXIONADO/S
-                      goleador desde la 7ma a la 9na posición inclusive
+                      goleador/es desde la 7ma a la 9na posición inclusive
                       <br />• EQUIPO DE BRONCE lo conquistara el/los
-                      APAXIONADO/S goleador de la 10ma a la 11era posición
+                      APAXIONADO/S goleador/es desde la 10ma a la 11era posición
                       inclusive
                       <br />
                     </p>
@@ -1411,8 +1463,8 @@ const PronosticoEquipoFav = () => {
                           <th className="text-xl text-green-500 bg-black px-4 py-2">
                             Apaxionado
                           </th>
-                          <th className="text-green-500 bg-black px-4 py-2">
-                            Premio
+                          <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                            Equipo
                           </th>
                           <th className="text-green-500 bg-black px-4 py-2">
                             Goles
