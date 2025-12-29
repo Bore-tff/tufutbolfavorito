@@ -26,21 +26,23 @@ export default function ElegirEquipo() {
     const fetchEquipos = async () => {
       try {
         const res = await getMatches();
+        const partidasPorFecha = res.data;
 
-        const partidasPorFecha = res.data; // ajustá según tu respuesta real
-
-        // Extraer equipos únicos
-        const equiposSet = new Set();
+        const equiposMap = new Map();
 
         partidasPorFecha.forEach((fecha) => {
           fecha.partidos.forEach((partido) => {
-            equiposSet.add(partido.home.name);
-            equiposSet.add(partido.away.name);
+            equiposMap.set(partido.home.name, partido.home);
+            equiposMap.set(partido.away.name, partido.away);
           });
         });
 
-        setEquipos(Array.from(equiposSet));
-        setEquiposGoleador(Array.from(equiposSet));
+        const equiposArray = Array.from(equiposMap.values());
+
+        setEquipos(equiposArray);
+        setEquiposGoleador(equiposArray);
+
+        console.log("EQUIPOS OBJETO:", equiposArray);
       } catch (err) {
         console.error("Error al traer equipos:", err);
       }
@@ -77,6 +79,8 @@ export default function ElegirEquipo() {
     await guardarAmbosFavoritos(equipo, equipoGoleador);
   };
 
+  console.log(equipos);
+
   return (
     <motion.div
       className="space-y-10 p-4 "
@@ -98,16 +102,17 @@ export default function ElegirEquipo() {
               value={equipo}
               onChange={(e) => setEquipo(e.target.value)}
               disabled={loading}
-              className="w-full p-2 rounded-lg cursor-pointer bg-black border-2 border-green-500  text-white focus:outline-none"
+              className="w-full p-2 rounded-lg cursor-pointer bg-black border-2 border-green-500 text-white focus:outline-none"
             >
               <option value="">-- Seleccioná un equipo --</option>
+
               {equipos.map((eq) => (
                 <option
+                  key={eq.name}
+                  value={eq.name}
                   className="text-white cursor-pointer"
-                  key={eq}
-                  value={eq}
                 >
-                  {eq}
+                  {eq.name} - {eq.apodo}
                 </option>
               ))}
             </select>
@@ -118,7 +123,7 @@ export default function ElegirEquipo() {
               className="text-green-500 block mb-1"
               htmlFor="equipoGoleador"
             >
-              Equipo Favorito Goleador
+              Equipo Goleador
             </label>
             <select
               id="equipoGoleador"
@@ -128,13 +133,14 @@ export default function ElegirEquipo() {
               className="w-full p-2 rounded-lg cursor-pointer bg-black border-2 border-green-500 text-white focus:outline-none"
             >
               <option value="">-- Seleccioná un equipo --</option>
+
               {equiposGoleador.map((eq) => (
                 <option
+                  key={eq.name}
+                  value={eq.name}
                   className="text-white cursor-pointer"
-                  key={eq}
-                  value={eq}
                 >
-                  {eq}
+                  {eq.name} - {eq.apodo}
                 </option>
               ))}
             </select>

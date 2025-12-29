@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
 import useUserStore from "../../../store/usersStore";
-import Logo from "../../../assets/Botintff.png";
-import Logo2 from "../../../assets/botinoro.png";
-import Logo3 from "../../../assets/botinbronce.png";
-import Logo4 from "../../../assets/botinplatino.jpg";
+import arco2 from "../../../assets/arcopro2.png";
+import arco1 from "../../../assets/arcopro1.png";
+import arco3 from "../../../assets/arcopro3.png";
+import arco4 from "../../../assets/arcopro4.png";
+import equipo2 from "../../../assets/brazaletepro2.png";
+import equipo1 from "../../../assets/brazaletepro1.png";
+import equipo3 from "../../../assets/brazaletepro3.png";
+import equipo4 from "../../../assets/brazaletepro4.png";
+import copa2 from "../../../assets/copapro2.png";
+import copa1 from "../../../assets/copapro1.png";
+import copa3 from "../../../assets/copapro3.png";
+import copa4 from "../../../assets/copaprop4.png";
 import Logo5 from "../../../assets/3.png";
 
 const Rankings = () => {
@@ -35,14 +43,14 @@ const Rankings = () => {
   const scoreToAwardGeneral = {};
 
   uniqueScoresGeneral.forEach((score, index) => {
-    if (index === 0) scoreToAwardGeneral[score] = Logo4; // Platino
+    if (index === 0) scoreToAwardGeneral[score] = equipo2; // Platino
     else if (index >= 1 && index <= 5)
-      scoreToAwardGeneral[score] = Logo2; // Oro
+      scoreToAwardGeneral[score] = equipo1; // Oro
     else if (index >= 6 && index <= 8)
-      scoreToAwardGeneral[score] = Logo3; // Plata
+      scoreToAwardGeneral[score] = equipo3; // Plata
     else if (index >= 9 && index <= 10)
-      scoreToAwardGeneral[score] = Logo; // Bronce
-    else scoreToAwardGeneral[score] = Logo; // por si hay más puntajes
+      scoreToAwardGeneral[score] = equipo4; // Bronce
+    else scoreToAwardGeneral[score] = equipo4; // por si hay más puntajes
   });
 
   // Ranking con premios asignados
@@ -83,14 +91,14 @@ const Rankings = () => {
   const scoreToAward = {};
 
   uniqueScores.forEach((score, index) => {
-    if (index === 0) scoreToAward[score] = Logo4; // PLATINO
+    if (index === 0) scoreToAward[score] = arco2; // PLATINO
     else if (index >= 1 && index <= 5)
-      scoreToAward[score] = Logo2; // ORO (2°–6° puntaje)
+      scoreToAward[score] = arco1; // ORO (2°–6° puntaje)
     else if (index >= 6 && index <= 8)
-      scoreToAward[score] = Logo3; // PLATA (7°–9° puntaje)
+      scoreToAward[score] = arco3; // PLATA (7°–9° puntaje)
     else if (index >= 9 && index <= 10)
-      scoreToAward[score] = Logo; // BRONCE (10°–11°)
-    else scoreToAward[score] = Logo; // Por si hubiera más puntajes
+      scoreToAward[score] = arco4; // BRONCE (10°–11°)
+    else scoreToAward[score] = arco4; // Por si hubiera más puntajes
   });
 
   // Añadir el premio correspondiente a cada usuario
@@ -132,14 +140,14 @@ const Rankings = () => {
   const scoreToAwardCampeon = {};
 
   uniqueScoresCampeon.forEach((score, index) => {
-    if (index === 0) scoreToAwardCampeon[score] = Logo4; // Platino
+    if (index === 0) scoreToAwardCampeon[score] = copa2; // Platino
     else if (index >= 1 && index <= 5)
-      scoreToAwardCampeon[score] = Logo2; // Oro
+      scoreToAwardCampeon[score] = copa1; // Oro
     else if (index >= 6 && index <= 8)
-      scoreToAwardCampeon[score] = Logo3; // Plata
+      scoreToAwardCampeon[score] = copa3; // Plata
     else if (index >= 9 && index <= 10)
-      scoreToAwardCampeon[score] = Logo; // Bronce
-    else scoreToAwardCampeon[score] = Logo; // Por si hay más
+      scoreToAwardCampeon[score] = copa4; // Bronce
+    else scoreToAwardCampeon[score] = copa4; // Por si hay más
   });
 
   // Agregar premio a cada usuario
@@ -188,13 +196,15 @@ const Rankings = () => {
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
             {/* Contenido del modal */}
             <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-              <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
-                Apaxionado Goleadro de la Copa
+              <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
+                Apaxionado Goleador de la Copa
               </h2>
               <p className="text-gray-200 text-justify">
-                Es la suma obtenida de GOLES A FAVOR fecha a fecha por el
-                APAXIONADO en la copa. Los APAXIONADOS goleadores entre las
-                primeras 11 posiciones conquistaran los ARCOS.
+                Es la suma obtenida de GOLES A FAVOR en el ranking fecha a fecha
+                por el APAXIONADO en la COPA.
+                <br />
+                Los APAXIONADOS GOLEADORES entre las primeras 11 posiciones
+                conquistaran los ARCOS.
                 <br />
                 <br />• ARCO DE PLATINO lo conquistara el/los APAXIONADO/S
                 goleador/es en la 1era posición
@@ -256,7 +266,7 @@ const Rankings = () => {
                     <img
                       src={usuario.premio}
                       alt="Premio"
-                      className="w-8 h-8 mx-auto shadow-md"
+                      className="w-8 h-8 mx-auto "
                     />
                   </td>
 
@@ -295,7 +305,7 @@ const Rankings = () => {
       <div className="w-full md:w-1/2 lg:w-xl p-4 bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
         <h2 className="text-white text-2xl font-bold mb-2 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
-            RANKING GENERAL
+            RANKING GENERAL DE LA COPA
           </span>
         </h2>
         <div className="flex mb-5">
@@ -312,13 +322,15 @@ const Rankings = () => {
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
             {/* Contenido del modal */}
             <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-              <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+              <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                 Ranking General
               </h2>
               <p className="text-gray-200 text-justify">
                 Es la suma obtenida de PUNTOS + GOLES A FAVOR fecha a fecha por
-                el APAXIONADO en la copa. Los APAXIONADOS entre las primeras 4
-                posiciones conquistaran los brazalete.
+                el APAXIONADO en la COPA.
+                <br />
+                Los APAXIONADOS entre las primeras 4 posiciones conquistaran los
+                BRAZALETES.
                 <br />
                 <br />• BRAZALETE DE PLATINO lo conquistara el/los APAXIONADO/S
                 en la 1era posición
@@ -381,7 +393,7 @@ const Rankings = () => {
                       <img
                         src={usuario.premio}
                         alt="Premio"
-                        className="w-8 h-8 mx-auto shadow-md"
+                        className="w-8 h-8 mx-auto"
                       />
                     </td>
                     <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
@@ -442,12 +454,14 @@ const Rankings = () => {
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
             {/* Contenido del modal */}
             <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-              <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+              <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                 Apaxionado Campeón de la Copa
               </h2>
               <p className="text-gray-200 text-justify">
-                Es la suma obtenida de PUNTOS fecha a fecha por el APAXIONADO en
-                la copa. Los APAXIONADOS entre las primeras 11 posiciones
+                Es la suma obtenida de PUNTOS en el ranking fecha a fecha por el
+                APAXIONADO en la COPA.
+                <br />
+                Los APAXIONADOS CAMPEONES entre las primeras 11 posiciones
                 conquistaran las COPAS
                 <br />
                 <br />• COPA DE PLATINO lo conquistara el/los APAXIONADO/S
@@ -506,7 +520,7 @@ const Rankings = () => {
                     <img
                       src={usuario.premio}
                       alt="Premio"
-                      className="w-8 h-8 mx-auto shadow-md"
+                      className="w-8 h-8 mx-auto"
                     />
                   </td>
                   <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">

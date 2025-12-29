@@ -3,10 +3,14 @@ import usePronosticoStore from "../../../store/pronosticosStore";
 import useUserStore from "../../../store/usersStore";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import Logo from "../../../assets/Botintff.png";
-import Logo2 from "../../../assets/botinoro.png";
-import Logo3 from "../../../assets/botinbronce.png";
-import Logo4 from "../../../assets/botinplatino.jpg";
+import Logo from "../../../assets/escudopro4.png";
+import Logo2 from "../../../assets/escudopro1.png";
+import Logo3 from "../../../assets/escudopro3.png";
+import Logo4 from "../../../assets/escudopro2.png";
+import Equipo from "../../../assets/equipopro2.png";
+import Equipo2 from "../../../assets/equipopro1.png";
+import Equipo3 from "../../../assets/equipopro3.png";
+import Equipo4 from "../../../assets/equipopro4.png";
 import Logo5 from "../../../assets/3.png";
 
 const PronosticoEquipoFav = () => {
@@ -369,8 +373,6 @@ const PronosticoEquipoFav = () => {
     return ""; // si no se encuentra
   };
 
-  console.log(paginatedRanking2);
-
   /*--------------------------------LOGO EQUIPO FAVORITO----------------------------------*/
   const getLogoEquipoFavoritoGoleador = (equipo, matches) => {
     for (let fecha of matches) {
@@ -435,6 +437,9 @@ const PronosticoEquipoFav = () => {
   const usuariosConEquipoGoleador = currentFechaRanking
     .filter((u) => u.equipoFavoritoGoleador === equipoCampeon)
     .sort((a, b) => (b.golesAcertados || 0) - (a.golesAcertados || 0));
+
+  const FECHA_FINAL = 18;
+  const isFechaFinal = selectedFechaRanking === FECHA_FINAL;
 
   return (
     <>
@@ -516,7 +521,7 @@ const PronosticoEquipoFav = () => {
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
                   {/* Contenido del modal */}
                   <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-                    <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                    <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                       Equipo Favorito Campeón
                     </h2>
                     <p className="text-gray-200 text-justify">
@@ -524,19 +529,29 @@ const PronosticoEquipoFav = () => {
                       favorito HASTA 30 MINUTOS ANTES de cada partido
                       <br />
                       <br />• Si aciertas ganador tu equipo favorito de
-                      visitante sumas 3 puntos
+                      visitante sumas 3 PUNTOS.
                       <br />• Si aciertas ganador tu equipo favorito de local
-                      sumas 2 puntos.
+                      sumas 2 PUNTOS.
                       <br />• Si aciertas empate tu equipo favorito sumas 1
-                      punto.
+                      PUNTO.
                       <br />
                       <br />
-                      RECORDA que los pronósticos deben enviarse HASTA 30
-                      MINUTOS ANTES de cada partido. Se toma el tiempo de 90
-                      minutos + tiempo adicionado + tiempo extra en caso que
-                      haya. Son validos los goles desde el punto de penal para
-                      definir una fase, se debe acertar los goles exactos de tu
-                      equipo favorito para sumarlos como puntos.
+                      Se toma el tiempo de 90 minutos + tiempo adicionado +
+                      tiempo extra en caso que haya.
+                      <br />
+                      Son validos los goles desde el punto de penal para definir
+                      una fase, se debe acertar los GOLES EXACTOS de tu equipo
+                      favorito para sumarlos como PUNTOS.
+                      <br />
+                      <br />
+                      Si se suspende el partido de tu EQUIPO FAVORITO antes del
+                      inicio o durante por lluvia o cualquier motivo, se estara
+                      a la espera de que se juegue para sumar o no PUNTOS.
+                      <br />
+                      Sera valido el partido suspedido si se juega dentro o en
+                      la ultima fecha del torneo.
+                      <br />
+                      Si surgue otra situación del partido o torneo TFF decidira
                     </p>
 
                     {/* Botón para cerrar */}
@@ -668,12 +683,17 @@ const PronosticoEquipoFav = () => {
                         return isEmpate && involucraFavorito;
                       }) && (
                         <div className="mt-4 p-4 bg-gray-700 rounded-lg">
-                          <h3 className="text-lg font-bold mb-2 text-white">
-                            Penales
+                          <h3 className="text-lg font-bold mb-2 text-green-500">
+                            PENALES
                           </h3>
+
                           <p className="text-white mb-3">
-                            Ingresá los resultados de penales solo si el partido
-                            terminó empatado.
+                            Ingresa el pronostico de penales solo de tu EQUIPO
+                            FAVORITO antes del inicio del partido si consideras
+                            que va a empatar.
+                            <br />
+                            8vos 4tos semifinal final
+                            <br />
                           </p>
 
                           {currentFecha.partidos.map(({ id, home, away }) => {
@@ -834,7 +854,7 @@ const PronosticoEquipoFav = () => {
             <div className="w-full bg-black rounded-xl pt-5 px-5 border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
               {currentFechaGoleador && (
                 <>
-                  <div className="text-white flex flex-col sm:flex-row items-center mb-2  pt-2 pb-2 px-4 sm:w-120 rounded-xl">
+                  <div className="text-white flex flex-col sm:flex-row items-center mb-2 pt-2 pb-2 px-4 sm:w-150 rounded-xl">
                     <h2 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
                       <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                         EQUIPO FAVORITO GOLEADOR:
@@ -872,23 +892,32 @@ const PronosticoEquipoFav = () => {
                     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
                       {/* Contenido del modal */}
                       <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-                        <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                        <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                           Equipo Favorito Goleador
                         </h2>
                         <p className="text-gray-200 text-justify">
                           El APAXIONADO pronostica los goles de su equipo
                           favorito HASTA 30 MINUTOS ANTES de cada partido.
                           <br />
-                          <br />• Sumas goles a favor cuando el pronostico de tu
+                          <br />• Sumas GOLES A FAVOR cuando el pronostico de tu
                           equipo favorito sea inferior o igual al real.
                           <br />
                           <br />
-                          RECORDA que los pronósticos deben hacerse HASTA 30
-                          MINUTOS ANTES de cada partido. Se toma el tiempo de 90
-                          minutos + tiempo adicionado + tiempo extra en caso que
-                          haya. Son validos los goles desde el punto de penal
-                          para definir una fase, se debe acertar los goles
-                          exactos de tu equipo favoritos para sumarlos.
+                          Se toma el tiempo de 90 minutos + tiempo adicionado +
+                          tiempo extra en caso que haya.
+                          <br />
+                          <br />
+                          <br />
+                          Si se suspende el partido de tu EQUIPO FAVORITO antes
+                          del inicio o durante por lluvia o cualquier motivo, se
+                          estara a la espera de que se juegue para sumar o no
+                          GOLES A FAVOR.
+                          <br />
+                          Sera valido el partido suspedido si se juega dentro o
+                          en la ultima fecha del torneo.
+                          <br />
+                          Si surgue otra situación del partido o torneo TFF
+                          decidira
                         </p>
 
                         {/* Botón para cerrar */}
@@ -1123,7 +1152,7 @@ const PronosticoEquipoFav = () => {
 
           <div className="flex flex-col md:flex-row justify-center gap-5 ">
             {/* Ranking x Fecha */}
-            <div className="lg:w-md md:w-1/2 p-4 w-full bg-black rounded-xl border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
+            <div className="lg:w-2xl md:w-1/2 p-4 w-full bg-black rounded-xl border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO CAMPEON
@@ -1144,12 +1173,12 @@ const PronosticoEquipoFav = () => {
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
                   {/* Contenido del modal */}
                   <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-                    <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                    <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                       Apaxionado Campeón con su Equipo Favorito
                     </h2>
                     <p className="text-gray-200 text-justify">
-                      Los APAXIONADOS que esten entre las primeras 11 posiciones
-                      conquistaran los ESCUDOS por definición de puntos con su
+                      Los APAXIONADOS entre las primeras 11 posiciones
+                      conquistaran los ESCUDOS por definición de PUNTOS con su
                       equipo favorito.
                       <br />
                       <br />• ESCUDO DE PLATINO lo conquistara el/los
@@ -1214,9 +1243,11 @@ const PronosticoEquipoFav = () => {
                           <th className="text-xl text-green-500 bg-black px-4 py-2">
                             Apaxionado
                           </th>
-                          <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
-                            Escudo
-                          </th>
+                          {isFechaFinal && (
+                            <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                              Escudo
+                            </th>
+                          )}
                           <th className="text-green-500 bg-black px-4 py-2">
                             Puntos
                           </th>
@@ -1245,59 +1276,62 @@ const PronosticoEquipoFav = () => {
                               const rankIndex = puntajesUnicos.indexOf(
                                 usuario.puntajeTotal || 0
                               );
-
-                              // Asignamos premios según el rango de puntaje
-                              if (rankIndex === 0) {
-                                // 🥇 Máximo puntaje (pueden ser varios usuarios)
-                                premio = (
-                                  <img
-                                    className="h-8 mx-auto"
-                                    src={Logo4}
-                                    alt="Botín Platino"
-                                  />
-                                );
-                              } else if (rankIndex >= 1 && rankIndex <= 5) {
-                                // 🥈 Segundo al sexto mejor puntaje
-                                premio = (
-                                  <img
-                                    className="h-8 mx-auto"
-                                    src={Logo2}
-                                    alt="Botín Oro"
-                                  />
-                                );
-                              } else if (rankIndex >= 6 && rankIndex <= 8) {
-                                // 🥉 Séptimo al noveno mejor puntaje
-                                premio = (
-                                  <img
-                                    className="h-8 mx-auto"
-                                    src={Logo}
-                                    alt="Botín TFF"
-                                  />
-                                );
-                              } else if (rankIndex >= 9 && rankIndex <= 10) {
-                                // 🎖️ Décimo al undécimo mejor puntaje
-                                premio = (
-                                  <img
-                                    className="h-8 mx-auto"
-                                    src={Logo3}
-                                    alt="Botín Bronce"
-                                  />
-                                );
+                              if (isFechaFinal) {
+                                // Asignamos premios según el rango de puntaje
+                                if (rankIndex === 0) {
+                                  // 🥇 Máximo puntaje (pueden ser varios usuarios)
+                                  premio = (
+                                    <img
+                                      className="h-8 mx-auto"
+                                      src={Logo4}
+                                      alt="Escudo Platino"
+                                    />
+                                  );
+                                } else if (rankIndex >= 1 && rankIndex <= 5) {
+                                  // 🥈 Segundo al sexto mejor puntaje
+                                  premio = (
+                                    <img
+                                      className="h-8 mx-auto"
+                                      src={Logo2}
+                                      alt="Escudo Oro"
+                                    />
+                                  );
+                                } else if (rankIndex >= 6 && rankIndex <= 8) {
+                                  // 🥉 Séptimo al noveno mejor puntaje
+                                  premio = (
+                                    <img
+                                      className="h-8 mx-auto"
+                                      src={Logo}
+                                      alt="Escudo TFF"
+                                    />
+                                  );
+                                } else if (rankIndex >= 9 && rankIndex <= 10) {
+                                  // 🎖️ Décimo al undécimo mejor puntaje
+                                  premio = (
+                                    <img
+                                      className="h-8 mx-auto"
+                                      src={Logo3}
+                                      alt="Escudo Bronce"
+                                    />
+                                  );
+                                } else {
+                                  // Otros jugadores del equipo campeón
+                                  premio = (
+                                    <span className="font-bold text-green-500">
+                                      CAMPEÓN
+                                    </span>
+                                  );
+                                }
                               } else {
-                                // Otros jugadores del equipo campeón
+                                // 🚫 Usuario sin equipo campeón
                                 premio = (
-                                  <span className="font-bold text-green-500">
-                                    CAMPEÓN
-                                  </span>
+                                  <span className="text-gray-400">-</span>
                                 );
                               }
                             } else {
-                              // 🚫 Usuario sin equipo campeón
+                              // ❌ No es la fecha 18 → no mostrar premio
                               premio = <span className="text-gray-400">-</span>;
                             }
-                          } else {
-                            // ❌ No es la fecha 18 → no mostrar premio
-                            premio = <span className="text-gray-400">-</span>;
                           }
 
                           return (
@@ -1318,16 +1352,18 @@ const PronosticoEquipoFav = () => {
                                         matches
                                       )}
                                       alt={usuario.equipoFavorito}
-                                      className="h-6 w-6 object-contain"
+                                      className="h-10 w-10 object-contain"
                                     />
                                   )}
                                 </div>
                               </td>
 
                               {/* Premio */}
-                              <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                                {premio}
-                              </td>
+                              {isFechaFinal && (
+                                <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                                  {premio}
+                                </td>
+                              )}
 
                               {/* Puntos */}
                               <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">
@@ -1374,7 +1410,7 @@ const PronosticoEquipoFav = () => {
             </div>
 
             {/* Ranking x Goles */}
-            <div className="lg:w-md md:w-1/2 p-4 bg-black rounded-xl border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
+            <div className="lg:w-2xl md:w-1/2 p-4 bg-black rounded-xl border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff]">
               <h2 className="text-white text-2xl font-bold mb-2 text-center">
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100">
                   APAXIONADO GOLEADOR
@@ -1394,12 +1430,12 @@ const PronosticoEquipoFav = () => {
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
                   {/* Contenido del modal */}
                   <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-                    <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                    <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                       Apaxionado Goleador con su Equipo Favorito
                     </h2>
                     <p className="text-gray-200 text-justify">
-                      Los APAXIONADOS que esten entre las primeras 11 posiciones
-                      conquistaran los EQUIPOS por definición de goles a favor
+                      Los APAXIONADOS entre las primeras 11 posiciones
+                      conquistaran los EQUIPOS por definición de GOLES A FAVOR
                       con su equipo favorito
                       <br />
                       <br />• EQUIPO DE PLATINO lo conquistara el/los
@@ -1463,9 +1499,12 @@ const PronosticoEquipoFav = () => {
                           <th className="text-xl text-green-500 bg-black px-4 py-2">
                             Apaxionado
                           </th>
-                          <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
-                            Equipo
-                          </th>
+
+                          {isFechaFinal && (
+                            <th className="text-transparent bg-clip-text text-xl bg-gradient-to-b from-gray-800 to-gray-100 px-4 py-2">
+                              Equipo
+                            </th>
+                          )}
                           <th className="text-green-500 bg-black px-4 py-2">
                             Goles
                           </th>
@@ -1497,57 +1536,61 @@ const PronosticoEquipoFav = () => {
                               );
 
                               // 🏆 Asignamos premios según el rango del puntaje
-                              if (rankIndex === 0) {
-                                // 🥇 Mejor puntaje → Botín Platino
-                                premio = (
-                                  <img
-                                    className="h-8 mx-auto"
-                                    src={Logo4}
-                                    alt="Botín Platino"
-                                  />
-                                );
-                              } else if (rankIndex >= 1 && rankIndex <= 5) {
-                                // 🥈 Segundo al sexto mejor puntaje → Botín Oro
-                                premio = (
-                                  <img
-                                    className="h-8 mx-auto"
-                                    src={Logo2}
-                                    alt="Botín Oro"
-                                  />
-                                );
-                              } else if (rankIndex >= 6 && rankIndex <= 8) {
-                                // 🥉 Séptimo al noveno → Botín TFF
-                                premio = (
-                                  <img
-                                    className="h-8 mx-auto"
-                                    src={Logo}
-                                    alt="Botín TFF"
-                                  />
-                                );
-                              } else if (rankIndex >= 9 && rankIndex <= 10) {
-                                // 🎖️ Décimo al undécimo → Botín Bronce
-                                premio = (
-                                  <img
-                                    className="h-8 mx-auto"
-                                    src={Logo3}
-                                    alt="Botín Bronce"
-                                  />
-                                );
+                              if (isFechaFinal) {
+                                if (rankIndex === 0) {
+                                  // 🥇 Mejor puntaje → Botín Platino
+                                  premio = (
+                                    <img
+                                      className="h-8 mx-auto"
+                                      src={Equipo}
+                                      alt="Botín Platino"
+                                    />
+                                  );
+                                } else if (rankIndex >= 1 && rankIndex <= 5) {
+                                  // 🥈 Segundo al sexto mejor puntaje → Botín Oro
+                                  premio = (
+                                    <img
+                                      className="h-8 mx-auto"
+                                      src={Equipo2}
+                                      alt="Botín Oro"
+                                    />
+                                  );
+                                } else if (rankIndex >= 6 && rankIndex <= 8) {
+                                  // 🥉 Séptimo al noveno → Botín TFF
+                                  premio = (
+                                    <img
+                                      className="h-8 mx-auto"
+                                      src={Equipo3}
+                                      alt="Botín TFF"
+                                    />
+                                  );
+                                } else if (rankIndex >= 9 && rankIndex <= 10) {
+                                  // 🎖️ Décimo al undécimo → Botín Bronce
+                                  premio = (
+                                    <img
+                                      className="h-8 mx-auto"
+                                      src={Equipo4}
+                                      alt="Botín Bronce"
+                                    />
+                                  );
+                                } else {
+                                  // 🟢 Otros del equipo campeón → texto “GOLEADOR”
+                                  premio = (
+                                    <span className="font-bold text-green-500">
+                                      GOLEADOR
+                                    </span>
+                                  );
+                                }
                               } else {
-                                // 🟢 Otros del equipo campeón → texto “GOLEADOR”
+                                // 🚫 Usuario sin equipo campeón
                                 premio = (
-                                  <span className="font-bold text-green-500">
-                                    GOLEADOR
-                                  </span>
+                                  <span className="text-gray-400">-</span>
                                 );
                               }
                             } else {
-                              // 🚫 Usuario sin equipo campeón
+                              // ❌ No es la fecha 18 → sin premio
                               premio = <span className="text-gray-400">-</span>;
                             }
-                          } else {
-                            // ❌ No es la fecha 18 → sin premio
-                            premio = <span className="text-gray-400">-</span>;
                           }
 
                           return (
@@ -1568,16 +1611,18 @@ const PronosticoEquipoFav = () => {
                                         matches
                                       )}
                                       alt={usuario.equipoFavoritoGoleador}
-                                      className="h-6 w-6 object-contain"
+                                      className="h-10 w-10 object-contain"
                                     />
                                   )}
                                 </div>
                               </td>
 
                               {/* Premio */}
-                              <td className="text-black text-center font-bold px-4 py-2 bg-white">
-                                {premio}
-                              </td>
+                              {isFechaFinal && (
+                                <td className="text-black text-center font-bold px-4 py-2 bg-white">
+                                  {premio}
+                                </td>
+                              )}
 
                               {/* Goles Totales */}
                               <td className="text-center text-black px-4 py-2 bg-sky-500 font-bold">

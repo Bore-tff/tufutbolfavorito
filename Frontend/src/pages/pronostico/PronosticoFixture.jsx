@@ -3,7 +3,7 @@ import usePronosticoStore from "../../store/pronosticosStore";
 import useUserStore from "../../store/usersStore";
 
 import Logo from "../../assets/Botintff.png";
-import Logo2 from "../../assets/botinoro.png";
+import Logo2 from "../../assets/brazaletepro2.png";
 import Logo3 from "../../assets/botinbronce.png";
 import Logo4 from "../../assets/botinplatino.jpg";
 import Logo5 from "../../assets/3.png";
@@ -203,7 +203,6 @@ const PronosticoComponent = () => {
 
   const equipoCampeon = getEquipoCampeon(partidosFechaFinal);
 
-  console.log(paginatedRanking);
   return (
     <>
       <ElegirEquipo />
@@ -216,9 +215,6 @@ const PronosticoComponent = () => {
           <div className="text-center text-white font-bold bg-black p-2 rounded">
             {mensaje}
           </div>
-        )}
-        {successMessage && (
-          <p className="text-green-400 text-center">{successMessage}</p>
         )}
 
         {/* Resultados comparación */}
@@ -266,27 +262,36 @@ const PronosticoComponent = () => {
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
                 {/* Contenido del modal */}
                 <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-                  <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                  <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                     Fixture
                   </h2>
                   <p className="text-gray-200 text-justify">
                     Los APAXIONADOS pronostican los partidos HASTA 30 MINUTOS
-                    ANTES del comienzo de cada fecha para sumar puntos y goles.
-                    <br />
-                    <br />• Si acierta ganador su equipo favorito de visitante
-                    obtiene 3 puntos
-                    <br />• Si acierta ganador su equipo favorito de local
-                    obtiene 2 puntos.
-                    <br />• Si acierta empate de su equipo favorito obtine 1
-                    punto.
+                    ANTES del comienzo del 1er partido de cada fecha para sumar
+                    PUNTOS y GOLES.
                     <br />
                     <br />
-                    Recordá que los pronósticos deben hacerse HASTA 30 MINUTOS
-                    ANTES de cada fecha. Se toma el tiempo de 90 minutos +
-                    tiempo adicionado + tiempo extra en caso que haya. Son
-                    validos los goles desde el punto de penal para definir una
-                    fase, se deben acertar los goles exactos de los equipos para
-                    sumarlos como puntos.
+                    Se toma el tiempo de 90 minutos + tiempo adicionado + tiempo
+                    extra en caso que haya.
+                    <br />
+                    <br />
+                    Son validos los goles desde el punto de penal para definir
+                    una fase.
+                    <br />
+                    <br />
+                    Si se suspende un partido de la fecha antes del inicio o
+                    durante por lluvia o cualquier motivo, será nulo para la
+                    fehca en juego.
+                    <br />
+                    <br />
+                    Si será valido el partido suspendido para sumar GOLES o
+                    PUNTOS en APAXIONADO GOLEADOR DE LA COPA, APAXIONADO CAMPEÓN
+                    DE LA COPA y RANKING GENERAL DE LA COPA.
+                    <br />
+                    <br />
+                    Si se juega dentro o en la ultima fecha del torneo.
+                    <br />
+                    Si surgue otra situación del partido o torneo TFF decidirá.
                   </p>
 
                   {/* Botón para cerrar */}
@@ -342,13 +347,23 @@ const PronosticoComponent = () => {
                           {date}
                         </td>
                         <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
-                          <div className="flex items-center justify-end gap-2 pr-1 pl-1">
-                            <span>{home.name}</span>
-                            <img
-                              className="h-8"
-                              src={home.logo}
-                              alt="Logo local"
-                            />
+                          <div className="flex items-center w-full px-1">
+                            {/* Apodo a la izquierda */}
+                            <span className="flex-1 text-left font-semibold truncate">
+                              {home.apodo}
+                            </span>
+
+                            {/* Logo + sigla juntos a la derecha */}
+                            <div className="flex items-center gap-1">
+                              <img
+                                className="h-7 w-7 shrink-0"
+                                src={home.logo}
+                                alt="Logo local"
+                              />
+                              <span className="font-extrabold uppercase text-sm">
+                                {home.name}
+                              </span>
+                            </div>
                           </div>
                         </td>
                         <td className="border-2 bg-sky-500 border-gray-900">
@@ -376,13 +391,23 @@ const PronosticoComponent = () => {
                           />
                         </td>
                         <td className="border-2 border-gray-900 bg-white text-gray-900 font-bold">
-                          <div className="flex items-center justify-start gap-2 pr-1 pl-1">
-                            <img
-                              className="h-8"
-                              src={away.logo}
-                              alt="Logo visitante"
-                            />
-                            <span>{away.name}</span>
+                          <div className="flex items-center w-full px-1">
+                            {/* Logo + sigla juntos a la izquierda */}
+                            <div className="flex items-center gap-1">
+                              <span className="font-extrabold uppercase text-sm">
+                                {away.name}
+                              </span>
+                              <img
+                                className="h-7 w-7 shrink-0"
+                                src={away.logo}
+                                alt="Logo visitante"
+                              />
+                            </div>
+
+                            {/* Nombre a la derecha */}
+                            <span className="flex-1 text-right font-semibold truncate">
+                              {away.apodo}
+                            </span>
                           </div>
                         </td>
                       </tr>
@@ -401,12 +426,15 @@ const PronosticoComponent = () => {
                       predictions[id]?.home === predictions[id]?.away
                   ) && (
                     <div className="mt-4 p-4 bg-gray-700 rounded-lg">
-                      <h3 className="text-lg font-bold mb-2 text-white">
-                        Penales
+                      <h3 className="text-lg font-bold mb-2 text-green-500">
+                        PENALES
                       </h3>
                       <p className="text-white mb-3">
-                        Ingresá los resultados de penales solo si el partido
-                        terminó empatado.
+                        Ingresá el pronostico de los penales de ambos de los
+                        equipos antes del inicio de la fecha del partido que
+                        consideres que va a ser empate.
+                        <br />
+                        8vos 4tos semifinal final
                       </p>
 
                       {currentFecha.partidos.map(({ id, home, away }) => {
@@ -560,17 +588,25 @@ const PronosticoComponent = () => {
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
                 {/* Contenido del modal */}
                 <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-                  <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                  <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                     Puntos
                   </h2>
                   <p className="text-gray-200 text-justify">
+                    Es la suma obtenida de PUNTOS en el total de partidos por
+                    fechas.
+                    <br />
                     BRAZALETE TFF lo conquistara el/los APAXIONADO/S entre las
-                    primeras 8 posiciones por definición de puntos por fecha
+                    primeras 8 posiciones por definición de PUNTOS por fecha
                     <br />
-                    <br />• Si aciertas ganador de visitante sumas 3 puntos
-                    <br />• Si acierta ganador de local sumas 2 puntos.
-                    <br />• Si acierta empate entre ambos equipos sumas 1 punto.
+                    <br />• Si aciertas equipo ganador de visitante sumas 3
+                    PUNTOS.
+                    <br />• Si aciertas equipo ganador de local sumas 2 PUNTOS.
+                    <br />• Si aciertas empate entre ambos equipos sumas 1
+                    PUNTO.
                     <br />
+                    <br />
+                    Se deben acertar los GOLES EXACTOS en la serie de penales de
+                    ambos equipos para sumarlos como PUNTOS.
                     <br />
                   </p>
 
@@ -740,15 +776,24 @@ const PronosticoComponent = () => {
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
                 {/* Contenido del modal */}
                 <div className="bg-gray-900 text-white rounded-xl p-6 max-w-lg w-11/12 shadow-2xl border border-green-500">
-                  <h2 className="text-2xl font-bold mb-4 text-green-400 text-center">
+                  <h2 className="text-2xl font-bold mb-4 text-green-500 text-center">
                     Goles
                   </h2>
                   <p className="text-gray-200 text-justify">
-                    BRAZALETE TFF lo conquistara el/los APAXIONADO/S entre las
-                    primeras 8 posiciones por definición de goles a favor por
-                    fecha. El APAXIONADO suma goles a favor cuando acierta los
-                    goles exactos de cada equipo
+                    Es la suma obtenida de GOLES A FAVOR en el total de partidos
+                    por fecha
                     <br />
+                    BRAZALETE TFF lo conquistara el/los APAXIONADO/S entre las
+                    primeras 8 posiciones por definición de GOLES A FAVOR por
+                    fecha.
+                    <br />
+                    <br />
+                    Sumas GOLES A FAVOR cuando aciertas los goles exactos de
+                    cada equipo
+                    <br />
+                    <br />
+                    Se deben acertar los GOLES EXACTOS en la serie de penales de
+                    ambos equipos para sumarlos como GOLES A FAVOR.
                     <br />
                     <br />
                   </p>

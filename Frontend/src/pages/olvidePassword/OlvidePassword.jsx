@@ -71,9 +71,9 @@ const OlvidePassword = () => {
             </button>
           </form>
           <p className="text-sm text-center text-white mt-4">
-            Volve a{" "}
+            Ir a{" "}
             <Link to="/login" className="text-green-500 hover:underline">
-              Inicia Sesión
+              Iniciar Sesión
             </Link>
           </p>
         </div>

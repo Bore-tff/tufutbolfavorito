@@ -39,7 +39,7 @@ function Registro() {
     <>
       <div className="mt-24 ">
         <h2 className="text-4xl text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100 font-bold text-center mb-20">
-          Bienvenido a TFF
+          BIENVENIDO A TFF
         </h2>
         <div className="max-w-sm bg-black border-2 border-green-500 shadow-[0_0_10px_#22c55e,0_0_20px_#ffffff] text-green-600 mx-auto p-4  rounded-lg">
           <h2 className="text-xl text-transparent bg-clip-text bg-gradient-to-b from-gray-800 to-gray-100 font-bold text-center mb-2">
