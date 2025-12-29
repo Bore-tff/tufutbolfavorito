@@ -182,3 +182,13 @@ export const recalcularPuntajesFavoritos = async () => {
     console.error("Error al recalcular puntajes favoritos:", error);
   }
 };
+
+export const actualizarPuntajesPendientes = async (req, res) => {
+  try {
+    await recalcularPuntajesFavoritos();
+    res.status(200).json({ message: "Puntajes actualizados correctamente" });
+  } catch (error) {
+    console.error("Error al actualizar puntajes:", error);
+    res.status(500).json({ message: "Error al actualizar puntajes", error: error.message });
+  }
+};

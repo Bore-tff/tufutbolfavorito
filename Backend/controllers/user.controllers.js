@@ -240,8 +240,6 @@ export const obtenerUsuariosConPuntaje = async () => {
   raw: true,
 });
 
-console.log(usuarios);
-
 return usuarios.map(usuario => ({
   id: usuario.id,
   user: usuario.user,

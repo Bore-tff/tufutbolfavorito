@@ -41,110 +41,178 @@ export const guardarPronosticos = async (req, res) => {
     const { pronosticos } = req.body;
     const userId = req.user.id;
 
+    // 🛑 Validaciones básicas
     if (!Array.isArray(pronosticos) || pronosticos.length === 0) {
-      return res.status(400).json({ message: "Se requiere al menos un pronóstico" });
+      return res.status(400).json({ message: "Debes enviar pronósticos" });
     }
 
-    // Traer partidos desde API externa
+    if (pronosticos.length !== 15) {
+      return res.status(400).json({
+        message: "Debes completar los 15 partidos de la fecha",
+      });
+    }
+
+    // 🔗 Traer partidos reales desde la API
     const response = await axios.get(
       "https://67e7322b6530dbd31112a6a5.mockapi.io/api/matches/predictions"
     );
 
+    // Flatten: [{...partido, fecha}]
     const partidos = response.data.flatMap(f =>
-      f.partidos.map(p => ({ ...p, fecha: f.fecha }))
+      f.partidos.map(p => ({
+        ...p,
+        fecha: f.fecha,
+      }))
     );
 
-    const nuevosPronosticos = [];
+    const resultados = [];
 
+    // 🔁 Procesar cada pronóstico
     for (const p of pronosticos) {
-      const { matchId, homeScore, awayScore, penalesHome, penalesAway } = p;
-      if (matchId === undefined || homeScore === undefined || awayScore === undefined) continue;
+      const {
+        matchId,
+        homeScore,
+        awayScore,
+        penalesHome,
+        penalesAway,
+      } = p;
+
+      if (
+        matchId == null ||
+        homeScore == null ||
+        awayScore == null
+      ) continue;
 
       const partido = partidos.find(m => m.id === matchId);
-      if (!partido || partido.fecha == null) continue;
+      if (!partido) continue;
+
+      const fecha = partido.fecha;
+      const fase = partido.fase ?? null;
 
       let puntos = null;
-      let golesAcertados = null;
+      let golesAcertados = 0;
 
-      // Tiene resultado real?
+      // 🧠 Resultado real
+      const realHome = partido.score?.home;
+      const realAway = partido.score?.away;
+
       const tieneResultado =
-        typeof partido.homeScore === "number" &&
-        typeof partido.awayScore === "number";
+        typeof realHome === "number" &&
+        typeof realAway === "number";
 
       if (tieneResultado) {
-        // Resultado real
-        const resultadoReal =
-          partido.homeScore > partido.awayScore
-            ? "LOCAL"
-            : partido.homeScore < partido.awayScore
-            ? "VISITANTE"
-            : "EMPATE";
+  const resultadoReal =
+    realHome > realAway
+      ? "LOCAL"
+      : realHome < realAway
+      ? "VISITANTE"
+      : "EMPATE";
 
-        // Resultado pronosticado
-        const resultadoPronosticado =
-          homeScore > awayScore
-            ? "LOCAL"
-            : homeScore < awayScore
-            ? "VISITANTE"
-            : "EMPATE";
+  const resultadoPronosticado =
+    homeScore > awayScore
+      ? "LOCAL"
+      : homeScore < awayScore
+      ? "VISITANTE"
+      : "EMPATE";
 
-        // ⭐ Lógica base de puntos (tu regla general)
-        puntos = resultadoReal === resultadoPronosticado ? 1 : 0;
+  // 🏆 PUNTOS POR RESULTADO
+  puntos = 0;
 
-        // ⭐ Goles acertados
-        let countGolesAcertados = 0;
-        if (homeScore === partido.homeScore) countGolesAcertados++;
-        if (awayScore === partido.awayScore) countGolesAcertados++;
-        golesAcertados = countGolesAcertados;
+  if (resultadoReal === resultadoPronosticado) {
+    if (resultadoReal === "LOCAL") puntos = 2;
+    else if (resultadoReal === "VISITANTE") puntos = 3;
+    else if (resultadoReal === "EMPATE") puntos = 1;
+  }
 
-        puntos += golesAcertados;
+  // ⚽ GOLES EXACTOS (se suman)
+  golesAcertados = 0;
 
-        // ⚽ Lógica extra: fases eliminatorias con penales
-        const esFaseEliminatoria =
-          ["Octavos", "Cuartos", "Semis", "Final"].includes(partido.fase);
+  if (homeScore === realHome) {
+    golesAcertados += realHome; // suma los goles reales
+  }
 
-        if (esFaseEliminatoria && resultadoReal === "EMPATE" && resultadoPronosticado === "EMPATE") {
-          // Si el real tiene penales cargados
-          if (
-            typeof partido.penalesHome === "number" &&
-            typeof partido.penalesAway === "number"
-          ) {
-            const ganadorReal = partido.penalesHome > partido.penalesAway ? "LOCAL" : "VISITANTE";
-            const ganadorPronosticado =
-              penalesHome > penalesAway ? "LOCAL" : "VISITANTE";
+  if (awayScore === realAway) {
+    golesAcertados += realAway;
+  }
 
-            // 1 punto base por acertar empate (se suma)
-            puntos += 1;
+  //puntos += golesAcertados;
 
-            // 4 puntos si acierta penales exactos
-            if (penalesHome === partido.penalesHome && penalesAway === partido.penalesAway) {
-              puntos += 4;
-            }
-          }
-        }
+        // ⚽ Eliminatorias con penales
+        //const esEliminatoria = ["Octavos", "Cuartos", "Semis", "Final"].includes(fase);
+
+        //if (
+          //esEliminatoria &&
+          //resultadoReal === "EMPATE" &&
+          //resultadoPronosticado === "EMPATE" &&
+          //typeof partido.penalesHome === "number" &&
+          //typeof partido.penalesAway === "number"
+        //) {
+          //const ganadorReal =
+            //partido.penalesHome > partido.penalesAway ? "LOCAL" : "VISITANTE";
+          //const ganadorPronosticado =
+            //penalesHome > penalesAway ? "LOCAL" : "VISITANTE";
+
+          // 1 punto extra por acertar empate
+          //puntos += 1;
+
+          // 4 puntos por penales exactos
+          //if (
+            //penalesHome === partido.penalesHome &&
+            //penalesAway === partido.penalesAway
+          //) {
+            //puntos += 4;
+          //}
+
+          // (opcional) punto por ganador por penales
+          //if (ganadorReal === ganadorPronosticado) {
+            //puntos += 1;
+          //}
+        //}
       }
 
-      // Crear pronóstico
-      const nuevoPronostico = await Pronostico.upsert({
-  userId,
-  matchId,
-  homeScore,
-  awayScore,
-  penalesHome: penalesHome ?? null,
-  penalesAway: penalesAway ?? null,
-  puntos,
-  golesAcertados,
-  fecha: partido.fecha,
-  fase: partido.fase,
-});
+      // 💾 Guardar (findOrCreate + update)
+      const [registro, created] = await Pronostico.findOrCreate({
+        where: { userId, matchId },
+        defaults: {
+          homeScore,
+          awayScore,
+          penalesHome: penalesHome ?? null,
+          penalesAway: penalesAway ?? null,
+          puntos,
+          golesAcertados,
+          fecha,
+          fase,
+        },
+      });
 
-      nuevosPronosticos.push(nuevoPronostico.get({ plain: true }));
+      if (!created) {
+        await registro.update({
+          homeScore,
+          awayScore,
+          penalesHome: penalesHome ?? null,
+          penalesAway: penalesAway ?? null,
+          puntos,
+          golesAcertados,
+          fecha,
+          fase,
+        });
+      }
+
+      resultados.push(registro);
     }
 
-    res.status(201).json(nuevosPronosticos);
+    return res.status(201).json({
+      message: "Pronósticos guardados correctamente",
+      total: resultados.length,
+      resultados,
+    });
+
   } catch (error) {
-    console.error("Error al guardar los pronósticos:", error);
-    res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    console.error("Error al guardar pronósticos:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
   }
 };
 
